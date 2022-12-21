@@ -1,0 +1,9 @@
+name: chatgpt
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - openai=0.25.*
+  - pip
+  - pytest=7.*
+  - python=3.10.*
