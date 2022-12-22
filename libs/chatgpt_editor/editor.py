@@ -20,6 +20,31 @@ class ManuscriptEditor:
     def line_is_not_part_of_paragraph(line: str) -> bool:
         return line.startswith("#") or line.startswith("<!--") or line.strip() == ""
 
+    def revise_and_write_paragraph(
+        self,
+        paragraph: list[str],
+        section_name: str,
+        revision_model: ManuscriptRevisionModel,
+        outfile,
+    ):
+        """
+        Revises and writes a paragraph to the output file.
+
+        Arguments:
+            paragraph: list of lines of the paragraph.
+            section_name: name of the section the paragraph belongs to.
+            revision_model: model to use for revision.
+            outfile: file object to write the revised paragraph to.
+        """
+        # Process the paragraph and write it to the output file
+        paragraph_text = "".join(paragraph)
+
+        paragraph_revised = revision_model.revise_paragraph(
+            paragraph_text, section_name
+        )
+
+        outfile.write(paragraph_revised)
+
     def revise_file(
         self,
         input_filename: str,
@@ -59,39 +84,34 @@ class ManuscriptEditor:
         with open(input_filepath, "r") as infile, open(output_filepath, "w") as outfile:
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
+
             for line in infile:
-                # If the line is a comment or a section name, write it directly to the output file
+                # if the line is a comment or a section name, write it directly
+                # to the output file
                 if self.line_is_not_part_of_paragraph(line) and len(paragraph) == 0:
                     outfile.write(line)
+
                 # If the line is blank, it indicates the end of a paragraph
                 elif line.strip() == "":
-                    # TODO: factor out the code below
-                    # Process the paragraph and write it to the output file
-                    paragraph_text = " ".join(paragraph)
-                    paragraph_revised = revision_model.revise_paragraph(
-                        paragraph_text, section_name
+                    # revise and write paragraph to output file
+                    self.revise_and_write_paragraph(
+                        paragraph, section_name, revision_model, outfile
                     )
-                    # TODO: detect whether one-line-per-sentence is used and add newlines accordingly
-                    paragraph_revised = self.sentence_end_pattern.sub(
-                        ".\n", paragraph_revised
-                    )
-                    outfile.write(paragraph_revised)
-                    # Clear the paragraph list
+
+                    # and also the current line, which is the end of the
+                    # paragraph
+                    outfile.write(line)
+
+                    # clear the paragraph list
                     paragraph = []
+
                 # Otherwise, add the line to the paragraph list
                 else:
                     paragraph.append(line)
 
-            # If there's any remaining paragraph, process and write it to the output file
+            # If there's any remaining paragraph, process and write it to the
+            # output file
             if paragraph:
-                # TODO: factor out the code below
-                # Process the paragraph and write it to the output file
-                paragraph_text = " ".join(paragraph)
-                paragraph_revised = revision_model.revise_paragraph(
-                    paragraph_text, section_name
+                self.revise_and_write_paragraph(
+                    paragraph, section_name, revision_model, outfile
                 )
-                # TODO: detect whether one-line-per-sentence is used and add newlines accordingly
-                paragraph_revised = self.sentence_end_pattern.sub(
-                    ".\n", paragraph_revised
-                )
-                outfile.write(paragraph_revised)
