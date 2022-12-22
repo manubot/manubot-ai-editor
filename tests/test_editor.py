@@ -54,12 +54,20 @@ def _check_nonparagraph_lines_are_preserved(input_filepath, output_filepath):
     ), f"Non-paragraph lines are not the same: {output_nonpar_lines}"
 
 
-def test_revise_abstract(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_abstract(tmp_path, model):
     me = ManuscriptEditor(
         content_dir=MANUSCRIPTS_DIR / "ccc",
     )
 
-    model = DummyManuscriptRevisionModel()
+    model.title = me.title
+    model.keywords = me.keywords
 
     me.revise_file("01.abstract.md", tmp_path, model)
 
@@ -69,69 +77,20 @@ def test_revise_abstract(tmp_path):
     )
 
 
-def test_revise_abstract_paragraph_lines_do_not_start_with_space(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_introduction(tmp_path, model):
     me = ManuscriptEditor(
         content_dir=MANUSCRIPTS_DIR / "ccc",
     )
 
-    model = DummyManuscriptRevisionModel()
-
-    me.revise_file("01.abstract.md", tmp_path, model)
-
-    filepath = tmp_path / "01.abstract.md"
-    assert filepath.exists()
-    with open(filepath, "r") as infile:
-        output_par_lines = [
-            line.rstrip()
-            for line in infile
-            if not ManuscriptEditor.line_is_not_part_of_paragraph(line)
-        ]
-
-    assert all([not line.startswith(" ") for line in output_par_lines])
-
-
-def test_revise_abstract_using_completion_model(tmp_path):
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    me.revise_file("01.abstract.md", tmp_path, model)
-
-    _check_nonparagraph_lines_are_preserved(
-        input_filepath=MANUSCRIPTS_DIR / "ccc" / "01.abstract.md",
-        output_filepath=tmp_path / "01.abstract.md",
-    )
-
-
-def test_revise_introduction(tmp_path):
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = DummyManuscriptRevisionModel()
-
-    me.revise_file("02.introduction.md", tmp_path, model)
-
-    _check_nonparagraph_lines_are_preserved(
-        input_filepath=MANUSCRIPTS_DIR / "ccc" / "02.introduction.md",
-        output_filepath=tmp_path / "02.introduction.md",
-    )
-
-
-def test_revise_introduction_using_completion_model(tmp_path):
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
+    model.title = me.title
+    model.keywords = me.keywords
 
     me.revise_file("02.introduction.md", tmp_path, model)
 
@@ -156,12 +115,20 @@ def test_get_section_from_filename():
     assert me.get_section_from_filename("08.supplementary.md") is None
 
 
-def test_revise_results_with_header_only(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_results_with_header_only(tmp_path, model):
     me = ManuscriptEditor(
         content_dir=MANUSCRIPTS_DIR / "ccc",
     )
 
-    model = DummyManuscriptRevisionModel()
+    model.title = me.title
+    model.keywords = me.keywords
 
     me.revise_file("04.00.results.md", tmp_path, model)
 
@@ -175,7 +142,7 @@ def test_revise_results_with_header_only(tmp_path):
     "model",
     [
         DummyManuscriptRevisionModel(),
-        # GPT3CompletionModel("Set title", ["no_keyword1", "no_keyword2"]),
+        # GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_results_intro_with_figure(tmp_path, model):
@@ -196,7 +163,8 @@ def test_revise_results_intro_with_figure(tmp_path, model):
     )
 
     # make sure the "image paragraph" was exactly copied to the output file
-    assert """
+    assert (
+        """
 ![
 **Different types of relationships in data.**
 Each panel contains a set of simulated data points described by two generic variables: $x$ and $y$.
@@ -205,5 +173,7 @@ The second row contains a set of general patterns with 100 data points each.
 Each panel shows the correlation value using Pearson ($p$), Spearman ($s$) and CCC ($c$).
 Vertical and horizontal red lines show how CCC clustered data points using $x$ and $y$.
 ](images/intro/relationships.svg "Different types of relationships in data"){#fig:datasets_rel width="100%"}
-    """.strip() in open(tmp_path / "04.05.results_intro.md").read()
+    """.strip()
+        in open(tmp_path / "04.05.results_intro.md").read()
+    )
 
