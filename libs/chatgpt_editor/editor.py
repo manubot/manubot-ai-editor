@@ -37,7 +37,7 @@ class ManuscriptEditor:
             outfile: file object to write the revised paragraph to.
         """
         # Process the paragraph and revise it with model
-        paragraph_text = "".join(paragraph)
+        paragraph_text = " ".join(paragraph)
         paragraph_revised = revision_model.revise_paragraph(
             paragraph_text, section_name
         )
@@ -126,7 +126,7 @@ class ManuscriptEditor:
 
                 # Otherwise, add the line to the paragraph list
                 else:
-                    paragraph.append(line)
+                    paragraph.append(line.strip())
 
             # If there's any remaining paragraph, process and write it to the
             # output file
