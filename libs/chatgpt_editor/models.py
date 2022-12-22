@@ -70,7 +70,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         title: str,
         keywords: list[str],
         model_engine: str = "text-davinci-003",
-        temperature: float = 0.9,
+        temperature: float = 0.5,
     ):
         super().__init__()
 
@@ -87,32 +87,35 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     def get_prompt(self, paragraph_text, section_name):
         if section_name in ("abstract",):
             prompt = f"""
-                Revise this {section_name} of an academic paper with title '{self.title}'
-                and keywords '{", ".join(self.keywords)}' to make sure the writing
-                is easy to read, it is in active voice, and the take-home message
-                is clear:
+                Revise the following {section_name} of an academic paper with title
+                '{self.title}' and keywords '{", ".join(self.keywords)}', which
+                is written in Markdown. Make sure the paragraph is easy to read,
+                it is in active voice, and the take-home message is clear:
             """
         elif section_name in ("introduction",):
             prompt = f"""
-                Revise the following paragraph of the {section_name} section of an academic paper with title '{self.title}'
-                and keywords '{", ".join(self.keywords)}'. Make sure the writing
-                is easy to read, it is in active voice, it has a clear and easy-to-read
-                sentence structure, and it minimizes the use of jargon. The text between brackets
-                are citations to other scientific articles:
+                Revise the following paragraph of the {section_name} section of an
+                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
+                which is written in Markdown. Make sure the paragraph is easy to read,
+                it is in active voice, it has a clear and easy-to-read sentence structure,
+                and it minimizes the use of jargon. Citations to other scientific articles
+                are between square brackets and start with @doi, @pmid, etc., and should be kept:
             """
         elif section_name in ("results",):
             prompt = f"""
-                Revise the following paragraph of the {section_name} section of an academic paper with title '{self.title}'
-                and keywords '{", ".join(self.keywords)}'. Make sure it starts with a topic sentence, it has a clear and easy-to-read
-                sentence structure, and it minimizes the use of jargon. The text between brackets
-                are citations to other scientific articles:
+                Revise the following paragraph of the {section_name} section of an
+                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
+                which is written in Markdown. Make sure the paragraph starts with a topic sentence,
+                it has a clear and easy-to-read sentence structure, and it minimizes
+                the use of jargon. Citations to other scientific articles
+                are between square brackets and start with @doi, @pmid, etc., and should be kept:
             """
         else:
             raise ValueError(f"Section '{section_name}' not supported")
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        return f"{prompt}\n\n{paragraph_text}"
+        return f"{prompt}\n\n{paragraph_text.strip()}"
 
     def revise_paragraph(self, paragraph_text, section_name):
         """
