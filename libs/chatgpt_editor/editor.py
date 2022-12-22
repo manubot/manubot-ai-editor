@@ -16,6 +16,10 @@ class ManuscriptEditor:
 
         self.sentence_end_pattern = re.compile(r"\. ")
 
+    @staticmethod
+    def line_is_not_part_of_paragraph(line: str) -> bool:
+        return line.startswith("#") or line.startswith("<!--") or line.strip() == ""
+
     def revise_file(
         self,
         input_filename: str,
@@ -57,11 +61,7 @@ class ManuscriptEditor:
             paragraph = []
             for line in infile:
                 # If the line is a comment or a section name, write it directly to the output file
-                if (
-                    line.startswith("#")
-                    or line.startswith("<!--")
-                    or (line.strip() == "" and len(paragraph) == 0)
-                ):
+                if self.line_is_not_part_of_paragraph(line) and len(paragraph) == 0:
                     outfile.write(line)
                 # If the line is blank, it indicates the end of a paragraph
                 elif line.strip() == "":

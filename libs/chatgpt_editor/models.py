@@ -37,6 +37,21 @@ class ManuscriptRevisionModel(ABC):
         raise NotImplemented
 
 
+class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
+    """
+    This model does nothing, just returns the same paragraph text.
+    """
+
+    def __init__(self):
+        pass
+
+    def revise_paragraph(self, paragraph_text, section_name):
+        return paragraph_text
+
+    def get_prompt(self, paragraph_text, section_name):
+        return paragraph_text
+
+
 class GPT3CompletionModel(ManuscriptRevisionModel):
     """
     Revises a paragraphs using GPT-3 completion model.
@@ -111,4 +126,4 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             temperature=self.model_parameters["temperature"],
         )
         message = completions.choices[0].text
-        return message
+        return message.strip()
