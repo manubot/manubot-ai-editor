@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from chatgpt_editor.models import ManuscriptRevisionModel
-from chatgpt_editor.utils import get_yaml_field
+from chatgpt_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
 
 
 class ManuscriptEditor:
@@ -14,19 +14,17 @@ class ManuscriptEditor:
         self.title = get_yaml_field(metadata_file, "title")
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
-        self.sentence_end_pattern = re.compile(r"\. ")
-
     @staticmethod
     def line_is_not_part_of_paragraph(line: str) -> bool:
         return line.startswith(("#", "<!--")) or line.strip() == ""
 
+    @staticmethod
     def revise_and_write_paragraph(
-        self,
         paragraph: list[str],
         section_name: str,
         revision_model: ManuscriptRevisionModel,
-        outfile,
-    ):
+        outfile=None,
+    ) -> None | tuple[str]:
         """
         Revises and writes a paragraph to the output file.
 
@@ -35,6 +33,10 @@ class ManuscriptEditor:
             section_name: name of the section the paragraph belongs to.
             revision_model: model to use for revision.
             outfile: file object to write the revised paragraph to.
+
+        Returns:
+            None if outfile is specified. Otherwise, it returns a tuple with
+            the submitted paragraph and the revised paragraph.
         """
         # Process the paragraph and revise it with model
         paragraph_text = " ".join(paragraph)
@@ -43,11 +45,13 @@ class ManuscriptEditor:
         )
 
         # put sentences into new lines
-        paragraph_revised = self.sentence_end_pattern.sub(
-            ".\n", paragraph_revised
-        )
+        paragraph_revised = SENTENCE_END_PATTERN.sub(".\n", paragraph_revised)
+        paragraph_revised = paragraph_revised
 
-        outfile.write(paragraph_revised + "\n")
+        if outfile is not None:
+            outfile.write(paragraph_revised + "\n")
+        else:
+            return paragraph_text, paragraph_revised
 
     def get_section_from_filename(self, filename: str) -> str:
         """
