@@ -118,9 +118,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return f"{prompt}\n{paragraph_text.strip()}"
 
-    def revise_paragraph(self, paragraph_text, section_name):
+    def revise_paragraph(self, paragraph_text, section_name, throw_error=False):
         """
-        TODO: add docstring
+        It revises a paragraph using GPT-3 completion model.
+
+        Arguments:
+            paragraph_text (str): Paragraph text to revise.
+            section_name (str): Section name of the paragraph.
+            throw_error (bool): If True, it throws an error if the API call fails.
+                If False, it returns the original paragraph text.
+
+        Returns:
+            Revised paragraph text.
 
         TODO:
           - Add reduction_fraction, between 0 and 1, which multiplies the paragraph
@@ -132,13 +141,20 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         paragraph_length = len(paragraph_text)
         prompt = self.get_prompt(paragraph_text, section_name)
 
-        completions = openai.Completion.create(
-            engine=self.model_parameters["engine"],
-            prompt=prompt,
-            max_tokens=paragraph_length,
-            n=1,
-            stop=None,
-            temperature=self.model_parameters["temperature"],
-        )
+        try:
+            completions = openai.Completion.create(
+                engine=self.model_parameters["engine"],
+                prompt=prompt,
+                max_tokens=paragraph_length,
+                n=1,
+                stop=None,
+                temperature=self.model_parameters["temperature"],
+            )
+        except openai.error.InvalidRequestError as e:
+            if throw_error:
+                raise e
+            else:
+                return paragraph_text
+
         message = completions.choices[0].text
         return message.strip()
