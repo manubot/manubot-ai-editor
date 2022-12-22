@@ -142,7 +142,7 @@ def test_revise_results_with_header_only(tmp_path, model):
     "model",
     [
         DummyManuscriptRevisionModel(),
-        # GPT3CompletionModel(None, None),
+        GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_results_intro_with_figure(tmp_path, model):
