@@ -91,7 +91,6 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
-    assert len(paragraph_revised) < len(paragraph_text)
 
 
 def test_revise_introduction_paragraph():
@@ -118,7 +117,6 @@ Thus, even minor and significant improvements in these techniques could have eno
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
-    assert len(paragraph_revised) < len(paragraph_text)
 
     # make sure manubot references were kept
     assert "[@" in paragraph_revised
