@@ -39,14 +39,16 @@ class ManuscriptRevisionModel(ABC):
 
 class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
     """
-    This model does nothing, just returns the same paragraph text.
+    This model does nothing, just returns the same paragraph content with
+    sentences one after the other using a white space (no new lines). This
+    mimics what a real OpenAI model does.
     """
 
     def __init__(self):
-        pass
+        self.sentence_end_pattern = re.compile(r"\n")
 
     def revise_paragraph(self, paragraph_text, section_name):
-        return paragraph_text
+        return self.sentence_end_pattern.sub(" ", paragraph_text).strip()
 
     def get_prompt(self, paragraph_text, section_name):
         return paragraph_text

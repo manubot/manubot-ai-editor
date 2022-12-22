@@ -36,14 +36,35 @@ class ManuscriptEditor:
             revision_model: model to use for revision.
             outfile: file object to write the revised paragraph to.
         """
-        # Process the paragraph and write it to the output file
+        # Process the paragraph and revise it with model
         paragraph_text = "".join(paragraph)
-
         paragraph_revised = revision_model.revise_paragraph(
             paragraph_text, section_name
         )
 
-        outfile.write(paragraph_revised)
+        # put sentences into new lines
+        paragraph_revised = self.sentence_end_pattern.sub(
+            ".\n", paragraph_revised
+        )
+
+        outfile.write(paragraph_revised + "\n")
+
+    def get_section_from_filename(self, filename: str) -> str:
+        """
+        Returns the section name of a file based on its filename.
+        """
+        filename = filename.lower()
+
+        if "abstract" in filename:
+            return "abstract"
+        elif "introduction" in filename:
+            return "introduction"
+        elif "results" in filename:
+            return "results"
+        elif "discussion" in filename:
+            return "discussion"
+        else:
+            return None
 
     def revise_file(
         self,
@@ -70,16 +91,7 @@ class ManuscriptEditor:
 
         # infer section name from input filename if not provided
         if section_name is None:
-            section_name = input_filepath.stem.lower()
-
-            if "abstract" in section_name:
-                section_name = "abstract"
-            elif "introduction" in section_name:
-                section_name = "introduction"
-            elif "results" in section_name:
-                section_name = "results"
-            elif "discussion" in section_name:
-                section_name = "discussion"
+            section_name = self.get_section_from_filename(input_filename)
 
         with open(input_filepath, "r") as infile, open(output_filepath, "w") as outfile:
             # Initialize a temporary list to store the lines of the current paragraph

@@ -119,3 +119,37 @@ def test_revise_introduction(tmp_path):
         input_filepath=MANUSCRIPTS_DIR / "ccc" / "02.introduction.md",
         output_filepath=tmp_path / "02.introduction.md",
     )
+
+
+def test_revise_introduction_using_completion_model(tmp_path):
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    me.revise_file("02.introduction.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR / "ccc" / "02.introduction.md",
+        output_filepath=tmp_path / "02.introduction.md",
+    )
+
+
+def test_get_section_from_filename():
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    assert me.get_section_from_filename("00.front-matter.md") is None
+    assert me.get_section_from_filename("01.abstract.md") == "abstract"
+    assert me.get_section_from_filename("02.introduction.md") == "introduction"
+    assert me.get_section_from_filename("03.results.md") == "results"
+    assert me.get_section_from_filename("04.discussion.md") == "discussion"
+    assert me.get_section_from_filename("07.references.md") is None
+    assert me.get_section_from_filename("06.acknowledgements.md") is None
+    assert me.get_section_from_filename("08.supplementary.md") is None
+
