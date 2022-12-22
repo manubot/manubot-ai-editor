@@ -18,7 +18,7 @@ class ManuscriptEditor:
 
     @staticmethod
     def line_is_not_part_of_paragraph(line: str) -> bool:
-        return line.startswith("#") or line.startswith("<!--") or line.strip() == ""
+        return line.startswith(("#", "<!--")) or line.strip() == ""
 
     def revise_and_write_paragraph(
         self,
@@ -98,6 +98,13 @@ class ManuscriptEditor:
             paragraph = []
 
             for line in infile:
+                # if line is starting an "image paragraph", then skip all lines
+                # until the end of that paragraph
+                if line.startswith("!["):
+                    while line.strip() != "":
+                        outfile.write(line)
+                        line = next(infile)
+
                 # if the line is a comment or a section name, write it directly
                 # to the output file
                 if self.line_is_not_part_of_paragraph(line) and len(paragraph) == 0:

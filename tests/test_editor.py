@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from chatgpt_editor.editor import ManuscriptEditor
 from chatgpt_editor.models import DummyManuscriptRevisionModel, GPT3CompletionModel
 
@@ -152,4 +154,56 @@ def test_get_section_from_filename():
     assert me.get_section_from_filename("07.references.md") is None
     assert me.get_section_from_filename("06.acknowledgements.md") is None
     assert me.get_section_from_filename("08.supplementary.md") is None
+
+
+def test_revise_results_with_header_only(tmp_path):
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = DummyManuscriptRevisionModel()
+
+    me.revise_file("04.00.results.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR / "ccc" / "04.00.results.md",
+        output_filepath=tmp_path / "04.00.results.md",
+    )
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        # GPT3CompletionModel("Set title", ["no_keyword1", "no_keyword2"]),
+    ],
+)
+def test_revise_results_intro_with_figure(tmp_path, model):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("04.05.results_intro.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR / "ccc" / "04.05.results_intro.md",
+        output_filepath=tmp_path / "04.05.results_intro.md",
+    )
+
+    # make sure the "image paragraph" was exactly copied to the output file
+    assert """
+![
+**Different types of relationships in data.**
+Each panel contains a set of simulated data points described by two generic variables: $x$ and $y$.
+The first row shows Anscombe's quartet with four different datasets (from Anscombe I to IV) and 11 data points each.
+The second row contains a set of general patterns with 100 data points each.
+Each panel shows the correlation value using Pearson ($p$), Spearman ($s$) and CCC ($c$).
+Vertical and horizontal red lines show how CCC clustered data points using $x$ and $y$.
+](images/intro/relationships.svg "Different types of relationships in data"){#fig:datasets_rel width="100%"}
+    """.strip() in open(tmp_path / "04.05.results_intro.md").read()
 
