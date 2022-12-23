@@ -138,3 +138,21 @@ class ManuscriptEditor:
                 self.revise_and_write_paragraph(
                     paragraph, section_name, revision_model, outfile
                 )
+
+    def revise_manuscript(
+        self, output_dir: Path | str, revision_model: ManuscriptRevisionModel
+    ):
+        """
+        Revises all the files in the content directory of the manuscript sorted by name, and writes each file in the output directory.
+        """
+        for filename in sorted(self.content_dir.glob("*.md")):
+            filename_section = self.get_section_from_filename(filename.name)
+            if filename_section is None:
+                continue
+
+            self.revise_file(
+                filename.name,
+                output_dir,
+                revision_model,
+                section_name=filename_section,
+            )

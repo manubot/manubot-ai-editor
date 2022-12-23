@@ -177,3 +177,21 @@ Vertical and horizontal red lines show how CCC clustered data points using $x$ a
         in open(tmp_path / "04.05.results_intro.md").read()
     )
 
+
+def test_revise_entire_manuscript():
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    # model = DummyManuscriptRevisionModel()
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    output_folder = Path("/tmp/gpt_cc").resolve()
+    output_folder.mkdir(exist_ok=True)
+
+    me.revise_manuscript(output_folder, model)
+
+    # TODO: check that all files are present in the output folder
