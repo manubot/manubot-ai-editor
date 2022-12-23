@@ -67,6 +67,10 @@ class ManuscriptEditor:
             return "results"
         elif "discussion" in filename:
             return "discussion"
+        elif "methods" in filename:
+            return "methods"
+        elif "supplementary" in filename:
+            return "supplementary_material"
         else:
             return None
 
