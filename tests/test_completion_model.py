@@ -293,3 +293,41 @@ CCC is conceptually easy to interpret and has a single parameter that controls t
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+
+def test_revise_methods_paragraph():
+    paragraph = """
+The Clustermatch Correlation Coefficient (CCC) computes a similarity value $c \in \left[0,1\right]$ between any pair of numerical or categorical features/variables $\mathbf{x}$ and $\mathbf{y}$ measured on $n$ objects.
+CCC assumes that if two features $\mathbf{x}$ and $\mathbf{y}$ are similar, then the partitioning by clustering of the $n$ objects using each feature separately should match.
+For example, given $\mathbf{x}=(11, 27, 32, 40)$ and $\mathbf{y}=10x=(110, 270, 320, 400)$, where $n=4$, partitioning each variable into two clusters ($k=2$) using their medians (29.5 for $\mathbf{x}$ and 295 for $\mathbf{y}$) would result in partition $\Omega^{\mathbf{x}}_{k=2}=(1, 1, 2, 2)$ for $\mathbf{x}$, and partition $\Omega^{\mathbf{y}}_{k=2}=(1, 1, 2, 2)$ for $\mathbf{y}$.
+Then, the agreement between $\Omega^{\mathbf{x}}_{k=2}$ and $\Omega^{\mathbf{y}}_{k=2}$ can be computed using any measure of similarity between partitions, like the adjusted Rand index (ARI) [@doi:10.1007/BF01908075].
+In that case, it will return the maximum value (1.0 in the case of ARI).
+Note that the same value of $k$ might not be the right one to find a relationship between any two features.
+For instance, in the quadratic example in Figure @fig:datasets_rel, CCC returns a value of 0.36 (grouping objects in four clusters using one feature and two using the other).
+If we used only two clusters instead, CCC would return a similarity value of 0.02.
+Therefore, the CCC algorithm (shown below) searches for this optimal number of clusters given a maximum $k$, which is its single parameter $k_{\mathrm{max}}$.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 9
+
+    model = GPT3CompletionModel(
+        title="An efficient not-only-linear correlation coefficient based on machine learning",
+        keywords=[
+            "correlation coefficient",
+            "nonlinear relationships",
+            "gene expression",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    assert "$" in paragraph_revised
