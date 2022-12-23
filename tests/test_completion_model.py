@@ -331,3 +331,38 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     assert len(paragraph_revised) > 100
 
     assert "$" in paragraph_revised
+
+
+def test_revise_supplementary_material_paragraph():
+    paragraph = """
+We compared all the coefficients in this study with MIC [@pmid:22174245], a popular nonlinear method that can find complex relationships in data, although very computationally intensive [@doi:10.1098/rsos.201424].
+We ran MIC<sub>e</sub> (see Methods) on all possible pairwise comparisons of our 5,000 highly variable genes from whole blood in GTEx v8.
+This took 4 days and 19 hours to finish (compared with 9 hours for CCC).
+Then we performed the analysis on the distribution of coefficients (the same as in the main text), shown in Figure @fig:dist_coefs_mic.
+We verified that CCC and MIC behave similarly in this dataset, with essentially the same distribution but only shifted.
+Figure @fig:dist_coefs_mic c shows that these two coefficients relate almost linearly, and both compare very similarly with Pearson and Spearman.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 6
+
+    model = GPT3CompletionModel(
+        title="An efficient not-only-linear correlation coefficient based on machine learning",
+        keywords=[
+            "correlation coefficient",
+            "nonlinear relationships",
+            "gene expression",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "supplementary_material", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    assert "@fig:dist_coefs_mic" in paragraph_revised

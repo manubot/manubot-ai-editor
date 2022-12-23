@@ -101,12 +101,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 and it minimizes the use of jargon. Citations to other scientific articles
                 are between square brackets and start with @doi, @pmid, etc., and should be kept:
             """
-        elif section_name in ("results",):
+        elif section_name in ("results", "supplementary_material"):
             prompt = f"""
                 Revise the following paragraph of the {section_name} section of an
                 academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
                 which is written in Markdown. Make sure the paragraph has a clear and easy-to-read sentence structure,
-                and it minimizes the use of jargon. Figures should be always referenced at least once.
+                and it minimizes the use of jargon. Figures must be always referenced at least once.
                 Citations to other scientific articles are between square brackets and start with @doi, @pmid, etc.,
                 and should be kept:
             """
