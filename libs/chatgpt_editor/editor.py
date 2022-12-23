@@ -148,7 +148,10 @@ class ManuscriptEditor:
                 )
 
     def revise_manuscript(
-        self, output_dir: Path | str, revision_model: ManuscriptRevisionModel
+        self,
+        output_dir: Path | str,
+        revision_model: ManuscriptRevisionModel,
+        debug: bool = False,
     ):
         """
         Revises all the files in the content directory of the manuscript sorted by name, and writes each file in the output directory.
@@ -157,6 +160,9 @@ class ManuscriptEditor:
             filename_section = self.get_section_from_filename(filename.name)
             if filename_section is None:
                 continue
+
+            if debug:
+                print(f"Revising {filename.name}")
 
             self.revise_file(
                 filename.name,
