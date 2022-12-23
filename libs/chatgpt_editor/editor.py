@@ -106,12 +106,16 @@ class ManuscriptEditor:
             paragraph = []
 
             for line in infile:
-                # if line is starting an "image paragraph", then skip all lines
-                # until the end of that paragraph
-                if line.startswith("!["):
-                    while line.strip() != "":
+                # if line is starting either an "image paragraph", a "table paragraph" or a "html comment paragraph",
+                # then skip all lines until the end of that paragraph
+                if line.startswith(("![", "|", "<!--")):
+                    while line is not None and line.strip() != "":
                         outfile.write(line)
-                        line = next(infile)
+                        line = next(infile, None)
+
+                # stop if we reached the end of the file
+                if line is None:
+                    break
 
                 # if the line is a comment or a section name, write it directly
                 # to the output file
