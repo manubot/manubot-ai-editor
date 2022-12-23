@@ -256,3 +256,40 @@ These preliminary results suggested that CCC might be capturing blood-specific p
 
     # if there is an error, it should return the original paragraph
     assert SENTENCE_END_PATTERN.sub(".\n", paragraph_text) == paragraph_revised
+
+
+def test_revise_discussion_paragraph():
+    paragraph = """
+We introduce the Clustermatch Correlation Coefficient (CCC), an efficient not-only-linear machine learning-based statistic.
+Applying CCC to GTEx v8 revealed that it was robust to outliers and detected linear relationships as well as complex and biologically meaningful patterns that standard coefficients missed.
+In particular, CCC alone detected gene pairs with complex nonlinear patterns from the sex chromosomes, highlighting the way that not-only-linear coefficients can play in capturing sex-specific differences.
+The ability to capture these nonlinear patterns, however, extends beyond sex differences: it provides a powerful approach to detect complex relationships where a subset of samples or conditions are explained by other factors (such as differences between health and disease).
+We found that top CCC-ranked gene pairs in whole blood from GTEx were replicated in independent tissue-specific networks trained from multiple data types and attributed to cell lineages from blood, even though CCC did not have access to any cell lineage-specific information.
+This suggests that CCC can disentangle intricate cell lineage-specific transcriptional patterns missed by linear-only coefficients.
+In addition to capturing nonlinear patterns, the CCC was more similar to Spearman than Pearson, highlighting their shared robustness to outliers.
+The CCC results were concordant with MIC, but much faster to compute and thus practical for large datasets.
+Another advantage over MIC is that CCC can also process categorical variables together with numerical values.
+CCC is conceptually easy to interpret and has a single parameter that controls the maximum complexity of the detected relationships while also balancing compute time.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 10
+
+    model = GPT3CompletionModel(
+        title="An efficient not-only-linear correlation coefficient based on machine learning",
+        keywords=[
+            "correlation coefficient",
+            "nonlinear relationships",
+            "gene expression",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "discussion", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
