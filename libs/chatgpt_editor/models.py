@@ -105,11 +105,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             prompt = f"""
                 Revise the following paragraph of the {section_name} section of an
                 academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
-                which is written in Markdown. Make sure the paragraph starts with a topic sentence,
-                it has a clear and easy-to-read sentence structure, and it minimizes
-                the use of jargon. Figures should be always referenced at least once.
-                Citations to other scientific articles
-                are between square brackets and start with @doi, @pmid, etc., and should be kept:
+                which is written in Markdown. Make sure the paragraph has a clear and easy-to-read sentence structure,
+                and it minimizes the use of jargon. Figures should be always referenced at least once.
+                Citations to other scientific articles are between square brackets and start with @doi, @pmid, etc.,
+                and should be kept:
             """
         else:
             raise ValueError(f"Section '{section_name}' not supported")
