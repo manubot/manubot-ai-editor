@@ -162,7 +162,7 @@ class ManuscriptEditor:
                 continue
 
             if debug:
-                print(f"Revising {filename.name}")
+                print(f"Revising {filename.name}", flush=True)
 
             self.revise_file(
                 filename.name,
