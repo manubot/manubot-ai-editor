@@ -9,7 +9,7 @@ class ManuscriptRevisionModel(ABC):
     """
 
     def __init__(self):
-        # Get ChatGPT API key and place into github secrets file
+        # Get OpenAI API key from environment
         assert (
             "OPENAI_API_KEY" in os.environ
         ), "OPENAI_API_KEY not found in environment variables"
@@ -69,10 +69,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self,
         title: str,
         keywords: list[str],
-        model_engine: str = "text-davinci-003",
         temperature: float = 0.5,
     ):
         super().__init__()
+        assert (
+            "LANGUAGE_MODEL" in os.environ
+        ), "LANGUAGE_MODEL not found in environment variables"
+        model_engine = os.environ["LANGUAGE_MODEL"]
 
         self.title = title
         self.keywords = keywords
