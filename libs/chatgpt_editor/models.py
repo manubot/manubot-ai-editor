@@ -128,7 +128,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 Formulas are between dollar signs ($) and must be kept:
             """
         else:
-            raise ValueError(f"Section '{section_name}' not supported")
+            prompt = f"""
+                Revise the following paragraph of an
+                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
+                which is written in Markdown. Make sure the paragraph has a clear and easy-to-read sentence structure,
+                and it minimizes the use of jargon. Citations to other scientific articles
+                are between square brackets and start with @doi, @pmid, etc., and must be kept.
+                Formulas are between dollar signs ($) and must be kept:
+            """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
