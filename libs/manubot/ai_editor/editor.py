@@ -1,8 +1,7 @@
-import re
 from pathlib import Path
 
-from chatgpt_editor.models import ManuscriptRevisionModel
-from chatgpt_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
+from manubot.ai_editor.models import ManuscriptRevisionModel
+from manubot.ai_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
 
 
 class ManuscriptEditor:

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import openai
 
-from chatgpt_editor import env_vars
+from manubot.ai_editor import env_vars
 
 
 class ManuscriptRevisionModel(ABC):

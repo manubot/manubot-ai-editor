@@ -4,11 +4,10 @@ from unittest import mock
 
 import pytest
 
-from chatgpt_editor.editor import ManuscriptEditor
-from chatgpt_editor.models import GPT3CompletionModel
-from chatgpt_editor.utils import SENTENCE_END_PATTERN
-
-from chatgpt_editor import env_vars
+from manubot.ai_editor.editor import ManuscriptEditor
+from manubot.ai_editor import env_vars, models
+from manubot.ai_editor.models import GPT3CompletionModel
+from manubot.ai_editor.utils import SENTENCE_END_PATTERN
 
 
 def test_model_object_init_without_openai_api_key():
@@ -33,8 +32,6 @@ def test_model_object_init_with_openai_api_key_as_environment_variable():
         keywords=["test", "keywords"],
     )
 
-    from chatgpt_editor import models
-
     assert models.openai.api_key == "env_var_test_value"
 
 
@@ -50,7 +47,7 @@ def test_model_object_init_with_openai_api_key_as_parameter():
             openai_api_key="test_value",
         )
 
-        from chatgpt_editor import models
+        from manubot.ai_editor import models
 
         assert models.openai.api_key == "test_value"
     finally:
@@ -65,7 +62,7 @@ def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority(
         openai_api_key="test_value",
     )
 
-    from chatgpt_editor import models
+    from manubot.ai_editor import models
 
     assert models.openai.api_key == "test_value"
 

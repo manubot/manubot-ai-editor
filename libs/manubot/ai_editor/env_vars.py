@@ -1,5 +1,5 @@
 """
-This file contains environment variables names used by the chatgpt_editor
+This file contains environment variables names used by manubot-ai-editor
 package.
 """
 

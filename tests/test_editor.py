@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from chatgpt_editor.editor import ManuscriptEditor
-from chatgpt_editor.models import DummyManuscriptRevisionModel, GPT3CompletionModel
+from manubot.ai_editor.editor import ManuscriptEditor
+from manubot.ai_editor.models import DummyManuscriptRevisionModel, GPT3CompletionModel
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
