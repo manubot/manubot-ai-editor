@@ -10,8 +10,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="manubot-chatgpt-editor",
-    version="0.0.4",
+    name="manubot-ai-editor",
+    version="0.0.5",
     author="Milton Pividori",
     author_email="miltondp@gmail.com",
     description="A Manubot plugin to revise a manuscript using GPT-3",
@@ -21,7 +21,7 @@ setuptools.setup(
     url="https://github.com/miltondp/manubot-chatgpt-editor",
     package_dir={"": "libs"},
     packages=[
-        "chatgpt_editor/",
+        "manubot/ai_editor/",
     ],
     python_requires=">=3.10",
     install_requires=[
