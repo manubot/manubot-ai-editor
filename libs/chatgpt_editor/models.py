@@ -2,6 +2,11 @@ import os
 import re
 from abc import ABC, abstractmethod
 
+from chatgpt_editor import env_vars
+
+
+# Environment varibles
+
 
 class ManuscriptRevisionModel(ABC):
     """
@@ -11,9 +16,9 @@ class ManuscriptRevisionModel(ABC):
     def __init__(self):
         # Get OpenAI API key from environment
         assert (
-            "OPENAI_API_KEY" in os.environ
-        ), "OPENAI_API_KEY not found in environment variables"
-        self.api_key = os.environ["OPENAI_API_KEY"]
+            env_vars.OPENAI_API_KEY in os.environ
+        ), f"{env_vars.OPENAI_API_KEY} not found in environment variables"
+        self.api_key = os.environ[env_vars.OPENAI_API_KEY]
 
     @abstractmethod
     def revise_paragraph(self, paragraph_text, section_name):
@@ -69,13 +74,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self,
         title: str,
         keywords: list[str],
+        model_engine: str = "text-davinci-003",
         temperature: float = 0.5,
     ):
         super().__init__()
-        assert (
-            "LANGUAGE_MODEL" in os.environ
-        ), "LANGUAGE_MODEL not found in environment variables"
-        model_engine = os.environ["LANGUAGE_MODEL"]
+
+        if env_vars.LANGUAGE_MODEL in os.environ:
+            print(
+                f"Using language model from environment variable '{env_vars.LANGUAGE_MODEL}'"
+            )
+            model_engine = os.environ[env_vars.LANGUAGE_MODEL]
 
         self.title = title
         self.keywords = keywords

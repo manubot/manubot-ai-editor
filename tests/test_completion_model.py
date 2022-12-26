@@ -1,6 +1,10 @@
+from unittest import mock
+
 from chatgpt_editor.editor import ManuscriptEditor
 from chatgpt_editor.models import GPT3CompletionModel
 from chatgpt_editor.utils import SENTENCE_END_PATTERN
+
+from chatgpt_editor import env_vars
 
 
 def test_model_object_init():
@@ -8,6 +12,25 @@ def test_model_object_init():
         title="Test title",
         keywords=["test", "keywords"],
     )
+
+
+def test_model_object_init_default_language_model():
+    model = GPT3CompletionModel(
+        title="Test title",
+        keywords=["test", "keywords"],
+    )
+
+    assert model.model_parameters["engine"] == "text-davinci-003"
+
+
+@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})
+def test_model_object_init_read_language_model_from_environment():
+    model = GPT3CompletionModel(
+        title="Test title",
+        keywords=["test", "keywords"],
+    )
+
+    assert model.model_parameters["engine"] == "text-curie-001"
 
 
 def test_get_prompt_for_abstract():
