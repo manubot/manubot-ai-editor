@@ -7,9 +7,6 @@ import openai
 from chatgpt_editor import env_vars
 
 
-# Environment varibles
-
-
 class ManuscriptRevisionModel(ABC):
     """
     TODO: add docstring
