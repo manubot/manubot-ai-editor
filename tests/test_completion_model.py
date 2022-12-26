@@ -1,4 +1,8 @@
+import os
+
 from unittest import mock
+
+import pytest
 
 from chatgpt_editor.editor import ManuscriptEditor
 from chatgpt_editor.models import GPT3CompletionModel
@@ -7,11 +11,63 @@ from chatgpt_editor.utils import SENTENCE_END_PATTERN
 from chatgpt_editor import env_vars
 
 
-def test_model_object_init():
-    model = GPT3CompletionModel(
+def test_model_object_init_without_openai_api_key():
+    _environ = os.environ.copy()
+    try:
+        if env_vars.OPENAI_API_KEY in os.environ:
+            os.environ.pop(env_vars.OPENAI_API_KEY)
+
+        with pytest.raises(ValueError):
+            GPT3CompletionModel(
+                title="Test title",
+                keywords=["test", "keywords"],
+            )
+    finally:
+        os.environ = _environ
+
+
+@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
+def test_model_object_init_with_openai_api_key_as_environment_variable():
+    GPT3CompletionModel(
         title="Test title",
         keywords=["test", "keywords"],
     )
+
+    from chatgpt_editor import models
+
+    assert models.openai.api_key == "env_var_test_value"
+
+
+def test_model_object_init_with_openai_api_key_as_parameter():
+    _environ = os.environ.copy()
+    try:
+        if env_vars.OPENAI_API_KEY in os.environ:
+            os.environ.pop(env_vars.OPENAI_API_KEY)
+
+        GPT3CompletionModel(
+            title="Test title",
+            keywords=["test", "keywords"],
+            openai_api_key="test_value",
+        )
+
+        from chatgpt_editor import models
+
+        assert models.openai.api_key == "test_value"
+    finally:
+        os.environ = _environ
+
+
+@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
+def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority():
+    GPT3CompletionModel(
+        title="Test title",
+        keywords=["test", "keywords"],
+        openai_api_key="test_value",
+    )
+
+    from chatgpt_editor import models
+
+    assert models.openai.api_key == "test_value"
 
 
 def test_model_object_init_default_language_model():

@@ -2,6 +2,8 @@ import os
 import re
 from abc import ABC, abstractmethod
 
+import openai
+
 from chatgpt_editor import env_vars
 
 
@@ -14,11 +16,7 @@ class ManuscriptRevisionModel(ABC):
     """
 
     def __init__(self):
-        # Get OpenAI API key from environment
-        assert (
-            env_vars.OPENAI_API_KEY in os.environ
-        ), f"{env_vars.OPENAI_API_KEY} not found in environment variables"
-        self.api_key = os.environ[env_vars.OPENAI_API_KEY]
+        pass
 
     @abstractmethod
     def revise_paragraph(self, paragraph_text, section_name):
@@ -76,8 +74,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         keywords: list[str],
         model_engine: str = "text-davinci-003",
         temperature: float = 0.5,
+        openai_api_key: str = None,
     ):
         super().__init__()
+
+        # make sure the OpenAI API key is set
+        openai.api_key = openai_api_key
+
+        if openai.api_key is None:
+            openai.api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
+
+            if openai.api_key is None:
+                raise ValueError(
+                    f"OpenAI API key not found. Please provide it as parameter "
+                    f"or set it as an the environment variable "
+                    f"{env_vars.OPENAI_API_KEY}"
+                )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
             print(
@@ -170,8 +182,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             length by this fraction before sending to GPT-3. This is useful to
             force summarization.
         """
-        import openai
-
         paragraph_length = len(paragraph_text)
         prompt = self.get_prompt(paragraph_text, section_name)
 
