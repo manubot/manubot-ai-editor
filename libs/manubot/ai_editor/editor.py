@@ -107,7 +107,7 @@ class ManuscriptEditor:
             for line in infile:
                 # if line is starting either an "image paragraph", a "table paragraph" or a "html comment paragraph",
                 # then skip all lines until the end of that paragraph
-                if line.startswith(("![", "|", "<!--")):
+                if line.startswith(("![", "|", "<!--", "$$")):
                     while line is not None and line.strip() != "":
                         outfile.write(line)
                         line = next(infile, None)

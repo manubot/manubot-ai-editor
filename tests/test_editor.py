@@ -168,7 +168,7 @@ def test_revise_results_intro_with_figure(tmp_path, model):
 
     # make sure the "image paragraph" was exactly copied to the output file
     assert (
-        """
+        r"""
 ![
 **Different types of relationships in data.**
 Each panel contains a set of simulated data points described by two generic variables: $x$ and $y$.
@@ -179,6 +179,41 @@ Vertical and horizontal red lines show how CCC clustered data points using $x$ a
 ](images/intro/relationships.svg "Different types of relationships in data"){#fig:datasets_rel width="100%"}
     """.strip()
         in open(tmp_path / "04.05.results_intro.md").read()
+    )
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_methods_with_equation(tmp_path, model):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "phenoplier",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("07.00.methods.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR / "phenoplier" / "07.00.methods.md",
+        output_filepath=tmp_path / "07.00.methods.md",
+    )
+
+    # make sure the "image paragraph" was exactly copied to the output file
+    assert (
+        r"""
+$$
+\mathbf{y} = \mathbf{t}_l \gamma_l + \bm{\epsilon}_l,
+$$ {#eq:predixcan}
+    """.strip()
+        in open(tmp_path / "07.00.methods.md").read()
     )
 
 
@@ -210,7 +245,7 @@ def test_revise_supplementary_material_with_tables_and_multiline_html_comments(
 
     # make sure the "image paragraph" was exactly copied to the output file
     assert (
-        """
+        r"""
 | | **Interaction confidence** <!-- $colspan="7" -->    | | | | | | |
 |:------:|:-----:|:-----:|:-----:|:--------:|:-----:|:-----:|:-----:|
 | | **Blood** <!-- $colspan="3" --> | | | **Predicted cell type** <!-- $colspan="4" --> | | | |
@@ -238,7 +273,7 @@ def test_revise_supplementary_material_with_tables_and_multiline_html_comments(
 
     # make sure the "image paragraph" was exactly copied to the output file
     assert (
-        """
+        r"""
 <!-- ![
 **Predicted tissue-specific networks from GIANT for six gene pairs prioritized by correlation coefficients.**
 Gene pairs are from Figure @fig:upsetplot_coefs b.
