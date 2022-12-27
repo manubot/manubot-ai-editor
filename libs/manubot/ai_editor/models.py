@@ -9,7 +9,7 @@ from manubot.ai_editor import env_vars
 
 class ManuscriptRevisionModel(ABC):
     """
-    TODO: add docstring
+    An abstract class for manuscript revision models.
     """
 
     def __init__(self):
@@ -18,11 +18,11 @@ class ManuscriptRevisionModel(ABC):
     @abstractmethod
     def revise_paragraph(self, paragraph_text, section_name):
         """
-        TODO: add docstring
+        It revises a paragraph of a manuscript from a given section.
 
         Args:
-            paragraph_text (str):
-            section_name (str):
+            paragraph_text (str): text of the paragraph to revise.
+            section_name (str): name of the section the paragraph belongs to.
 
         Returns:
             Revised paragraph text.
@@ -32,7 +32,8 @@ class ManuscriptRevisionModel(ABC):
     @abstractmethod
     def get_prompt(self, paragraph_text, section_name):
         """
-        TODO: add docstring
+        Returns the prompt to be used for the revision of a paragraph that
+        belongs to a given section.
         """
         raise NotImplemented
 
@@ -56,13 +57,9 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
 
 class GPT3CompletionModel(ManuscriptRevisionModel):
     """
-    Revises a paragraphs using GPT-3 completion model.
-
-    TODO:
-    - Read OpenAI API parameters: https://beta.openai.com/docs/api-reference/completions/create
-      - There are many that are interesting, like temperature, top_p, presence_penalty, frequency_penalty, etc.
-        "best_of" is interesting, but it can consume a lot of API calls.
-      - Another interesting parameters is "user", it could be "manubot" here.
+    Revises a paragraphs using GPT-3 completion model. Most of the parameters
+    (https://beta.openai.com/docs/api-reference/completions/create) of the model
+    can be specified either by parameters or environment variables.
     """
 
     def __init__(

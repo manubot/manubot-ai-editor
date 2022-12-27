@@ -5,6 +5,14 @@ from manubot.ai_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
 
 
 class ManuscriptEditor:
+    """
+    It provides functions to revise the Markdown files (*.md) of a Manubot-based manuscript.
+    The only mandatory requirement is the path to the "content" directory of the manuscript.
+
+    Args:
+        content_dir: Path to the "content" directory of a Manubot-based manuscript.
+    """
+
     def __init__(self, content_dir: str | Path):
         self.content_dir = Path(content_dir)
 
@@ -81,13 +89,14 @@ class ManuscriptEditor:
         section_name: str = None,
     ):
         """
-        TODO: add docstring
+        It revises an entire Markdown file and writes the revised file to the output directory.
+        The output file will have the same name as the input file.
 
         Args:
-            input_filename (str):
-            output_dir (Path | str):
-            revision_model (ManuscriptRevisionModel):
-            section_name (str, optional): Defaults to None.
+            input_filename (str): name of the file to revise. It must exists in the content directory of the manuscript.
+            output_dir (Path | str): path to the directory where the revised file will be written.
+            revision_model (ManuscriptRevisionModel): model to use for revision.
+            section_name (str, optional): Defaults to None. If so, it will be inferred from the filename.
         """
         input_filepath = self.content_dir / input_filename
         assert input_filepath.exists(), f"Input file {input_filepath} does not exist"
@@ -153,7 +162,8 @@ class ManuscriptEditor:
         debug: bool = False,
     ):
         """
-        Revises all the files in the content directory of the manuscript sorted by name, and writes each file in the output directory.
+        Revises all the files in the content directory of the manuscript sorted
+        by name, and writes each file in the output directory.
         """
         for filename in sorted(self.content_dir.glob("*.md")):
             filename_section = self.get_section_from_filename(filename.name)
