@@ -159,7 +159,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        return f"{prompt}\n{paragraph_text.strip()}"
+        return f"{prompt}: {paragraph_text.strip()}"
 
     def revise_paragraph(self, paragraph_text, section_name, throw_error=False):
         """
