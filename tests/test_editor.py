@@ -260,18 +260,22 @@ The GIANT web-server was accessed on April 4, 2022.
     )
 
 
-def test_revise_entire_manuscript(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_entire_manuscript(tmp_path, model):
     print(f"\n{str(tmp_path)}\n")
 
     me = ManuscriptEditor(
         content_dir=MANUSCRIPTS_DIR / "ccc",
     )
 
-    # model = DummyManuscriptRevisionModel()
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
+    model.title = me.title
+    model.keywords = me.keywords
 
     output_folder = tmp_path
     assert output_folder.exists()
