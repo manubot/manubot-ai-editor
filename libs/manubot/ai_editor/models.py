@@ -40,8 +40,8 @@ class ManuscriptRevisionModel(ABC):
 class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
     """
     This model does nothing, just returns the same paragraph content with
-    sentences one after the other using a white space (no new lines). This
-    mimics what a real OpenAI model does.
+    sentences one after the other separated by a white space (no new lines).
+    This mimics what a real OpenAI model does.
     """
 
     def __init__(self):
@@ -179,14 +179,17 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             length by this fraction before sending to GPT-3. This is useful to
             force summarization.
         """
-        paragraph_length = len(paragraph_text)
+        max_tokens = len(paragraph_text)
+        if env_vars.MAX_TOKENS_PER_REQUEST in os.environ:
+            max_tokens = int(os.environ[env_vars.MAX_TOKENS_PER_REQUEST])
+
         prompt = self.get_prompt(paragraph_text, section_name)
 
         try:
             completions = openai.Completion.create(
                 engine=self.model_parameters["engine"],
                 prompt=prompt,
-                max_tokens=paragraph_length,
+                max_tokens=max_tokens,
                 n=1,
                 stop=None,
                 temperature=self.model_parameters["temperature"],
