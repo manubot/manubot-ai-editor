@@ -69,9 +69,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self,
         title: str,
         keywords: list[str],
+        openai_api_key: str = None,
         model_engine: str = "text-davinci-003",
         temperature: float = 0.5,
-        openai_api_key: str = None,
+        presence_penalty: float = None,
+        frequency_penalty: float = None,
+        best_of: int = None,
+        top_p: float = None,
     ):
         super().__init__()
 
@@ -89,10 +93,56 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
+            model_engine = os.environ[env_vars.LANGUAGE_MODEL]
             print(
                 f"Using language model from environment variable '{env_vars.LANGUAGE_MODEL}'"
             )
-            model_engine = os.environ[env_vars.LANGUAGE_MODEL]
+
+        if env_vars.TEMPERATURE in os.environ:
+            try:
+                temperature = float(os.environ[env_vars.TEMPERATURE])
+                print(
+                    f"Using temperature from environment variable '{env_vars.TEMPERATURE}'"
+                )
+            except ValueError:
+                # if it is not a float, we ignore it
+                pass
+
+        if env_vars.TOP_P in os.environ:
+            try:
+                top_p = float(os.environ[env_vars.TOP_P])
+                print(f"Using top_p from environment variable '{env_vars.TOP_P}'")
+            except ValueError:
+                # if it is not a float, we ignore it
+                pass
+
+        if env_vars.PRESENCE_PENALTY in os.environ:
+            try:
+                presence_penalty = float(os.environ[env_vars.PRESENCE_PENALTY])
+                print(
+                    f"Using presence_penalty from environment variable '{env_vars.PRESENCE_PENALTY}'"
+                )
+            except ValueError:
+                # if it is not a float, we ignore it
+                pass
+
+        if env_vars.FREQUENCY_PENALTY in os.environ:
+            try:
+                frequency_penalty = float(os.environ[env_vars.FREQUENCY_PENALTY])
+                print(
+                    f"Using frequency_penalty from environment variable '{env_vars.FREQUENCY_PENALTY}'"
+                )
+            except ValueError:
+                # if it is not a float, we ignore it
+                pass
+
+        if env_vars.BEST_OF in os.environ:
+            try:
+                best_of = int(os.environ[env_vars.BEST_OF])
+                print(f"Using best_of from environment variable '{env_vars.BEST_OF}'")
+            except ValueError:
+                # if it is not a float, we ignore it
+                pass
 
         self.title = title
         self.keywords = keywords
@@ -100,6 +150,17 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.model_parameters = {
             "engine": model_engine,
             "temperature": temperature,
+            "top_p": top_p,
+            "presence_penalty": presence_penalty,
+            "frequency_penalty": frequency_penalty,
+            "best_of": best_of,
+        }
+
+        # keep model parameters that are not None only
+        self.model_parameters = {
+            key: value
+            for key, value in self.model_parameters.items()
+            if value is not None
         }
 
         self.several_spaces_pattern = re.compile(r"\s+")
@@ -173,12 +234,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         Returns:
             Revised paragraph text.
-
-        TODO:
-          - Add reduction_fraction, between 0 and 1, which multiplies the paragraph
-            length by this fraction before sending to GPT-3. This is useful to
-            force summarization.
         """
+        # we set the maximum number of tokens to the length of the paragraph,
+        # unless it was specified in the environment variable
         max_tokens = len(paragraph_text)
         if env_vars.MAX_TOKENS_PER_REQUEST in os.environ:
             max_tokens = int(os.environ[env_vars.MAX_TOKENS_PER_REQUEST])
@@ -186,14 +244,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         prompt = self.get_prompt(paragraph_text, section_name)
 
         try:
-            completions = openai.Completion.create(
-                engine=self.model_parameters["engine"],
-                prompt=prompt,
-                max_tokens=max_tokens,
-                n=1,
-                stop=None,
-                temperature=self.model_parameters["temperature"],
-            )
+            params = {
+                "prompt": prompt,
+                "max_tokens": max_tokens,
+                "stop": None,
+                "n": 1,
+            }
+
+            params.update(self.model_parameters)
+
+            completions = openai.Completion.create(**params)
         except openai.error.InvalidRequestError as e:
             if throw_error:
                 raise e
