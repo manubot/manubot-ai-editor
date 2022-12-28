@@ -1,5 +1,5 @@
 import os
-
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -8,6 +8,9 @@ from manubot.ai_editor.editor import ManuscriptEditor
 from manubot.ai_editor import env_vars, models
 from manubot.ai_editor.models import GPT3CompletionModel
 from manubot.ai_editor.utils import SENTENCE_END_PATTERN
+
+
+MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
 
 def test_model_object_init_without_openai_api_key():
@@ -87,58 +90,50 @@ def test_model_object_init_read_language_model_from_environment():
 
 
 def test_get_prompt_for_abstract():
-    paragraph_text = "Text of the abstract"
-    title = (
-        "An efficient not-only-linear correlation coefficient based on machine learning"
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
     )
-    keywords = [
-        "correlation coefficient",
-        "nonlinear relationships",
-        "gene expression",
-    ]
 
     model = GPT3CompletionModel(
-        title=title,
-        keywords=keywords,
+        title=me.title,
+        keywords=me.keywords,
     )
+
+    paragraph_text = "Text of the abstract"
 
     prompt = model.get_prompt(paragraph_text, "abstract")
     assert prompt is not None
     assert isinstance(prompt, str)
     assert "abstract" in prompt
-    assert f"'{title}'" in prompt
-    assert f"{keywords[0]}" in prompt
-    assert f"{keywords[1]}" in prompt
-    assert f"{keywords[2]}" in prompt
+    assert f"'{me.title}'" in prompt
+    assert f"{me.keywords[0]}" in prompt
+    assert f"{me.keywords[1]}" in prompt
+    assert f"{me.keywords[2]}" in prompt
     assert paragraph_text in prompt
     assert prompt.startswith("Revise")
     assert "  " not in prompt
 
 
 def test_get_prompt_for_introduction():
-    paragraph_text = "Text of the initial part."
-    title = (
-        "An efficient not-only-linear correlation coefficient based on machine learning"
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
     )
-    keywords = [
-        "correlation coefficient",
-        "nonlinear relationships",
-        "gene expression",
-    ]
 
     model = GPT3CompletionModel(
-        title=title,
-        keywords=keywords,
+        title=me.title,
+        keywords=me.keywords,
     )
+
+    paragraph_text = "Text of the initial part"
 
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert prompt is not None
     assert isinstance(prompt, str)
     assert "introduction" in prompt
-    assert f"'{title}'" in prompt
-    assert f"{keywords[0]}" in prompt
-    assert f"{keywords[1]}" in prompt
-    assert f"{keywords[2]}" in prompt
+    assert f"'{me.title}'" in prompt
+    assert f"{me.keywords[0]}" in prompt
+    assert f"{me.keywords[1]}" in prompt
+    assert f"{me.keywords[2]}" in prompt
     assert paragraph_text in prompt
     assert prompt.startswith("Revise")
     assert "  " not in prompt
