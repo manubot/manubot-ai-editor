@@ -338,9 +338,26 @@ These preliminary results suggested that CCC might be capturing blood-specific p
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
 
-    # if there is an error, it should return the original paragraph
-    assert SENTENCE_END_PATTERN.sub(".\n", paragraph_text) == paragraph_revised
+    # if there is an error, it should return the original paragraph with a header specifying the error
+    error_message = r"""
+<!--
+ERROR: this paragraph could not be revised with the AI model due to the following error:
+
+This model's maximum context length is 4097 tokens, however you requested 4498 tokens (934 in your prompt; 3564 for the completion). Please reduce your prompt; or completion length.
+-->
+    """.strip()
+    assert paragraph_revised.startswith(error_message)
+
+    paragraph_revised_without_error = paragraph_revised.replace(
+        error_message + "\n", ""
+    )
+    assert (
+        SENTENCE_END_PATTERN.sub(".\n", paragraph_text)
+        == paragraph_revised_without_error
+    )
 
 
 def test_revise_discussion_paragraph():

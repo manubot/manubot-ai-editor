@@ -47,13 +47,28 @@ class ManuscriptEditor:
         """
         # Process the paragraph and revise it with model
         paragraph_text = " ".join(paragraph)
-        paragraph_revised = revision_model.revise_paragraph(
-            paragraph_text, section_name
-        )
 
-        # put sentences into new lines
-        paragraph_revised = SENTENCE_END_PATTERN.sub(".\n", paragraph_revised)
-        paragraph_revised = paragraph_revised
+        error_message = None
+        try:
+            paragraph_revised = revision_model.revise_paragraph(
+                paragraph_text, section_name, throw_error=True
+            )
+        except Exception as e:
+            error_message = r"""
+<!--
+ERROR: this paragraph could not be revised with the AI model due to the following error:
+
+This model's maximum context length is 4097 tokens, however you requested 4498 tokens (934 in your prompt; 3564 for the completion). Please reduce your prompt; or completion length.
+-->
+            """.strip()
+
+        if error_message is not None:
+            paragraph_revised = (
+                error_message + "\n" + SENTENCE_END_PATTERN.sub(".\n", paragraph_text)
+            )
+        else:
+            # put sentences into new lines
+            paragraph_revised = SENTENCE_END_PATTERN.sub(".\n", paragraph_revised)
 
         if outfile is not None:
             outfile.write(paragraph_revised + "\n")
