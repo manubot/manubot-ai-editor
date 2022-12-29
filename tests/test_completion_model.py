@@ -215,7 +215,8 @@ Thus, even minor and significant improvements in these techniques could have eno
     assert "@doi:10.1073/pnas.1217269109" in paragraph_revised
 
 
-def test_revise_results_paragraph_with_citations():
+def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations():
+    # from CCC manuscript
     paragraph = """
 We examined how the Pearson ($p$), Spearman ($s$) and CCC ($c$) correlation coefficients behaved on different simulated data patterns.
 In the first row of Figure @fig:datasets_rel, we examine the classic Anscombe's quartet [@doi:10.1080/00031305.1973.10478966], which comprises four synthetic datasets with different patterns but the same data statistics (mean, standard deviation and Pearson's correlation).
@@ -243,34 +244,36 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
 
-    # make sure manubot references were kept
+    # some citations were kept in the revised text
     assert "[@" in paragraph_revised
-    assert "@doi:10.1080/00031305.1973.10478966" in paragraph_revised
-    assert (
-        "@url:http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html"
-        in paragraph_revised
-    )
-    assert "@doi:10.1145/3025453.3025912" in paragraph_revised
-    assert "@doi:10.1111/dsji.12233" in paragraph_revised
+
+    # references to figures were kept
+    assert "Figure @fig:datasets_rel" in paragraph_revised
 
 
-def test_revise_results_paragraph_with_figure_ref():
+def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs():
+    # from PhenoPLIER manuscript
     paragraph = """
-We examined how the Pearson ($p$), Spearman ($s$) and CCC ($c$) correlation coefficients behaved on different simulated data patterns.
-In the first row of Figure @fig:datasets_rel, we examine the classic Anscombe's quartet [@doi:10.1080/00031305.1973.10478966], which comprises four synthetic datasets with different patterns but the same data statistics (mean, standard deviation and Pearson's correlation).
-This kind of simulated data, recently revisited with the "Datasaurus" [@url:http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html; @doi:10.1145/3025453.3025912; @doi:10.1111/dsji.12233], is used as a reminder of the importance of going beyond simple statistics, where either undesirable patterns (such as outliers) or desirable ones (such as biologically meaningful nonlinear relationships) can be masked by summary statistics alone.
+PhenoPLIER is a flexible computational framework that combines gene-trait and gene-drug associations with gene modules expressed in specific contexts (Figure {@fig:entire_process}a).
+The approach uses a latent representation (with latent variables or LVs representing gene modules) derived from a large gene expression compendium (Figure {@fig:entire_process}b, top) to integrate TWAS with drug-induced transcriptional responses (Figure {@fig:entire_process}b, bottom) for a joint analysis.
+The approach consists in three main components (Figure {@fig:entire_process}b, middle, see [Methods](#sec:methods)):
+1) an LV-based regression model to compute an association between an LV and a trait,
+2) a clustering framework to learn groups of traits with shared transcriptomic properties,
+and 3) an LV-based drug repurposing approach that links diseases to potential treatments.
+We performed extensive simulations for our regression model ([Supplementary Note 1](#sm:reg:null_sim)) and clustering framework ([Supplementary Note 2](#sm:clustering:null_sim)) to ensure proper calibration and expected results under a model of no association.
     """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 3
+    assert len(paragraph) == 7
 
     model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
         keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
+            "gene co-expression",
+            "MultiPLIER",
+            "PhenomeXcan",
+            "TWAS",
         ],
     )
 
@@ -282,11 +285,22 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
 
-    # make sure manubot references were kept
-    assert "@fig:datasets_rel" in paragraph_revised
+    # list was kept
+    assert "1)" in paragraph_revised
+    assert "2)" in paragraph_revised
+    assert "3)" in paragraph_revised
+
+    # references to sub figures were kept
+    assert "Figure {@fig:entire_process}a" in paragraph_revised
+    assert "Figure {@fig:entire_process}b" in paragraph_revised
+
+    # ferences to sections were kept
+    assert "[Supplementary Note 1](#sm:reg:null_sim)" in paragraph_revised
+    assert "[Supplementary Note 2](#sm:clustering:null_sim)" in paragraph_revised
 
 
-def test_revise_too_long_paragraph():
+def test_revise_results_paragraph_is_too_long():
+    # from CCC manuscript
     paragraph = """
 We sought to systematically analyze discrepant scores to assess whether associations were replicated in other datasets besides GTEx.
 This is challenging and prone to bias because linear-only correlation coefficients are usually used in gene co-expression analyses.
