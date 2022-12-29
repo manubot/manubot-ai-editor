@@ -366,7 +366,8 @@ CCC is conceptually easy to interpret and has a single parameter that controls t
     assert len(paragraph_revised) > 100
 
 
-def test_revise_methods_paragraph():
+def test_revise_methods_paragraph_with_inline_equations_and_figure_refs():
+    # from CCC manuscript
     paragraph = """
 The Clustermatch Correlation Coefficient (CCC) computes a similarity value $c \in \left[0,1\right]$ between any pair of numerical or categorical features/variables $\mathbf{x}$ and $\mathbf{y}$ measured on $n$ objects.
 CCC assumes that if two features $\mathbf{x}$ and $\mathbf{y}$ are similar, then the partitioning by clustering of the $n$ objects using each feature separately should match.
@@ -401,34 +402,41 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # some formulas are referenced in the revised text
     assert "$" in paragraph_revised
 
+    # some figures are referenced in the revised text
+    assert "Figure @fig:datasets_rel" in paragraph_revised
 
-def test_revise_supplementary_material_paragraph():
+
+def test_revise_methods_paragraph_with_figure_table_and_equation_refs():
+    # from PhenoPLIER manuscript:
     paragraph = """
-We compared all the coefficients in this study with MIC [@pmid:22174245], a popular nonlinear method that can find complex relationships in data, although very computationally intensive [@doi:10.1098/rsos.201424].
-We ran MIC<sub>e</sub> (see Methods) on all possible pairwise comparisons of our 5,000 highly variable genes from whole blood in GTEx v8.
-This took 4 days and 19 hours to finish (compared with 9 hours for CCC).
-Then we performed the analysis on the distribution of coefficients (the same as in the main text), shown in Figure @fig:dist_coefs_mic.
-We verified that CCC and MIC behave similarly in this dataset, with essentially the same distribution but only shifted.
-Figure @fig:dist_coefs_mic c shows that these two coefficients relate almost linearly, and both compare very similarly with Pearson and Spearman.
+Note that, since we used the MultiXcan regression model (Equation (@eq:multixcan)), $\mathbf{R}$ is only an approximation of gene correlations in S-MultiXcan.
+As explained before, S-MultiXcan approximates the joint regression parameters in MultiXcan using the marginal regression estimates from S-PrediXcan in (@eq:spredixcan) with some simplifying assumptions and different genotype covariance matrices.
+This complicates the derivation of an S-MultiXcan-specific solution to compute $\mathbf{R}$.
+To account for this, we used a submatrix $\mathbf{R}_{\ell}$ corresponding to genes that are part of LV $\ell$ only (top 1% of genes) instead of the entire matrix $\mathbf{R}$.
+This simplification is conservative since correlations are accounted for top genes only.
+Our simulations ([Supplementary Note 1](#sm:reg:null_sim)) show that the model is approximately well-calibrated and can correct for LVs with adjacent and highly correlated genes at the top (e.g., Figure @fig:reg:nulls:qqplot:lv234).
+The model can also detect LVs associated with relevant traits (Figure @fig:lv246 and Table @tbl:sup:phenomexcan_assocs:lv246) that are replicated in a different cohort (Table @tbl:sup:emerge_assocs:lv246).
     """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 6
+    assert len(paragraph) == 7
 
     model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
         keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
+            "gene co-expression",
+            "MultiPLIER",
+            "PhenomeXcan",
+            "TWAS",
         ],
     )
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "supplementary_material", model
+        paragraph, "methods", model
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -436,4 +444,56 @@ Figure @fig:dist_coefs_mic c shows that these two coefficients relate almost lin
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
-    assert "@fig:dist_coefs_mic" in paragraph_revised
+    # some equations are referenced in the revised text
+    assert ("Equation (@eq:multixcan)" in paragraph_revised) or (
+        "Equation @eq:multixcan" in paragraph_revised
+    )
+
+    # some figures/tables are referenced in the revised text
+    assert "Figure @fig:lv246" in paragraph_revised
+    assert "Table @tbl:sup:phenomexcan_assocs:lv246" in paragraph_revised
+    assert "Table @tbl:sup:emerge_assocs:lv246" in paragraph_revised
+
+    # reference to important sections
+    assert "[Supplementary Note 1](#sm:reg:null_sim)" in paragraph_revised
+
+
+def test_revise_methods_paragraph_without_fig_table_reference():
+    # from LLM for articles revision manuscript
+    paragraph = """
+We used the OpenAI API for access to large language models, with a focus on the completion endpoints.
+This API incurs a cost with each run that depends on manuscript length.
+Because of this cost, we implemented our workflow in GitHub actions, making it triggerable by the user.
+The user can select the model that they wish to use, allowing costs to be tuned.
+With the most complex model, `text-davinci-003`, the cost per run is under $0.50 for many manuscripts.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 5
+
+    model = GPT3CompletionModel(
+        title="A publishing infrastructure for AI-assisted academic authoring",
+        keywords=[
+            "manubot",
+            "artificial intelligence",
+            "scholarly publishing",
+            "software",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    assert "`text-davinci-003`" in paragraph_revised
+
+    # no figures/tables are referenced in the revised text
+    assert "figure" not in paragraph_revised.lower()
+    assert "table" not in paragraph_revised.lower()
+    assert "@" not in paragraph_revised.lower()

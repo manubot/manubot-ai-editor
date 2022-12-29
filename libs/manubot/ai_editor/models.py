@@ -198,12 +198,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             """
         elif section_name in ("methods",):
             prompt = f"""
-                Revise the following paragraph of the {section_name} section of an
-                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
-                which is written in Markdown. Make sure the paragraph has a clear and easy-to-read sentence structure,
-                and it minimizes the use of jargon. Citations to other scientific articles
-                are between square brackets and start with @doi, @pmid, etc., and must be kept.
-                Formulas are between dollar signs ($) and must be kept:
+                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} section of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon.
+                Keep the Markdown formatting. 
             """
         else:
             prompt = f"""
@@ -217,7 +214,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        return f"{prompt}: {paragraph_text.strip()}"
+        return f"{prompt}\n\n{paragraph_text.strip()}"
 
     def revise_paragraph(self, paragraph_text, section_name, throw_error=False):
         """
