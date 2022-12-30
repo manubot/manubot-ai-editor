@@ -68,7 +68,7 @@ This model's maximum context length is 4097 tokens, however you requested 4498 t
             )
         else:
             # put sentences into new lines
-            paragraph_revised = SENTENCE_END_PATTERN.sub(".\n", paragraph_revised)
+            paragraph_revised = SENTENCE_END_PATTERN.sub(r".\n\1", paragraph_revised)
 
         if outfile is not None:
             outfile.write(paragraph_revised + "\n")

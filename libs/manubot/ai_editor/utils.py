@@ -3,7 +3,7 @@ import re
 import yaml
 
 
-SENTENCE_END_PATTERN = re.compile(r"\. ")
+SENTENCE_END_PATTERN = re.compile(r"\.\s(\S)")
 
 
 def get_yaml_field(yaml_file, field):
