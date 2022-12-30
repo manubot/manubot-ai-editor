@@ -162,7 +162,21 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-    def get_prompt(self, paragraph_text, section_name):
+    def get_prompt(self, paragraph_text: str, section_name: str) -> str:
+        """
+        Returns the prompt to be used for the revision of a paragraph that belongs
+        to a given section. There are three types of prompts according to the section:
+        Abstract, Introduction and the rest (i.e. Methods, Results, Discussion, etc.).
+
+        Args:
+            paragraph_text: text of the paragraph to revise.
+            section_name: name of the section the paragraph belongs to.
+
+        Returns:
+            Prompt to be used by the model for the revision of the paragraph.
+            It contains two paragraphs of text: the command for the model
+            ("Revise...") and the paragraph to revise.
+        """
         if section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
