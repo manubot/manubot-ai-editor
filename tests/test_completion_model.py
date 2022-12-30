@@ -699,10 +699,7 @@ This model's maximum context length is 4097 tokens, however you requested 17581 
     paragraph_revised_without_error = paragraph_revised.replace(
         error_message + "\n", ""
     )
-    assert (
-        SENTENCE_END_PATTERN.sub(".\n", paragraph_text)
-        == paragraph_revised_without_error
-    )
+    assert "\n".join(paragraph) == paragraph_revised_without_error
 
 
 def test_revise_discussion_paragraph_with_markdown_formatting_and_citations():

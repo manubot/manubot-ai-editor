@@ -67,16 +67,33 @@ ERROR: this paragraph could not be revised with the AI model due to the followin
 
         if error_message is not None:
             paragraph_revised = (
-                error_message + "\n" + SENTENCE_END_PATTERN.sub(".\n", paragraph_text)
+                error_message
+                + "\n"
+                + ManuscriptEditor.convert_sentence_ends_to_newlines(paragraph_text)
             )
         else:
             # put sentences into new lines
-            paragraph_revised = SENTENCE_END_PATTERN.sub(r".\n\1", paragraph_revised)
+            paragraph_revised = ManuscriptEditor.convert_sentence_ends_to_newlines(
+                paragraph_revised
+            )
 
         if outfile is not None:
             outfile.write(paragraph_revised + "\n")
         else:
             return paragraph_text, paragraph_revised
+
+    @staticmethod
+    def convert_sentence_ends_to_newlines(paragraph: str) -> str:
+        """
+        Converts sentence ends to newlines.
+
+        Args:
+            paragraph: paragraph to convert.
+
+        Returns:
+            Converted paragraph.
+        """
+        return SENTENCE_END_PATTERN.sub(r".\n\1", paragraph)
 
     @staticmethod
     def get_section_from_filename(filename: str) -> str | None:
