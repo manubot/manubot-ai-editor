@@ -25,10 +25,6 @@ class ManuscriptEditor:
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
     @staticmethod
-    def line_is_not_part_of_paragraph(line: str) -> bool:
-        return line.startswith(("#", "<!--")) or line.strip() == ""
-
-    @staticmethod
     def revise_and_write_paragraph(
         paragraph: list[str],
         section_name: str,
@@ -54,7 +50,8 @@ class ManuscriptEditor:
         error_message = None
         try:
             paragraph_revised = revision_model.revise_paragraph(
-                paragraph_text, section_name, throw_error=True
+                paragraph_text,
+                section_name,
             )
         except Exception as e:
             error_message = f"""
@@ -114,6 +111,11 @@ ERROR: this paragraph could not be revised with the AI model due to the followin
         else:
             return None
 
+    @staticmethod
+    def line_is_not_part_of_paragraph(line: str, include_blank=True) -> bool:
+        prefixes = ("![", "|", "<!--", "$$", "#", "```")
+        return line.startswith(prefixes) or (include_blank and line.strip() == "")
+
     def revise_file(
         self,
         input_filename: str,
@@ -149,7 +151,7 @@ ERROR: this paragraph could not be revised with the AI model due to the followin
             for line in infile:
                 # if line is starting either an "image paragraph", a "table paragraph" or a "html comment paragraph",
                 # then skip all lines until the end of that paragraph
-                if line.startswith(("![", "|", "<!--", "$$")):
+                if self.line_is_not_part_of_paragraph(line, include_blank=False):
                     while line is not None and line.strip() != "":
                         outfile.write(line)
                         line = next(infile, None)
@@ -158,9 +160,9 @@ ERROR: this paragraph could not be revised with the AI model due to the followin
                 if line is None:
                     break
 
-                # if the line is a comment or a section name, write it directly
-                # to the output file
-                if self.line_is_not_part_of_paragraph(line) and len(paragraph) == 0:
+                # if the line is empty and we didn't start a paragraph yet,
+                # write it directly to the output file
+                if line.strip() == "" and len(paragraph) == 0:
                     outfile.write(line)
 
                 # If the line is blank, it indicates the end of a paragraph
