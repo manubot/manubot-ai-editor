@@ -277,6 +277,10 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # most citations were kept in the revised text
     assert "[" not in paragraph_revised
     assert "@" not in paragraph_revised
@@ -329,6 +333,10 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # most citations were kept in the revised text
     assert "[" not in paragraph_revised
     assert "@" not in paragraph_revised
@@ -376,6 +384,10 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # most citations were kept in the revised text
     assert "[" not in paragraph_revised
     assert "@" not in paragraph_revised
@@ -421,6 +433,10 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
 
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
@@ -469,6 +485,10 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
     assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
@@ -515,6 +535,10 @@ Changes are presented to the user through the GitHub interface for author review
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
     assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
@@ -557,6 +581,10 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # some citations were kept in the revised text
     assert "[@" in paragraph_revised
 
@@ -598,6 +626,10 @@ We performed extensive simulations for our regression model ([Supplementary Note
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
 
     # list was kept
     assert "1)" in paragraph_revised
@@ -695,6 +727,10 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # some citations were kept in the revised text
     assert "[@" in paragraph_revised
 
@@ -736,6 +772,10 @@ The regression model, however, is approximately well-calibrated, and we did not 
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
 
     # equations or minor math were kept in the revised text
     assert "$" in paragraph_revised
@@ -782,6 +822,10 @@ This work lays the foundation for a future where academic manuscripts are constr
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # revised text does not have math or references
     assert "$" not in paragraph_revised
     assert "[" not in paragraph_revised
@@ -824,6 +868,10 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
 
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
     # some formulas are referenced in the revised text
     assert "$" in paragraph_revised
 
@@ -865,6 +913,10 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
 
     # some equations are referenced in the revised text
     assert ("Equation (@eq:multixcan)" in paragraph_revised) or (
@@ -912,6 +964,10 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
 
     assert "`text-davinci-003`" in paragraph_revised
 
