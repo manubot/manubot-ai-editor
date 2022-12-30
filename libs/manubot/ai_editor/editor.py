@@ -53,6 +53,9 @@ class ManuscriptEditor:
                 paragraph_text,
                 section_name,
             )
+
+            if paragraph_revised.strip() == "":
+                raise Exception("The AI model returned an empty string ('')")
         except Exception as e:
             error_message = f"""
 <!--
