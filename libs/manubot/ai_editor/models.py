@@ -165,10 +165,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     def get_prompt(self, paragraph_text, section_name):
         if section_name in ("abstract",):
             prompt = f"""
-                Revise the following {section_name} of an academic paper with title
-                '{self.title}' and keywords '{", ".join(self.keywords)}', which
-                is written in Markdown. Make sure the paragraph is easy to read,
-                it is in active voice, and the take-home message is clear:
+                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear.
             """
         elif section_name in ("introduction",):
             prompt = f"""

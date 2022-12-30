@@ -139,7 +139,9 @@ def test_get_prompt_for_introduction():
     assert "  " not in prompt
 
 
-def test_revise_abstract():
+
+def test_revise_abstract_ccc():
+    # from CCC manuscript
     paragraph = """
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
@@ -149,7 +151,7 @@ CCC captures general patterns in data by comparing clustering solutions while be
 When applied to human gene expression data, CCC identifies robust linear relationships while detecting nonlinear patterns associated, for example, with sex differences that are not captured by linear-only coefficients.
 Gene pairs highly ranked by CCC were enriched for interactions in integrated networks built from protein-protein interaction, transcription factor regulation, and chemical and genetic perturbations, suggesting that CCC could detect functional relationships that linear-only methods missed.
 CCC is a highly-efficient, next-generation not-only-linear correlation coefficient that can readily be applied to genome-scale data and other domains across different data types.
-    """.strip().split(
+        """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
@@ -171,6 +173,117 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # most citations were kept in the revised text
+    assert "[" not in paragraph_revised
+    assert "@" not in paragraph_revised
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
+
+
+def test_revise_abstract_phenoplier():
+    # from PhenoPLIER manuscript
+    paragraph = """
+Genes act in concert with each other in specific contexts to perform their functions.
+Determining how these genes influence complex traits requires a mechanistic understanding of expression regulation across different conditions.
+It has been shown that this insight is critical for developing new therapies.
+In this regard, the role of individual genes in disease-relevant mechanisms can be hypothesized with transcriptome-wide association studies (TWAS), which have represented a significant step forward in testing the mediating role of gene expression in GWAS associations.
+However, modern models of the architecture of complex traits predict that gene-gene interactions play a crucial role in disease origin and progression.
+Here we introduce PhenoPLIER, a computational approach that maps gene-trait associations and pharmacological perturbation data into a common latent representation for a joint analysis.
+This representation is based on modules of genes with similar expression patterns across the same conditions.
+We observed that diseases were significantly associated with gene modules expressed in relevant cell types, and our approach was accurate in predicting known drug-disease pairs and inferring mechanisms of action.
+Furthermore, using a CRISPR screen to analyze lipid regulation, we found that functionally important players lacked TWAS associations but were prioritized in trait-associated modules by PhenoPLIER.
+By incorporating groups of co-expressed genes, PhenoPLIER can contextualize genetic associations and reveal potential targets missed by single-gene strategies.
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 10
+
+    model = GPT3CompletionModel(
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
+        keywords=[
+            "genetic studies",
+            "functional genomics",
+            "gene co-expression",
+            "gene prioritization",
+            "drug repurposing",
+            "clustering of complex traits",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "abstract", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # most citations were kept in the revised text
+    assert "[" not in paragraph_revised
+    assert "@" not in paragraph_revised
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
+
+
+def test_revise_abstract_ai_revision():
+    # from LLM for articles revision manuscript
+    paragraph = """
+Academics often communicate through scholarly manuscripts.
+These manuscripts describe new advances, summarize existing literature, or argue for changes in the status quo.
+Writing and revising manuscripts can be a time-consuming process.
+Large language models are bringing new capabilities to many areas of knowledge work.
+We integrated the use of large language models into the Manubot publishing ecosystem.
+Users of Manubot can run a workflow, which will trigger a series of queries to OpenAI's language models, produce revisions, and create a timestamped set of suggested revisions.
+Given the amount of time that researchers put into crafting prose, we expect this advance to radically transform the type of knowledge work that academics perform.
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 7
+
+    model = GPT3CompletionModel(
+        title="A publishing infrastructure for AI-assisted academic authoring",
+        keywords=[
+            "manubot",
+            "artificial intelligence",
+            "scholarly publishing",
+            "software",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "abstract", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # most citations were kept in the revised text
+    assert "[" not in paragraph_revised
+    assert "@" not in paragraph_revised
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
 
 
 def test_revise_introduction_paragraph_with_single_and_multiple_citations_together():
