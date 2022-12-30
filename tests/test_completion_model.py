@@ -171,19 +171,19 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
-    assert len(paragraph_revised) > 10
 
 
-def test_revise_introduction_paragraph_with_citations():
+def test_revise_introduction_paragraph_with_single_and_multiple_citations_together():
+    # from CCC manuscript
     paragraph = """
-New technologies have vastly improved data collection, generating a deluge of information across different disciplines.
-This large amount of data provides new opportunities to address unanswered scientific questions, provided we have efficient tools capable of identifying multiple types of underlying patterns.
-Correlation analysis is an essential statistical technique for discovering relationships between variables [@pmid:21310971].
-Correlation coefficients are often used in exploratory data mining techniques, such as clustering or community detection algorithms, to compute a similarity value between a pair of objects of interest such as genes [@pmid:27479844] or disease-relevant lifestyle factors [@doi:10.1073/pnas.1217269109].
-Correlation methods are also used in supervised tasks, for example, for feature selection to improve prediction accuracy [@pmid:27006077; @pmid:33729976].
-The Pearson correlation coefficient is ubiquitously deployed across application domains and diverse scientific areas.
-Thus, even minor and significant improvements in these techniques could have enormous consequences in industry and research.
-    """.strip().split(
+In transcriptomics, many analyses start with estimating the correlation between genes.
+More sophisticated approaches built on correlation analysis can suggest gene function [@pmid:21241896], aid in discovering common and cell lineage-specific regulatory networks [@pmid:25915600], and capture important interactions in a living organism that can uncover molecular mechanisms in other species [@pmid:21606319; @pmid:16968540].
+The analysis of large RNA-seq datasets [@pmid:32913098; @pmid:34844637] can also reveal complex transcriptional mechanisms underlying human diseases [@pmid:27479844; @pmid:31121115; @pmid:30668570; @pmid:32424349; @pmid:34475573].
+Since the introduction of the omnigenic model of complex traits [@pmid:28622505; @pmid:31051098], gene-gene relationships are playing an increasingly important role in genetic studies of human diseases [@pmid:34845454; @doi:10.1101/2021.07.05.450786; @doi:10.1101/2021.10.21.21265342; @doi:10.1038/s41588-021-00913-z], even in specific fields such as polygenic risk scores [@doi:10.1016/j.ajhg.2021.07.003].
+In this context, recent approaches combine disease-associated genes from genome-wide association studies (GWAS) with gene co-expression networks to prioritize "core" genes directly affecting diseases [@doi:10.1186/s13040-020-00216-9; @doi:10.1101/2021.07.05.450786; @doi:10.1101/2021.10.21.21265342].
+These core genes are not captured by standard statistical methods but are believed to be part of highly-interconnected, disease-relevant regulatory networks.
+Therefore, advanced correlation coefficients could immediately find wide applications across many areas of biology, including the prioritization of candidate drug targets in the precision medicine field.
+        """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
@@ -205,14 +205,111 @@ Thus, even minor and significant improvements in these techniques could have eno
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
 
-    # make sure manubot references were kept
+    # most citations were kept in the revised text
     assert "[@" in paragraph_revised
-    assert "@pmid:21310971" in paragraph_revised
-    assert "@pmid:27479844" in paragraph_revised
-    assert "@pmid:27006077" in paragraph_revised
-    assert "@pmid:33729976" in paragraph_revised
-    assert "@doi:10.1073/pnas.1217269109" in paragraph_revised
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
+
+
+def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first():
+    # from PhenoPLIER manuscript
+    paragraph = """
+Genes work together in context-specific networks to carry out different functions [@pmid:19104045; @doi:10.1038/ng.3259].
+Variations in these genes can change their functional role and, at a higher level, affect disease-relevant biological processes [@doi:10.1038/s41467-018-06022-6].
+In this context, determining how genes influence complex traits requires mechanistically understanding expression regulation across different cell types [@doi:10.1126/science.aaz1776; @doi:10.1038/s41586-020-2559-3; @doi:10.1038/s41576-019-0200-9], which in turn should lead to improved treatments [@doi:10.1038/ng.3314; @doi:10.1371/journal.pgen.1008489].
+Previous studies have described different regulatory DNA elements [@doi:10.1038/nature11247; @doi:10.1038/nature14248; @doi:10.1038/nature12787; @doi:10.1038/s41586-020-03145-z; @doi:10.1038/s41586-020-2559-3] including genetic effects on gene expression across different tissues [@doi:10.1126/science.aaz1776].
+Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081-4; @doi:10.1016/j.ajhg.2018.04.002; @doi:10.1038/s41588-018-0081-4; @doi:10.1038/ncomms6890] has improved the identification of these transcriptional mechanisms that, when dysregulated, commonly result in tissue- and cell lineage-specific pathology [@pmid:20624743; @pmid:14707169; @doi:10.1073/pnas.0810772105].
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 5
+
+    model = GPT3CompletionModel(
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
+        keywords=[
+            "genetic studies",
+            "functional genomics",
+            "gene co-expression",
+            "gene prioritization",
+            "drug repurposing",
+            "clustering of complex traits",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "introduction", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # most citations were kept in the revised text
+    assert "[@" in paragraph_revised
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
+
+
+def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last():
+    # from LLM for articles revision manuscript
+    paragraph = """
+We developed a software publishing platform that imagines a future where authors co-write their manuscripts with the support of large language models.
+We used, as a base, the Manubot platform for scholarly publishing [@doi:10.1371/journal.pcbi.1007128].
+Manubot was designed as an end-to-end publishing platform for scholarly writing for both individual and large-collaborative projects.
+It has been used for collaborations of approximately 50 authors writing hundreds of pages of text reviewing progress during the COVID19 pandemic [@pmid:34545336].
+We developed a new workflow that parses the manuscript, uses a large language model with section-specific custom prompts to revise the manuscript, and then creates a set of suggested changes to reach the revised state.
+Changes are presented to the user through the GitHub interface for author review and integration into the published document.
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 6
+
+    model = GPT3CompletionModel(
+        title="A publishing infrastructure for AI-assisted academic authoring",
+        keywords=[
+            "manubot",
+            "artificial intelligence",
+            "scholarly publishing",
+            "software",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "introduction", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # most citations were kept in the revised text
+    assert "[@" in paragraph_revised
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
 
 
 def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations():

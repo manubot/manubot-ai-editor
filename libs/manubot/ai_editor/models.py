@@ -172,12 +172,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             """
         elif section_name in ("introduction",):
             prompt = f"""
-                Revise the following paragraph of the {section_name} section of an
-                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
-                which is written in Markdown. Make sure the paragraph is easy to read,
-                it is in active voice, it has a clear and easy-to-read sentence structure,
-                and it minimizes the use of jargon. Citations to other scientific articles
-                are between square brackets and start with @doi, @pmid, etc., and should be kept:
+                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} section of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Make sure the paragraph has a clear and easy-to-read sentence structure, it is in active voice, and it minimizes the use of jargon.
+                Keep most of the citations to other academic papers.
+                Keep the Markdown formatting.
             """
         elif section_name in (
             "methods",
