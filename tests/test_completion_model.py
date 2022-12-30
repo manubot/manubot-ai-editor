@@ -129,7 +129,7 @@ def test_get_prompt_for_introduction():
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert prompt is not None
     assert isinstance(prompt, str)
-    assert "introduction" in prompt
+    assert "Introduction" in prompt
     assert f"'{me.title}'" in prompt
     assert f"{me.keywords[0]}" in prompt
     assert f"{me.keywords[1]}" in prompt
