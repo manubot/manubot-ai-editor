@@ -139,6 +139,109 @@ def test_get_prompt_for_introduction():
     assert "  " not in prompt
 
 
+def test_get_max_tokens_fraction_is_one():
+    paragraph = """
+Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
+In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    paragraph_text = " ".join(paragraph)
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    max_tokens = model.get_max_tokens(paragraph_text, 1.0)
+    assert max_tokens is not None
+    assert isinstance(max_tokens, int)
+    assert 50 < max_tokens < 60
+
+
+def test_get_max_tokens_using_fraction_is_two():
+    paragraph = """
+Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
+In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    paragraph_text = " ".join(paragraph)
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    max_tokens = model.get_max_tokens(paragraph_text, 2.0)
+    assert max_tokens is not None
+    assert isinstance(max_tokens, int)
+    assert 110 < max_tokens < 120
+
+
+@mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "0.5"})
+def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_float():
+    paragraph = """
+Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
+In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    paragraph_text = " ".join(paragraph)
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    max_tokens = model.get_max_tokens(paragraph_text)
+    assert max_tokens is not None
+    assert isinstance(max_tokens, int)
+    assert 25 < max_tokens < 35
+
+
+@mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "779"})
+def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_int():
+    paragraph = """
+Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
+In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    paragraph_text = " ".join(paragraph)
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model = GPT3CompletionModel(
+        title=me.title,
+        keywords=me.keywords,
+    )
+
+    # parameter 'fraction' is ignored when environment variable is set
+    max_tokens = model.get_max_tokens(paragraph_text, 2.0)
+    assert max_tokens is not None
+    assert isinstance(max_tokens, int)
+    assert max_tokens == 779
+
+
 def test_revise_abstract_ccc():
     # from CCC manuscript
     paragraph = """
