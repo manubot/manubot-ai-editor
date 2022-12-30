@@ -139,7 +139,6 @@ def test_get_prompt_for_introduction():
     assert "  " not in prompt
 
 
-
 def test_revise_abstract_ccc():
     # from CCC manuscript
     paragraph = """
