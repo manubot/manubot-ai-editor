@@ -1,5 +1,8 @@
+import json
+import os
 from pathlib import Path
 
+from manubot.ai_editor import env_vars
 from manubot.ai_editor.models import ManuscriptRevisionModel
 from manubot.ai_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
 
@@ -75,21 +78,36 @@ ERROR: this paragraph could not be revised with the AI model due to the followin
         else:
             return paragraph_text, paragraph_revised
 
-    def get_section_from_filename(self, filename: str) -> str:
+    @staticmethod
+    def get_section_from_filename(filename: str) -> str | None:
         """
         Returns the section name of a file based on its filename.
         """
         filename = filename.lower()
 
+        if env_vars.SECTIONS_MAPPING in os.environ:
+            sections_mapping = os.environ[env_vars.SECTIONS_MAPPING]
+            try:
+                sections_mapping = json.loads(sections_mapping)
+                if filename in sections_mapping:
+                    return sections_mapping[filename]
+            except json.JSONDecodeError:
+                print(
+                    f"Invalid JSON in environment variable {env_vars.SECTIONS_MAPPING}",
+                    flush=True,
+                )
+
         if "abstract" in filename:
             return "abstract"
         elif "introduction" in filename:
             return "introduction"
-        elif "results" in filename:
+        elif "result" in filename:
             return "results"
         elif "discussion" in filename:
             return "discussion"
-        elif "methods" in filename:
+        elif "conclusion" in filename:
+            return "conclusions"
+        elif "method" in filename:
             return "methods"
         elif "supplementary" in filename:
             return "supplementary_material"

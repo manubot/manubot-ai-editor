@@ -1,7 +1,9 @@
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
+from manubot.ai_editor import env_vars
 from manubot.ai_editor.editor import ManuscriptEditor
 from manubot.ai_editor.models import DummyManuscriptRevisionModel, GPT3CompletionModel
 
@@ -101,22 +103,68 @@ def test_revise_introduction(tmp_path, model):
 
 
 def test_get_section_from_filename():
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
+    assert ManuscriptEditor.get_section_from_filename("00.front-matter.md") is None
+    assert ManuscriptEditor.get_section_from_filename("01.abstract.md") == "abstract"
+    assert (
+        ManuscriptEditor.get_section_from_filename("02.introduction.md")
+        == "introduction"
+    )
+    assert ManuscriptEditor.get_section_from_filename("02.intro.md") is None
+    assert ManuscriptEditor.get_section_from_filename("03.results.md") == "results"
+    assert (
+        ManuscriptEditor.get_section_from_filename("04.10.results_comp.md") == "results"
+    )
+    assert (
+        ManuscriptEditor.get_section_from_filename("04.discussion.md") == "discussion"
+    )
+    assert (
+        ManuscriptEditor.get_section_from_filename("05.conclusions.md") == "conclusions"
+    )
+    assert (
+        ManuscriptEditor.get_section_from_filename("08.01.methods.ccc.md") == "methods"
+    )
+    assert (
+        ManuscriptEditor.get_section_from_filename("08.15.methods.giant.md")
+        == "methods"
+    )
+    assert ManuscriptEditor.get_section_from_filename("07.references.md") is None
+    assert ManuscriptEditor.get_section_from_filename("06.acknowledgements.md") is None
+    assert (
+        ManuscriptEditor.get_section_from_filename("08.supplementary.md")
+        == "supplementary_material"
     )
 
-    assert me.get_section_from_filename("00.front-matter.md") is None
-    assert me.get_section_from_filename("01.abstract.md") == "abstract"
-    assert me.get_section_from_filename("02.introduction.md") == "introduction"
-    assert me.get_section_from_filename("03.results.md") == "results"
-    assert me.get_section_from_filename("04.discussion.md") == "discussion"
-    assert me.get_section_from_filename("08.01.methods.ccc.md") == "methods"
-    assert me.get_section_from_filename("08.15.methods.giant.md") == "methods"
-    assert me.get_section_from_filename("07.references.md") is None
-    assert me.get_section_from_filename("06.acknowledgements.md") is None
+
+@mock.patch.dict(
+    "os.environ",
+    {
+        env_vars.SECTIONS_MAPPING: r"""
+    {"02.intro.md": "introduction"}
+    """
+    },
+)
+def test_get_section_from_filename_using_environment_variable():
     assert (
-        me.get_section_from_filename("08.supplementary.md") == "supplementary_material"
+        ManuscriptEditor.get_section_from_filename("02.introduction.md")
+        == "introduction"
     )
+    assert ManuscriptEditor.get_section_from_filename("02.intro.md") == "introduction"
+
+
+@mock.patch.dict(
+    "os.environ",
+    {
+        env_vars.SECTIONS_MAPPING: r"""
+    {"02.intro.md": }
+    """
+    },
+)
+def test_get_section_from_filename_using_environment_variable_is_invalid():
+    assert (
+        ManuscriptEditor.get_section_from_filename("02.introduction.md")
+        == "introduction"
+    )
+    assert ManuscriptEditor.get_section_from_filename("02.intro.md") is None
 
 
 @pytest.mark.parametrize(
