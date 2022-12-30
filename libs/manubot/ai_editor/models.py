@@ -46,6 +46,7 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
     """
 
     def __init__(self):
+        super().__init__()
         self.sentence_end_pattern = re.compile(r"\n")
 
     def revise_paragraph(self, paragraph_text, section_name):
@@ -235,7 +236,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return int(estimated_tokens_in_paragraph_text * fraction)
 
-    def revise_paragraph(self, paragraph_text, section_name, throw_error=False):
+    def revise_paragraph(self, paragraph_text, section_name):
         """
         It revises a paragraph using GPT-3 completion model.
 
@@ -251,22 +252,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         max_tokens = self.get_max_tokens(paragraph_text)
         prompt = self.get_prompt(paragraph_text, section_name)
 
-        try:
-            params = {
-                "prompt": prompt,
-                "max_tokens": max_tokens,
-                "stop": None,
-                "n": 1,
-            }
+        params = {
+            "prompt": prompt,
+            "max_tokens": max_tokens,
+            "stop": None,
+            "n": 1,
+        }
 
-            params.update(self.model_parameters)
+        params.update(self.model_parameters)
 
-            completions = openai.Completion.create(**params)
-        except Exception as e:
-            if throw_error:
-                raise e
-            else:
-                return paragraph_text
+        completions = openai.Completion.create(**params)
 
         message = completions.choices[0].text
         return message.strip()
