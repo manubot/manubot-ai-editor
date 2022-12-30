@@ -54,11 +54,11 @@ class ManuscriptEditor:
                 paragraph_text, section_name, throw_error=True
             )
         except Exception as e:
-            error_message = r"""
+            error_message = f"""
 <!--
 ERROR: this paragraph could not be revised with the AI model due to the following error:
 
-This model's maximum context length is 4097 tokens, however you requested 4498 tokens (934 in your prompt; 3564 for the completion). Please reduce your prompt; or completion length.
+{str(e)}
 -->
             """.strip()
 

@@ -248,7 +248,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             params.update(self.model_parameters)
 
             completions = openai.Completion.create(**params)
-        except openai.error.InvalidRequestError as e:
+        except Exception as e:
             if throw_error:
                 raise e
             else:

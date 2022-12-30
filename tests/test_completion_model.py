@@ -617,26 +617,13 @@ def test_revise_results_paragraph_is_too_long():
     # from CCC manuscript
     paragraph = """
 We sought to systematically analyze discrepant scores to assess whether associations were replicated in other datasets besides GTEx.
-This is challenging and prone to bias because linear-only correlation coefficients are usually used in gene co-expression analyses.
-We used 144 tissue-specific gene networks from the Genome-wide Analysis of gene Networks in Tissues (GIANT) [@pmcid:PMC4828725; @url:https://hb.flatironinstitute.org], where nodes represent genes and each edge a functional relationship weighted with a probability of interaction between two genes (see [Methods](#sec:giant)).
-Importantly, the version of GIANT used in this study did not include GTEx samples [@url:https://hb.flatironinstitute.org/data], making it an ideal case for replication.
-These networks were built from expression and different interaction measurements, including protein-interaction, transcription factor regulation, chemical/genetic perturbations and microRNA target profiles from the Molecular Signatures Database (MSigDB [@pmid:16199517]).
-We reasoned that highly-ranked gene pairs using three different coefficients in a single tissue (whole blood in GTEx, Figure @fig:upsetplot_coefs) that represented real patterns should often replicate in a corresponding tissue or related cell lineage using the multi-cell type functional interaction networks in GIANT.
-In addition to predicting a network with interactions for a pair of genes, the GIANT web application can also automatically detect a relevant tissue or cell type where genes are predicted to be specifically expressed (the approach uses a machine learning method introduced in [@doi:10.1101/gr.155697.113] and described in [Methods](#sec:giant)).
-For example, we obtained the networks in blood and the automatically-predicted cell type for gene pairs *RASSF2* - *CYTIP* (CCC high, Figure @fig:giant_gene_pairs a) and *MYOZ1* - *TNNI2* (Pearson high, Figure @fig:giant_gene_pairs b).
-In addition to the gene pair, the networks include other genes connected according to their probability of interaction (up to 15 additional genes are shown), which allows estimating whether genes are part of the same tissue-specific biological process.
-Two large black nodes in each network's top-left and bottom-right corners represent our gene pairs.
-A green edge means a close-to-zero probability of interaction, whereas a red edge represents a strong predicted relationship between the two genes.
-In this example, genes *RASSF2* and *CYTIP* (Figure @fig:giant_gene_pairs a), with a high CCC value ($c=0.20$, above the 73th percentile) and low Pearson and Spearman ($p=0.16$ and $s=0.11$, below the 38th and 17th percentiles, respectively), were both strongly connected to the blood network, with interaction scores of at least 0.63 and an average of 0.75 and 0.84, respectively (Supplementary Table @tbl:giant:weights).
-The autodetected cell type for this pair was leukocytes, and interaction scores were similar to the blood network (Supplementary Table @tbl:giant:weights).
-However, genes *MYOZ1* and *TNNI2*, with a very high Pearson value ($p=0.97$), moderate Spearman ($s=0.28$) and very low CCC ($c=0.03$), were predicted to belong to much less cohesive networks (Figure @fig:giant_gene_pairs b), with average interaction scores of 0.17 and 0.22 with the rest of the genes, respectively.
-Additionally, the autodetected cell type (skeletal muscle) is not related to blood or one of its cell lineages.
-These preliminary results suggested that CCC might be capturing blood-specific patterns missed by the other coefficients.
     """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 16
+    assert len(paragraph) == 1
+
+    paragraph = paragraph * 200
 
     model = GPT3CompletionModel(
         title="An efficient not-only-linear correlation coefficient based on machine learning",
@@ -660,7 +647,7 @@ These preliminary results suggested that CCC might be capturing blood-specific p
 <!--
 ERROR: this paragraph could not be revised with the AI model due to the following error:
 
-This model's maximum context length is 4097 tokens, however you requested 4498 tokens (934 in your prompt; 3564 for the completion). Please reduce your prompt; or completion length.
+This model's maximum context length is 4097 tokens, however you requested 17581 tokens (4283 in your prompt; 13298 for the completion). Please reduce your prompt; or completion length.
 -->
     """.strip()
     assert paragraph_revised.startswith(error_message)
