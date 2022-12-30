@@ -179,19 +179,17 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 and it minimizes the use of jargon. Citations to other scientific articles
                 are between square brackets and start with @doi, @pmid, etc., and should be kept:
             """
-        elif section_name in ("methods", "results", "supplementary_material"):
+        elif section_name in (
+            "methods",
+            "results",
+            "discussion",
+            "conclusions",
+            "supplementary_material",
+        ):
             prompt = f"""
                 Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} section of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
                 Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon.
                 Keep the Markdown formatting.
-            """
-        elif section_name in ("discussion",):
-            prompt = f"""
-                Revise the following paragraph of the {section_name} section of an
-                academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}',
-                which is written in Markdown. Make sure the paragraph has a clear and easy-to-read sentence structure,
-                and it minimizes the use of jargon. Citations to other scientific articles
-                are between square brackets and start with @doi, @pmid, etc., and should be kept:
             """
         else:
             prompt = f"""

@@ -243,6 +243,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
 
     # some citations were kept in the revised text
     assert "[@" in paragraph_revised
@@ -284,6 +285,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
     assert paragraph_revised is not None
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
 
     # list was kept
     assert "1)" in paragraph_revised
@@ -360,23 +362,21 @@ This model's maximum context length is 4097 tokens, however you requested 4498 t
     )
 
 
-def test_revise_discussion_paragraph():
+def test_revise_discussion_paragraph_with_markdown_formatting_and_citations():
+    # from CCC manuscript
     paragraph = """
-We introduce the Clustermatch Correlation Coefficient (CCC), an efficient not-only-linear machine learning-based statistic.
-Applying CCC to GTEx v8 revealed that it was robust to outliers and detected linear relationships as well as complex and biologically meaningful patterns that standard coefficients missed.
-In particular, CCC alone detected gene pairs with complex nonlinear patterns from the sex chromosomes, highlighting the way that not-only-linear coefficients can play in capturing sex-specific differences.
-The ability to capture these nonlinear patterns, however, extends beyond sex differences: it provides a powerful approach to detect complex relationships where a subset of samples or conditions are explained by other factors (such as differences between health and disease).
-We found that top CCC-ranked gene pairs in whole blood from GTEx were replicated in independent tissue-specific networks trained from multiple data types and attributed to cell lineages from blood, even though CCC did not have access to any cell lineage-specific information.
-This suggests that CCC can disentangle intricate cell lineage-specific transcriptional patterns missed by linear-only coefficients.
-In addition to capturing nonlinear patterns, the CCC was more similar to Spearman than Pearson, highlighting their shared robustness to outliers.
-The CCC results were concordant with MIC, but much faster to compute and thus practical for large datasets.
-Another advantage over MIC is that CCC can also process categorical variables together with numerical values.
-CCC is conceptually easy to interpret and has a single parameter that controls the maximum complexity of the detected relationships while also balancing compute time.
-    """.strip().split(
+It is well-known that biomedical research is biased towards a small fraction of human genes [@pmid:17620606; @pmid:17472739].
+Some genes highlighted in CCC-ranked pairs (Figure @fig:upsetplot_coefs b), such as *SDS* (12q24) and *ZDHHC12* (9q34), were previously found to be the focus of fewer than expected publications [@pmid:30226837].
+It is possible that the widespread use of linear coefficients may bias researchers away from genes with complex coexpression patterns.
+A beyond-linear gene co-expression analysis on large compendia might shed light on the function of understudied genes.
+For example, gene *KLHL21* (1p36) and *AC068580.6* (*ENSG00000235027*, in 11p15) have a high CCC value and are missed by the other coefficients.
+*KLHL21* was suggested as a potential therapeutic target for hepatocellular carcinoma [@pmid:27769251] and other cancers [@pmid:29574153; @pmid:35084622].
+Its nonlinear correlation with *AC068580.6* might unveil other important players in cancer initiation or progression, potentially in subsets of samples with specific characteristics (as suggested in Figure @fig:upsetplot_coefs b).
+        """.strip().split(
         "\n"
     )
     paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 10
+    assert len(paragraph) == 7
 
     model = GPT3CompletionModel(
         title="An efficient not-only-linear correlation coefficient based on machine learning",
@@ -395,6 +395,98 @@ CCC is conceptually easy to interpret and has a single parameter that controls t
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
+
+    # some citations were kept in the revised text
+    assert "[@" in paragraph_revised
+
+    # Markdown formatting was kept in the revised text
+    assert "*" in paragraph_revised
+
+
+def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites():
+    # from PhenoPLIER manuscript
+    paragraph = """
+Finally, we developed an LV-based regression framework to detect whether gene modules are associated with a trait using TWAS $p$-values.
+We used PhenomeXcan as a discovery cohort across four thousand traits, and many LV-trait associations replicated in eMERGE.
+In PhenomeXcan, we found 3,450 significant LV-trait associations (FDR < 0.05) with 686 LVs (out of 987) associated with at least one trait and 1,176 traits associated with at least one LV.
+In eMERGE, we found 196 significant LV-trait associations, with 116 LVs associated with at least one trait/phecode and 81 traits with at least one LV.
+We only focused on a few disease types from our trait clusters, but the complete set of associations on other disease domains is available in our [Github repository](https://github.com/greenelab/phenoplier) for future research.
+As noted in [Methods](#sec:methods:reg), one limitation of the regression approach is that the gene-gene correlations are only approximately accurate, which could lead to false positives if the correlation among the top genes in a module is not precisely captured.
+The regression model, however, is approximately well-calibrated, and we did not observe inflation when running the method in real data.
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 7
+
+    model = GPT3CompletionModel(
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
+        keywords=[
+            "gene co-expression",
+            "MultiPLIER",
+            "PhenomeXcan",
+            "TWAS",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "discussion", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # equations or minor math were kept in the revised text
+    assert "$" in paragraph_revised
+    assert "FDR < 0.05" in paragraph_revised
+
+    # refs to external websites
+    assert (
+        "[Github repository](https://github.com/greenelab/phenoplier)"
+        in paragraph_revised
+    )
+
+
+def test_revise_conclusions_paragraph_with_simple_text():
+    # conclusions is the same as discussion in CCC/PhenoPLIER
+
+    # from LLM for articles revision manuscript
+    paragraph = """
+We implemented AI-based models into publishing infrastructure.
+While most manuscripts have been written by humans, the process is time consuming and academic writing can be difficult to parse.
+We sought to develop a technology that academics could use to make their writing more understandable without changing the fundamental meaning.
+This work lays the foundation for a future where academic manuscripts are constructed by a process that incorporates both human and machine authors.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 4
+
+    model = GPT3CompletionModel(
+        title="A publishing infrastructure for AI-assisted academic authoring",
+        keywords=[
+            "manubot",
+            "artificial intelligence",
+            "scholarly publishing",
+            "software",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "conclusions", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+
+    # revised text does not have math or references
+    assert "$" not in paragraph_revised
+    assert "[" not in paragraph_revised
+    assert "@" not in paragraph_revised
 
 
 def test_revise_methods_paragraph_with_inline_equations_and_figure_refs():
