@@ -59,7 +59,7 @@ class ManuscriptEditor:
         except Exception as e:
             error_message = f"""
 <!--
-ERROR: this paragraph could not be revised with the AI model due to the following error:
+ERROR: the paragraph below could not be revised with the AI model due to the following error:
 
 {str(e)}
 -->

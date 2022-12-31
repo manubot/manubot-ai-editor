@@ -689,7 +689,7 @@ We sought to systematically analyze discrepant scores to assess whether associat
     # if there is an error, it should return the original paragraph with a header specifying the error
     error_message = r"""
 <!--
-ERROR: this paragraph could not be revised with the AI model due to the following error:
+ERROR: the paragraph below could not be revised with the AI model due to the following error:
 
 This model's maximum context length is 4097 tokens, however you requested 17581 tokens (4283 in your prompt; 13298 for the completion). Please reduce your prompt; or completion length.
 -->
