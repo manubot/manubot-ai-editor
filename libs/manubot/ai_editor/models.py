@@ -1,6 +1,7 @@
 import os
 import re
 from abc import ABC, abstractmethod
+import random
 
 import openai
 
@@ -42,7 +43,6 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
     """
     This model does nothing, just returns the same paragraph content with
     sentences one after the other separated by a white space (no new lines).
-    This mimics what a real OpenAI model does.
     """
 
     def __init__(self):
@@ -51,6 +51,41 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
 
     def revise_paragraph(self, paragraph_text, section_name):
         return self.sentence_end_pattern.sub(" ", paragraph_text).strip()
+
+    def get_prompt(self, paragraph_text, section_name):
+        return paragraph_text
+
+
+class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
+    """
+    This model takes a paragraph and randomizes the words. The paragraph has the
+    sentences one after the other separated by a white space (no new lines).
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.sentence_end_pattern = re.compile(r"\n")
+
+    def revise_paragraph(self, paragraph_text: str, section_name: str) -> str:
+        """
+        It takes each sentence of the paragraph and randomizes the words.
+        """
+        paragraph_text = self.sentence_end_pattern.sub(" ", paragraph_text).strip()
+        sentences = paragraph_text.split(". ")
+        sentences_revised = []
+        for sentence in sentences:
+            words = sentence.split(" ")
+            words_revised = []
+            for word in words:
+                if len(word) > 3:
+                    word_revised = (
+                        "".join(random.sample(word[1:-1], len(word[1:-1]))) + word[-1]
+                    )
+                else:
+                    word_revised = word
+                words_revised.append(word_revised)
+            sentences_revised.append(" ".join(words_revised))
+        return ". ".join(sentences_revised)
 
     def get_prompt(self, paragraph_text, section_name):
         return paragraph_text
