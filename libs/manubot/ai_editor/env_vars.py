@@ -38,3 +38,8 @@ BEST_OF = "AI_EDITOR_BEST_OF"
 # AI model when revising a paragraph. For example, for the introduction, prompts
 # contain sentences to preserve most of the citations to other papers.
 SECTIONS_MAPPING = "AI_EDITOR_FILENAME_SECTION_MAPPING"
+
+# Sometimes the AI model returns an empty paragraph. Usually, this is resolved
+# by running again the model. The AI Editor will try three (3) times in these
+# cases. This variable allows to specify the number of retries.
+RETRY_COUNT = "AI_EDITOR_RETRY_COUNT"

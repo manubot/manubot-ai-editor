@@ -109,6 +109,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         frequency_penalty: float = None,
         best_of: int = None,
         top_p: float = None,
+        retry_count: int = 3,
     ):
         super().__init__()
 
@@ -174,7 +175,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 best_of = int(os.environ[env_vars.BEST_OF])
                 print(f"Using best_of from environment variable '{env_vars.BEST_OF}'")
             except ValueError:
-                # if it is not a float, we ignore it
+                # if it is not an int, we ignore it
+                pass
+
+        self.retry_count = retry_count
+        if env_vars.RETRY_COUNT in os.environ:
+            try:
+                self.retry_count = int(os.environ[env_vars.RETRY_COUNT])
+                print(
+                    f"Using retry_count from environment variable '{env_vars.RETRY_COUNT}'"
+                )
+            except ValueError:
+                # if it is not an int, we ignore it
                 pass
 
         self.title = title
@@ -294,7 +306,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         params.update(self.model_parameters)
 
-        completions = openai.Completion.create(**params)
+        retry_count = 0
+        message = ""
+        while message == "" and retry_count < self.retry_count:
+            completions = openai.Completion.create(**params)
+            message = completions.choices[0].text.strip()
+            retry_count += 1
 
-        message = completions.choices[0].text
-        return message.strip()
+        return message
