@@ -171,9 +171,22 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             current_table_paragraph = False
 
             for line in infile:
-                # if line is starting either an "image paragraph", a "table paragraph" or a "html comment paragraph",
-                # then skip all lines until the end of that paragraph
-                if self.line_is_not_part_of_paragraph(line, include_blank=False):
+                if line.startswith("<!--"):
+                    # This is an HTML comment.
+                    while line is not None and not line.strip().endswith("-->"):
+                        outfile.write(line)
+                        line = next(infile, None)
+
+                    if line is not None and line.strip().endswith("-->"):
+                        outfile.write(line)
+                        line = next(infile, None)
+
+                # if line is starting either an "image paragraph", a "table
+                # paragraph" or a "html comment paragraph", then skip all lines
+                # until the end of that paragraph
+                if line is not None and self.line_is_not_part_of_paragraph(
+                    line, include_blank=False
+                ):
                     if line.startswith("|"):
                         current_table_paragraph = True
 

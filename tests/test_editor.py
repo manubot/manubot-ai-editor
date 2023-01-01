@@ -355,6 +355,170 @@ The GIANT web-server was accessed on April 4, 2022.
         # GPT3CompletionModel(None, None),
     ],
 )
+def test_revise_supplementary_material_from_phenoplier_with_many_tables(
+    tmp_path, model
+):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "phenoplier",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("50.00.supplementary_material.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR
+        / "phenoplier"
+        / "50.00.supplementary_material.md",
+        output_filepath=tmp_path / "50.00.supplementary_material.md",
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!-- LV603:multiplier_pathways:start -->
+| Pathway                             | AUC   | FDR      |
+|:------------------------------------|:------|:---------|
+| IRIS Neutrophil-Resting             | 0.91  | 4.51e-35 |
+| SVM Neutrophils                     | 0.98  | 1.43e-09 |
+| PID IL8CXCR2 PATHWAY                | 0.81  | 7.04e-03 |
+| SIG PIP3 SIGNALING IN B LYMPHOCYTES | 0.77  | 1.95e-02 |
+
+Table: Pathways aligned to LV603 from the MultiPLIER models. {#tbl:sup:multiplier_pathways:lv603}
+<!-- LV603:multiplier_pathways:end -->
+    """.strip()
+        in open(tmp_path / "50.00.supplementary_material.md").read()
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!-- LV603:phenomexcan_traits_assocs:start -->
+| Trait description                         | Sample size   | Cases   | FDR            |
+|:------------------------------------------|:--------------|:--------|:---------------|
+| Basophill percentage                      | 349,861       |         | 1.19e&#8209;10 |
+| Basophill count                           | 349,856       |         | 1.89e&#8209;05 |
+| Treatment/medication code: ispaghula husk | 361,141       | 327     | 1.36e&#8209;02 |
+
+Table: Significant trait associations of LV603 in PhenomeXcan. {#tbl:sup:phenomexcan_assocs:lv603}
+<!-- LV603:phenomexcan_traits_assocs:end -->
+    """.strip()
+        in open(tmp_path / "50.00.supplementary_material.md").read()
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!-- LV603:emerge_traits_assocs:start -->
+| Phecode                     | Trait description   | Sample size   | Cases   | FDR   |
+|:----------------------------|:--------------------|:--------------|:--------|:------|
+| No significant associations |                     |               |         |       |
+
+Table: Significant trait associations of LV603 in eMERGE. {#tbl:sup:emerge_assocs:lv603}
+<!-- LV603:emerge_traits_assocs:end -->
+    """.strip()
+        in open(tmp_path / "50.00.supplementary_material.md").read()
+    )
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_supplementary_material_from_phenoplier_with_many_tables_and_complex_html_comments(
+    tmp_path, model
+):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "phenoplier",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("50.01.supplementary_material.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR
+        / "phenoplier"
+        / "50.01.supplementary_material.md",
+        output_filepath=tmp_path / "50.01.supplementary_material.md",
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!-- LV603:multiplier_pathways:start
+this is a more complex multiline html comment -->
+| Pathway                             | AUC   | FDR      |
+|:------------------------------------|:------|:---------|
+| IRIS Neutrophil-Resting             | 0.91  | 4.51e-35 |
+| SVM Neutrophils                     | 0.98  | 1.43e-09 |
+| PID IL8CXCR2 PATHWAY                | 0.81  | 7.04e-03 |
+| SIG PIP3 SIGNALING IN B LYMPHOCYTES | 0.77  | 1.95e-02 |
+
+Table: Pathways aligned to LV603 from the MultiPLIER models. {#tbl:sup:multiplier_pathways:lv603}
+<!-- LV603:multiplier_pathways:end -->
+    """.strip()
+        in open(tmp_path / "50.01.supplementary_material.md").read()
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!-- LV603:phenomexcan_traits_assocs:start
+and this html comments is multiline but
+
+also has an empty line in the middle-->
+| Trait description                         | Sample size   | Cases   | FDR            |
+|:------------------------------------------|:--------------|:--------|:---------------|
+| Basophill percentage                      | 349,861       |         | 1.19e&#8209;10 |
+| Basophill count                           | 349,856       |         | 1.89e&#8209;05 |
+| Treatment/medication code: ispaghula husk | 361,141       | 327     | 1.36e&#8209;02 |
+
+Table: Significant trait associations of LV603 in PhenomeXcan. {#tbl:sup:phenomexcan_assocs:lv603}
+<!-- LV603:phenomexcan_traits_assocs:end 
+
+
+-->   
+    """.strip()
+        in open(tmp_path / "50.01.supplementary_material.md").read()
+    )
+
+    # make sure the "table paragraph" was exactly copied to the output file
+    assert (
+        r"""
+<!--
+
+and this html multiline comment has a space
+LV603:emerge_traits_assocs:start
+
+-->
+| Phecode                     | Trait description   | Sample size   | Cases   | FDR   |
+|:----------------------------|:--------------------|:--------------|:--------|:------|
+| No significant associations |                     |               |         |       |
+
+Table: Significant trait associations of LV603 in eMERGE. {#tbl:sup:emerge_assocs:lv603}
+<!-- LV603:emerge_traits_assocs:end -->
+    """.strip()
+        in open(tmp_path / "50.01.supplementary_material.md").read()
+    )
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
 def test_revise_entire_manuscript(tmp_path, model):
     print(f"\n{str(tmp_path)}\n")
 
