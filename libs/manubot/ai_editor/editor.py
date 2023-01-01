@@ -127,7 +127,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         elif "method" in filename:
             return "methods"
         elif "supplementary" in filename:
-            return "supplementary_material"
+            return "supplementary material"
         else:
             return None
 

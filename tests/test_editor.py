@@ -131,7 +131,7 @@ def test_get_section_from_filename():
     assert ManuscriptEditor.get_section_from_filename("06.acknowledgements.md") is None
     assert (
         ManuscriptEditor.get_section_from_filename("08.supplementary.md")
-        == "supplementary_material"
+        == "supplementary material"
     )
 
 
