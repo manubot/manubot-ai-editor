@@ -168,13 +168,34 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
 
+            current_table_paragraph = False
+
             for line in infile:
                 # if line is starting either an "image paragraph", a "table paragraph" or a "html comment paragraph",
                 # then skip all lines until the end of that paragraph
                 if self.line_is_not_part_of_paragraph(line, include_blank=False):
+                    if line.startswith("|"):
+                        current_table_paragraph = True
+
                     while line is not None and line.strip() != "":
                         outfile.write(line)
                         line = next(infile, None)
+
+                # for "table paragraphs", there is a blank line after the table
+                # and then the next paragraph is the table caption that starts
+                # with "Table: ". We want to include those lines as part of the
+                # "table paragraph"
+                if (
+                    line is not None
+                    and current_table_paragraph
+                    and line.startswith("Table: ")
+                ):
+                    while line is not None and line.strip() != "":
+                        outfile.write(line)
+                        line = next(infile, None)
+
+                    # we finished processing the "table paragraph"
+                    current_table_paragraph = False
 
                 # stop if we reached the end of the file
                 if line is None:

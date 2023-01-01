@@ -5,7 +5,7 @@ import pytest
 
 from manubot.ai_editor import env_vars
 from manubot.ai_editor.editor import ManuscriptEditor
-from manubot.ai_editor.models import DummyManuscriptRevisionModel, GPT3CompletionModel
+from manubot.ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
@@ -59,8 +59,8 @@ def _check_nonparagraph_lines_are_preserved(input_filepath, output_filepath):
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
-        GPT3CompletionModel(None, None),
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_abstract(tmp_path, model):
@@ -82,8 +82,8 @@ def test_revise_abstract(tmp_path, model):
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
-        GPT3CompletionModel(None, None),
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_introduction(tmp_path, model):
@@ -170,8 +170,8 @@ def test_get_section_from_filename_using_environment_variable_is_invalid():
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
-        GPT3CompletionModel(None, None),
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_results_with_header_only(tmp_path, model):
@@ -193,8 +193,8 @@ def test_revise_results_with_header_only(tmp_path, model):
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
-        GPT3CompletionModel(None, None),
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
     ],
 )
 def test_revise_results_intro_with_figure(tmp_path, model):
@@ -233,7 +233,7 @@ Vertical and horizontal red lines show how CCC clustered data points using $x$ a
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
+        RandomManuscriptRevisionModel(),
         # GPT3CompletionModel(None, None),
     ],
 )
@@ -268,7 +268,7 @@ $$ {#eq:predixcan}
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
+        RandomManuscriptRevisionModel(),
         # GPT3CompletionModel(None, None),
     ],
 )
@@ -291,7 +291,7 @@ def test_revise_supplementary_material_with_tables_and_multiline_html_comments(
         output_filepath=tmp_path / "20.00.supplementary_material.md",
     )
 
-    # make sure the "image paragraph" was exactly copied to the output file
+    # make sure the "table paragraph" was exactly copied to the output file
     assert (
         r"""
 | | **Interaction confidence** <!-- $colspan="7" -->    | | | | | | |
@@ -315,11 +315,16 @@ def test_revise_supplementary_material_with_tables_and_multiline_html_comments(
 | <!-- $colspan="7" --> |||||||
 | *PYGM* | 0.02 | 0.04 | 0.14 | Skeletal muscle<!-- $rowspan="2" --> | 0.01 | 0.02 | 0.04 |
 | *TPM2* | 0.05 | 0.56 | 0.80 | 0.01 | 0.28 | 0.47<!-- $removenext="2" --> |
+
+Table: Network statistics of six gene pairs shown in Figure @fig:upsetplot_coefs b for blood and predicted cell types.
+Only gene pairs present in GIANT models are listed.
+For each gene in the pair (first column), the minimum, average and maximum interaction coefficients with the other genes in the network are shown.
+{#tbl:giant:weights}
     """.strip()
         in open(tmp_path / "20.00.supplementary_material.md").read()
     )
 
-    # make sure the "image paragraph" was exactly copied to the output file
+    # make sure the "HTML comment paragraph" was exactly copied to the output file
     assert (
         r"""
 <!-- ![
@@ -346,7 +351,7 @@ The GIANT web-server was accessed on April 4, 2022.
 @pytest.mark.parametrize(
     "model",
     [
-        DummyManuscriptRevisionModel(),
+        RandomManuscriptRevisionModel(),
         # GPT3CompletionModel(None, None),
     ],
 )
