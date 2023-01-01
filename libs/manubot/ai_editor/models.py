@@ -180,21 +180,19 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         """
         if section_name in ("abstract",):
             prompt = f"""
-                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
-                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear.
+                Revise the following paragraph from the {section_name} of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear:
             """
         elif section_name in ("introduction",):
             prompt = f"""
-                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} section of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}'.
                 Make sure the paragraph has a clear and easy-to-read sentence structure, it is in active voice, and it minimizes the use of jargon.
-                Keep most of the citations to other academic papers.
-                Keep the Markdown formatting.
+                Keep most of the citations to other academic papers:
             """
         else:
             prompt = f"""
-                Revise the following paragraph (in Markdown format) of the {section_name.capitalize()} section of an academic paper with title '{self.title}' and keywords '{", ".join(self.keywords)}'.
-                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon.
-                Keep the Markdown formatting.
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}'.
+                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon:
             """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()

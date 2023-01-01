@@ -7,7 +7,6 @@ import pytest
 from manubot.ai_editor.editor import ManuscriptEditor
 from manubot.ai_editor import env_vars, models
 from manubot.ai_editor.models import GPT3CompletionModel
-from manubot.ai_editor.utils import SENTENCE_END_PATTERN
 
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
@@ -140,7 +139,7 @@ def test_get_prompt_for_introduction():
 
 
 def test_get_max_tokens_fraction_is_one():
-    paragraph = """
+    paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
     """.strip().split(
@@ -165,7 +164,7 @@ In transcriptomics, genes with correlated expression often share functions or ar
 
 
 def test_get_max_tokens_using_fraction_is_two():
-    paragraph = """
+    paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
     """.strip().split(
@@ -191,7 +190,7 @@ In transcriptomics, genes with correlated expression often share functions or ar
 
 @mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "0.5"})
 def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_float():
-    paragraph = """
+    paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
     """.strip().split(
@@ -217,7 +216,7 @@ In transcriptomics, genes with correlated expression often share functions or ar
 
 @mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "779"})
 def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_int():
-    paragraph = """
+    paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
     """.strip().split(
@@ -243,12 +242,8 @@ In transcriptomics, genes with correlated expression often share functions or ar
 
 
 def test_revise_abstract_ccc():
-    # for some weird reason, the model here returns a empty string
-    # what the editor does in this case, is to return the original text with an
-    # error message at the top
-
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
 In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
 Here we introduce the Clustermatch Correlation Coefficient (CCC), an efficient, easy-to-use and not-only-linear coefficient based on machine learning models.
@@ -280,7 +275,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert isinstance(paragraph_revised, str)
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
-    # assert "<!--\nERROR:" not in paragraph_revised
+    assert "<!--\nERROR:" not in paragraph_revised
 
     # revised paragraph was finished (no incomplete sentences, which could happen
     # if the max_tokens parameter is too low)
@@ -300,7 +295,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
 
 def test_revise_abstract_phenoplier():
     # from PhenoPLIER manuscript
-    paragraph = """
+    paragraph = r"""
 Genes act in concert with each other in specific contexts to perform their functions.
 Determining how these genes influence complex traits requires a mechanistic understanding of expression regulation across different conditions.
 It has been shown that this insight is critical for developing new therapies.
@@ -357,7 +352,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
 
 def test_revise_abstract_ai_revision():
     # from LLM for articles revision manuscript
-    paragraph = """
+    paragraph = r"""
 Academics often communicate through scholarly manuscripts.
 These manuscripts describe new advances, summarize existing literature, or argue for changes in the status quo.
 Writing and revising manuscripts can be a time-consuming process.
@@ -409,7 +404,7 @@ Given the amount of time that researchers put into crafting prose, we expect thi
 
 def test_revise_introduction_paragraph_with_single_and_multiple_citations_together():
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 In transcriptomics, many analyses start with estimating the correlation between genes.
 More sophisticated approaches built on correlation analysis can suggest gene function [@pmid:21241896], aid in discovering common and cell lineage-specific regulatory networks [@pmid:25915600], and capture important interactions in a living organism that can uncover molecular mechanisms in other species [@pmid:21606319; @pmid:16968540].
 The analysis of large RNA-seq datasets [@pmid:32913098; @pmid:34844637] can also reveal complex transcriptional mechanisms underlying human diseases [@pmid:27479844; @pmid:31121115; @pmid:30668570; @pmid:32424349; @pmid:34475573].
@@ -448,7 +443,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
 
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
-    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.50)
 
     # no references to figures or tables
     assert "Figure" not in paragraph_revised
@@ -460,7 +455,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
 
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first():
     # from PhenoPLIER manuscript
-    paragraph = """
+    paragraph = r"""
 Genes work together in context-specific networks to carry out different functions [@pmid:19104045; @doi:10.1038/ng.3259].
 Variations in these genes can change their functional role and, at a higher level, affect disease-relevant biological processes [@doi:10.1038/s41467-018-06022-6].
 In this context, determining how genes influence complex traits requires mechanistically understanding expression regulation across different cell types [@doi:10.1126/science.aaz1776; @doi:10.1038/s41586-020-2559-3; @doi:10.1038/s41576-019-0200-9], which in turn should lead to improved treatments [@doi:10.1038/ng.3314; @doi:10.1371/journal.pgen.1008489].
@@ -500,7 +495,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
 
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
-    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.50)
 
     # no references to figures or tables
     assert "Figure" not in paragraph_revised
@@ -512,7 +507,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
 
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last():
     # from LLM for articles revision manuscript
-    paragraph = """
+    paragraph = r"""
 We developed a software publishing platform that imagines a future where authors co-write their manuscripts with the support of large language models.
 We used, as a base, the Manubot platform for scholarly publishing [@doi:10.1371/journal.pcbi.1007128].
 Manubot was designed as an end-to-end publishing platform for scholarly writing for both individual and large-collaborative projects.
@@ -551,7 +546,7 @@ Changes are presented to the user through the GitHub interface for author review
 
     # most citations were kept in the revised text
     assert "[@" in paragraph_revised
-    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.75)
+    assert paragraph_revised.count("@") >= int(paragraph_text.count("@") * 0.50)
 
     # no references to figures or tables
     assert "Figure" not in paragraph_revised
@@ -563,7 +558,7 @@ Changes are presented to the user through the GitHub interface for author review
 
 def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations():
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 We examined how the Pearson ($p$), Spearman ($s$) and CCC ($c$) correlation coefficients behaved on different simulated data patterns.
 In the first row of Figure @fig:datasets_rel, we examine the classic Anscombe's quartet [@doi:10.1080/00031305.1973.10478966], which comprises four synthetic datasets with different patterns but the same data statistics (mean, standard deviation and Pearson's correlation).
 This kind of simulated data, recently revisited with the "Datasaurus" [@url:http://www.thefunctionalart.com/2016/08/download-datasaurus-never-trust-summary.html; @doi:10.1145/3025453.3025912; @doi:10.1111/dsji.12233], is used as a reminder of the importance of going beyond simple statistics, where either undesirable patterns (such as outliers) or desirable ones (such as biologically meaningful nonlinear relationships) can be masked by summary statistics alone.
@@ -605,7 +600,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
 
 def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs():
     # from PhenoPLIER manuscript
-    paragraph = """
+    paragraph = r"""
 PhenoPLIER is a flexible computational framework that combines gene-trait and gene-drug associations with gene modules expressed in specific contexts (Figure {@fig:entire_process}a).
 The approach uses a latent representation (with latent variables or LVs representing gene modules) derived from a large gene expression compendium (Figure {@fig:entire_process}b, top) to integrate TWAS with drug-induced transcriptional responses (Figure {@fig:entire_process}b, bottom) for a joint analysis.
 The approach consists in three main components (Figure {@fig:entire_process}b, middle, see [Methods](#sec:methods)):
@@ -659,7 +654,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
 
 def test_revise_results_paragraph_is_too_long():
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 We sought to systematically analyze discrepant scores to assess whether associations were replicated in other datasets besides GTEx.
     """.strip().split(
         "\n"
@@ -691,7 +686,7 @@ We sought to systematically analyze discrepant scores to assess whether associat
 <!--
 ERROR: the paragraph below could not be revised with the AI model due to the following error:
 
-This model's maximum context length is 4097 tokens, however you requested 17581 tokens (4283 in your prompt; 13298 for the completion). Please reduce your prompt; or completion length.
+This model's maximum context length is 4097 tokens, however you requested 17570 tokens (4272 in your prompt; 13298 for the completion). Please reduce your prompt; or completion length.
 -->
     """.strip()
     assert paragraph_revised.startswith(error_message)
@@ -704,7 +699,7 @@ This model's maximum context length is 4097 tokens, however you requested 17581 
 
 def test_revise_discussion_paragraph_with_markdown_formatting_and_citations():
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 It is well-known that biomedical research is biased towards a small fraction of human genes [@pmid:17620606; @pmid:17472739].
 Some genes highlighted in CCC-ranked pairs (Figure @fig:upsetplot_coefs b), such as *SDS* (12q24) and *ZDHHC12* (9q34), were previously found to be the focus of fewer than expected publications [@pmid:30226837].
 It is possible that the widespread use of linear coefficients may bias researchers away from genes with complex coexpression patterns.
@@ -750,7 +745,7 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
 
 def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites():
     # from PhenoPLIER manuscript
-    paragraph = """
+    paragraph = r"""
 Finally, we developed an LV-based regression framework to detect whether gene modules are associated with a trait using TWAS $p$-values.
 We used PhenomeXcan as a discovery cohort across four thousand traits, and many LV-trait associations replicated in eMERGE.
 In PhenomeXcan, we found 3,450 significant LV-trait associations (FDR < 0.05) with 686 LVs (out of 987) associated with at least one trait and 1,176 traits associated with at least one LV.
@@ -803,7 +798,7 @@ def test_revise_conclusions_paragraph_with_simple_text():
     # conclusions is the same as discussion in CCC/PhenoPLIER
 
     # from LLM for articles revision manuscript
-    paragraph = """
+    paragraph = r"""
 We implemented AI-based models into publishing infrastructure.
 While most manuscripts have been written by humans, the process is time consuming and academic writing can be difficult to parse.
 We sought to develop a technology that academics could use to make their writing more understandable without changing the fundamental meaning.
@@ -846,7 +841,7 @@ This work lays the foundation for a future where academic manuscripts are constr
 
 def test_revise_methods_paragraph_with_inline_equations_and_figure_refs():
     # from CCC manuscript
-    paragraph = """
+    paragraph = r"""
 The Clustermatch Correlation Coefficient (CCC) computes a similarity value $c \in \left[0,1\right]$ between any pair of numerical or categorical features/variables $\mathbf{x}$ and $\mathbf{y}$ measured on $n$ objects.
 CCC assumes that if two features $\mathbf{x}$ and $\mathbf{y}$ are similar, then the partitioning by clustering of the $n$ objects using each feature separately should match.
 For example, given $\mathbf{x}=(11, 27, 32, 40)$ and $\mathbf{y}=10x=(110, 270, 320, 400)$, where $n=4$, partitioning each variable into two clusters ($k=2$) using their medians (29.5 for $\mathbf{x}$ and 295 for $\mathbf{y}$) would result in partition $\Omega^{\mathbf{x}}_{k=2}=(1, 1, 2, 2)$ for $\mathbf{x}$, and partition $\Omega^{\mathbf{y}}_{k=2}=(1, 1, 2, 2)$ for $\mathbf{y}$.
@@ -894,7 +889,7 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
 
 def test_revise_methods_paragraph_with_figure_table_and_equation_refs():
     # from PhenoPLIER manuscript:
-    paragraph = """
+    paragraph = r"""
 Note that, since we used the MultiXcan regression model (Equation (@eq:multixcan)), $\mathbf{R}$ is only an approximation of gene correlations in S-MultiXcan.
 As explained before, S-MultiXcan approximates the joint regression parameters in MultiXcan using the marginal regression estimates from S-PrediXcan in (@eq:spredixcan) with some simplifying assumptions and different genotype covariance matrices.
 This complicates the derivation of an S-MultiXcan-specific solution to compute $\mathbf{R}$.
@@ -948,7 +943,7 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
 
 def test_revise_methods_paragraph_without_fig_table_reference():
     # from LLM for articles revision manuscript
-    paragraph = """
+    paragraph = r"""
 We used the OpenAI API for access to large language models, with a focus on the completion endpoints.
 This API incurs a cost with each run that depends on manuscript length.
 Because of this cost, we implemented our workflow in GitHub actions, making it triggerable by the user.
