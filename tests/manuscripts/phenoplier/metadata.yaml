@@ -1,10 +1,12 @@
 ---
 title: "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
 keywords:
+  - genetic studies
+  - functional genomics
   - gene co-expression
-  - MultiPLIER
-  - PhenomeXcan
-  - TWAS
+  - therapeutic targets
+  - drug repurposing
+  - clustering of complex traits
 lang: en-US
 authors:
   - name: Milton Pividori

@@ -318,7 +318,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
             "genetic studies",
             "functional genomics",
             "gene co-expression",
-            "gene prioritization",
+            "therapeutic targets",
             "drug repurposing",
             "clustering of complex traits",
         ],
@@ -473,7 +473,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
             "genetic studies",
             "functional genomics",
             "gene co-expression",
-            "gene prioritization",
+            "therapeutic targets",
             "drug repurposing",
             "clustering of complex traits",
         ],
@@ -617,10 +617,12 @@ We performed extensive simulations for our regression model ([Supplementary Note
     model = GPT3CompletionModel(
         title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
         keywords=[
+            "genetic studies",
+            "functional genomics",
             "gene co-expression",
-            "MultiPLIER",
-            "PhenomeXcan",
-            "TWAS",
+            "therapeutic targets",
+            "drug repurposing",
+            "clustering of complex traits",
         ],
     )
 
@@ -762,10 +764,12 @@ The regression model, however, is approximately well-calibrated, and we did not 
     model = GPT3CompletionModel(
         title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
         keywords=[
+            "genetic studies",
+            "functional genomics",
             "gene co-expression",
-            "MultiPLIER",
-            "PhenomeXcan",
-            "TWAS",
+            "therapeutic targets",
+            "drug repurposing",
+            "clustering of complex traits",
         ],
     )
 
@@ -906,10 +910,12 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     model = GPT3CompletionModel(
         title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
         keywords=[
+            "genetic studies",
+            "functional genomics",
             "gene co-expression",
-            "MultiPLIER",
-            "PhenomeXcan",
-            "TWAS",
+            "therapeutic targets",
+            "drug repurposing",
+            "clustering of complex traits",
         ],
     )
 
