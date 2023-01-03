@@ -327,6 +327,7 @@ where $\hat{\sigma}_a$ is the variance of SNP $a$, $\hat{\sigma}_l$ is the varia
     "model",
     [
         RandomManuscriptRevisionModel(),
+        DummyManuscriptRevisionModel(add_paragraph_marks=True),
     ],
 )
 def test_revise_methods_paragraph_with_too_few_sentences_or_words(tmp_path, model):
@@ -339,6 +340,7 @@ def test_revise_methods_paragraph_with_too_few_sentences_or_words(tmp_path, mode
     me.revise_file("07.00.methods.md", tmp_path, model)
 
     # make sure paragraph was not processed
+    # first, that original text is there (makes sense for the RandomManuscriptRevisionModel)
     assert (
         r"""
 Since the gold standard of drug-disease medical indications is described with Disease Ontology IDs (DOID) [@doi:10.1093/nar/gky1032], we mapped PhenomeXcan traits to the Experimental Factor Ontology [@doi:10.1093/bioinformatics/btq099] using [@url:https://github.com/EBISPOT/EFO-UKB-mappings], and then to DOID.
@@ -346,13 +348,35 @@ Since the gold standard of drug-disease medical indications is described with Di
         in open(tmp_path / "07.00.methods.md").read()
     )
 
+    # second, that it was not processed as part of a paragraph (makes sense for the DummyManuscriptRevisionModel)
     assert (
-            r"""
+        r"""
+%%% PARAGRAPH START %%%
+Since the gold standard of drug-disease medical indications is described with Disease Ontology IDs (DOID) [@doi:10.1093/nar/gky1032], we mapped PhenomeXcan traits to the Experimental Factor Ontology [@doi:10.1093/bioinformatics/btq099] using [@url:https://github.com/EBISPOT/EFO-UKB-mappings], and then to DOID.
+%%% PARAGRAPH END %%%
+"""
+        not in open(tmp_path / "07.00.methods.md").read()
+    )
+
+    # and same for another paragraph
+    assert (
+        r"""
 We ran our regression model for all 987 LVs across the 4,091 traits in PhenomeXcan.
 For replication, we ran the model in the 309 phecodes in eMERGE.
 We adjusted the $p$-values using the Benjamini-Hochberg procedure.
 """
-            in open(tmp_path / "07.00.methods.md").read()
+        in open(tmp_path / "07.00.methods.md").read()
+    )
+
+    assert (
+        r"""
+%%% PARAGRAPH START %%%
+We ran our regression model for all 987 LVs across the 4,091 traits in PhenomeXcan.
+For replication, we ran the model in the 309 phecodes in eMERGE.
+We adjusted the $p$-values using the Benjamini-Hochberg procedure.
+%%% PARAGRAPH END %%%
+"""
+        not in open(tmp_path / "07.00.methods.md").read()
     )
 
 

@@ -96,15 +96,13 @@ class ManuscriptEditor:
 
         # revise paragraph only if it has all these properties: 1) it has at
         # least two sentences, 2) it has in total at least 60 words
-        if not (
-            len(SENTENCE_END_PATTERN.split(paragraph_text)) > 2
-            and len(paragraph_text.split()) > 60
-        ):
+        if not (len(paragraph) > 2 and len(paragraph_text.split()) > 60):
             paragraph_text = ManuscriptEditor.convert_sentence_ends_to_newlines(
                 paragraph_text
             )
             if outfile is not None:
-                outfile.write(paragraph_text + "\n")
+                outfile.write(paragraph_text)
+                return
             else:
                 return paragraph_text, paragraph_text
 
