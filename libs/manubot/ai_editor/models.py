@@ -52,7 +52,11 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
 
     def revise_paragraph(self, paragraph_text, section_name):
         if self.add_paragraph_marks:
-            return "%%% PARAGRAPH START %%%\n" + paragraph_text.strip() + "\n%%% PARAGRAPH END %%%"
+            return (
+                "%%% PARAGRAPH START %%%\n"
+                + paragraph_text.strip()
+                + "\n%%% PARAGRAPH END %%%"
+            )
 
         return self.sentence_end_pattern.sub(" ", paragraph_text).strip()
 
@@ -300,6 +304,42 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return int(estimated_tokens_in_paragraph_text * fraction)
 
+    @staticmethod
+    def get_max_tokens_from_error_message(error_message: str) -> dict[str, int] | None:
+        # attempt to extract the "maximum context length", "requested tokens",
+        # "tokens in the prompt" and "token in completion" from the error message
+        # to adjust the query and retry
+        max_context_length = re.search(
+            r"maximum context length is (\d+)", error_message
+        )
+        if max_context_length is None:
+            return
+        max_context_length = int(max_context_length.group(1))
+
+        requested_tokens = re.search(
+            r"however you requested (\d+) tokens", error_message
+        )
+        if requested_tokens is None:
+            return
+        requested_tokens = int(requested_tokens.group(1))
+
+        tokens_in_prompt = re.search(r"\((\d+) in your prompt;", error_message)
+        if tokens_in_prompt is None:
+            return
+        tokens_in_prompt = int(tokens_in_prompt.group(1))
+
+        tokens_in_completion = re.search(r"; (\d+) for the completion", error_message)
+        if tokens_in_completion is None:
+            return
+        tokens_in_completion = int(tokens_in_completion.group(1))
+
+        return {
+            "max_context_length": max_context_length,
+            "requested_tokens": requested_tokens,
+            "tokens_in_prompt": tokens_in_prompt,
+            "tokens_in_completion": tokens_in_completion,
+        }
+
     def revise_paragraph(self, paragraph_text, section_name):
         """
         It revises a paragraph using GPT-3 completion model.
@@ -328,8 +368,23 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         retry_count = 0
         message = ""
         while message == "" and retry_count < self.retry_count:
-            completions = openai.Completion.create(**params)
-            message = completions.choices[0].text.strip()
+            try:
+                completions = openai.Completion.create(**params)
+                message = completions.choices[0].text.strip()
+            except Exception as e:
+                error_message = str(e)
+                token_stats = self.get_max_tokens_from_error_message(error_message)
+
+                if token_stats is None:
+                    raise e
+
+                max_context_length = token_stats["max_context_length"]
+                # requested_tokens = token_stats["requested_tokens"]
+                tokens_in_prompt = token_stats["tokens_in_prompt"]
+                # tokens_in_completion = token_stats["tokens_in_completion"]
+
+                params["max_tokens"] = max_context_length - tokens_in_prompt
+
             retry_count += 1
 
         return message
