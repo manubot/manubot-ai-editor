@@ -236,6 +236,21 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 Make sure the paragraph has a clear and easy-to-read sentence structure, it is in active voice, and it minimizes the use of jargon.
                 Keep most of the citations to other academic papers:
             """
+        elif section_name in ("methods",):
+            prompt = f"""
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
+                Preserve the math. Keep all the equations
+            """.strip()
+
+            if "$$" not in paragraph_text:
+                prompt = f"""
+                    {prompt}.
+                    Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon:
+                """
+            else:
+                prompt = f"""
+                    {prompt}:
+                """
         else:
             prompt = f"""
                 Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'

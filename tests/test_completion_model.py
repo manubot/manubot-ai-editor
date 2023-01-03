@@ -947,6 +947,65 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     assert "[Supplementary Note 1](#sm:reg:null_sim)" in paragraph_revised
 
 
+def test_revise_methods_paragraph_with_inline_math_and_equations():
+    # from PhenoPLIER manuscript:
+    paragraph = r"""
+S-PrediXcan [@doi:10.1038/s41467-018-03621-1] is the summary version of PrediXcan [@doi:10.1038/ng.3367].
+PrediXcan models the trait as a linear function of the gene's expression on a single tissue using the univariate model
+
+$$
+\mathbf{y} = \mathbf{t}_l \gamma_l + \bm{\epsilon}_l,
+$$ {#eq:predixcan}
+
+where $\hat{\gamma}_l$ is the estimated effect size or regression coefficient, and $\bm{\epsilon}_l$ are the error terms with variance $\sigma_{\epsilon}^{2}$.
+The significance of the association is assessed by computing the $z$-score $\hat{z}_{l}=\hat{\gamma}_l / \mathrm{se}(\hat{\gamma}_l)$ for a gene's tissue model $l$.
+PrediXcan needs individual-level data to fit this model, whereas S-PrediXcan approximates PrediXcan $z$-scores using only GWAS summary statistics with the expression
+
+$$
+\hat{z}_{l} \approx \sum_{a \in model_{l}} w_a^l \frac{\hat{\sigma}_a}{\hat{\sigma}_l} \frac{\hat{\beta}_a}{\mathrm{se}(\hat{\beta}_a)},
+$$ {#eq:spredixcan}
+
+where $\hat{\sigma}_a$ is the variance of SNP $a$, $\hat{\sigma}_l$ is the variance of the predicted expression of a gene in tissue $l$, and $\hat{\beta}_a$ is the estimated effect size of SNP $a$ from the GWAS.
+In these TWAS methods, the genotype variances and covariances are always estimated using the Genotype-Tissue Expression project (GTEx v8) [@doi:10.1126/science.aaz1776] as the reference panel.
+Since S-PrediXcan provides tissue-specific direction of effects (for instance, whether a higher or lower predicted expression of a gene confers more or less disease risk), we used the $z$-scores in our drug repurposing approach (described below).
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 18
+
+    model = GPT3CompletionModel(
+        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
+        keywords=[
+            "genetic studies",
+            "functional genomics",
+            "gene co-expression",
+            "therapeutic targets",
+            "drug repurposing",
+            "clustering of complex traits",
+        ],
+    )
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+    assert "<!--\nERROR:" not in paragraph_revised
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
+    # some equations are referenced in the revised text
+    assert "$$ {#eq:predixcan}" in paragraph_revised
+    assert "$$ {#eq:spredixcan}" in paragraph_revised
+    assert "$\hat{\sigma}_a$" in paragraph_revised
+
+
 def test_revise_methods_paragraph_without_fig_table_reference():
     # from LLM for articles revision manuscript
     paragraph = r"""
