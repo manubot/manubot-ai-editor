@@ -45,11 +45,15 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
     sentences one after the other separated by a white space (no new lines).
     """
 
-    def __init__(self):
+    def __init__(self, add_paragraph_marks=False):
         super().__init__()
-        self.sentence_end_pattern = re.compile(r"\n")
+        self.sentence_end_pattern = re.compile(r".\n")
+        self.add_paragraph_marks = add_paragraph_marks
 
     def revise_paragraph(self, paragraph_text, section_name):
+        if self.add_paragraph_marks:
+            return "%%% PARAGRAPH START %%%\n" + paragraph_text.strip() + "\n%%% PARAGRAPH END %%%"
+
         return self.sentence_end_pattern.sub(" ", paragraph_text).strip()
 
     def get_prompt(self, paragraph_text, section_name):

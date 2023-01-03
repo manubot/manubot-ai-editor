@@ -91,6 +91,7 @@ class ManuscriptEditor:
             None if outfile is specified. Otherwise, it returns a tuple with
             the submitted paragraph and the revised paragraph.
         """
+
         # Process the paragraph and revise it with model
         paragraph_text = ManuscriptEditor.prepare_paragraph(paragraph)
 
@@ -216,6 +217,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             paragraph = []
 
             current_table_paragraph = False
+            last_sentence_ends_with_alphanum_or_colon = False
 
             for line in infile:
                 if line.startswith("<!--"):
@@ -268,21 +270,64 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                 # If the line is blank, it indicates the end of a paragraph
                 elif line.strip() == "":
+                    # if the last sentence added to the paragraph ends with an
+                    # alphanumeric character or a colon (i.e., does not end with a
+                    # period as normal sentences), then we keep adding all lines to
+                    # to the paragraph until we find a line with text that starts
+                    # with a capital letter and is preceded by an empty line.
+                    if last_sentence_ends_with_alphanum_or_colon:
+                        while line is not None and not (
+                            prev_line.strip() == ""
+                            and (
+                                (line[0].isalnum() and line[0].isupper())
+                                or line.startswith("#")
+                            )
+                        ):
+                            paragraph.append(line.strip())
+                            prev_line = line
+                            line = next(infile, None)
+
+                        last_sentence_ends_with_alphanum_or_colon = False
+
+                        # remove all trailing empty sentences in the paragraph,
+                        # and for each write a new line to the output file
+                        prev_line = ""
+                        while len(paragraph) > 0 and paragraph[-1] == "":
+                            paragraph.pop()
+                            prev_line += "\n"
+
                     # revise and write paragraph to output file
                     self.revise_and_write_paragraph(
                         paragraph, section_name, revision_model, outfile
                     )
 
-                    # and also the current line, which is the end of the
-                    # paragraph
-                    outfile.write(line)
-
                     # clear the paragraph list
-                    paragraph = []
+                    if line.strip() == "":
+                        outfile.write(line)
+                        paragraph = []
+                    else:
+                        outfile.write(prev_line)
+
+                        if line.startswith("#"):
+                            outfile.write(line)
+                            paragraph = []
+                        else:
+                            paragraph = [line.strip()]
 
                 # Otherwise, add the line to the paragraph list
                 else:
-                    paragraph.append(line.strip())
+                    line_strip = line.strip()
+
+                    # check if line ends with a colon, a letter or a number:
+                    last_sentence_ends_with_alphanum_or_colon = (
+                        line_strip.endswith(":")
+                        or line_strip[-1].isalpha()
+                        or line_strip[-1].isdigit()
+                    )
+
+                    paragraph.append(line_strip)
+
+                prev_line = line
 
             # If there's any remaining paragraph, process and write it to the
             # output file
