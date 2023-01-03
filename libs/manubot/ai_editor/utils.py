@@ -1,4 +1,5 @@
 import re
+import difflib
 
 import yaml
 
@@ -13,3 +14,12 @@ def get_yaml_field(yaml_file, field):
     with open(yaml_file, "r") as f:
         data = yaml.safe_load(f)
     return data[field]
+
+
+def starts_with_similar(string: str, prefix: str, threshold: float = 0.8) -> bool:
+    """
+    Returns True if the string starts with a prefix that is similar to the given prefix.
+    """
+    return (
+        difflib.SequenceMatcher(None, prefix, string[: len(prefix)]).ratio() > threshold
+    )

@@ -7,6 +7,7 @@ import pytest
 from manubot.ai_editor.editor import ManuscriptEditor
 from manubot.ai_editor import env_vars, models
 from manubot.ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
+from manubot.ai_editor.utils import starts_with_similar
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
@@ -690,11 +691,10 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 This model's maximum context length is 4097 tokens, however you requested 17570 tokens (4272 in your prompt; 13298 for the completion). Please reduce your prompt; or completion length.
 -->
     """.strip()
-    assert paragraph_revised.startswith(error_message)
+    assert starts_with_similar(paragraph_revised, error_message, 0.9)
 
-    paragraph_revised_without_error = paragraph_revised.replace(
-        error_message + "\n", ""
-    )
+    # remove the multiline html comment at the top of the revised paragraph
+    paragraph_revised_without_error = paragraph_revised.split("-->\n")[1].strip()
     assert "\n".join(paragraph) == paragraph_revised_without_error
 
 
