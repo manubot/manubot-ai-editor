@@ -381,13 +381,13 @@ We adjusted the $p$-values using the Benjamini-Hochberg procedure.
 
 
 @pytest.mark.parametrize(
-    "model",
+    "model,filename",
     [
-        DummyManuscriptRevisionModel(add_paragraph_marks=True),
+        (DummyManuscriptRevisionModel(add_paragraph_marks=True), "07.00.methods.md"),
         # GPT3CompletionModel(None, None),
     ],
 )
-def test_revise_methods_with_equation(tmp_path, model):
+def test_revise_methods_with_equation(tmp_path, model, filename):
     print(f"\n{str(tmp_path)}\n")
 
     me = ManuscriptEditor(
@@ -397,11 +397,11 @@ def test_revise_methods_with_equation(tmp_path, model):
     model.title = me.title
     model.keywords = me.keywords
 
-    me.revise_file("07.00.methods.md", tmp_path, model)
+    me.revise_file(filename, tmp_path, model)
 
     _check_nonparagraph_lines_are_preserved(
-        input_filepath=MANUSCRIPTS_DIR / "phenoplier" / "07.00.methods.md",
-        output_filepath=tmp_path / "07.00.methods.md",
+        input_filepath=MANUSCRIPTS_DIR / "phenoplier" / filename,
+        output_filepath=tmp_path / filename,
     )
 
     # make sure regular paragraphs are correctly marked
@@ -414,7 +414,7 @@ PhenoPLIER provides 1) a regression model to compute an LV-trait association, 2)
 We provide the details of these methods below.
 %%% PARAGRAPH END %%%
         """.strip()
-        in open(tmp_path / "07.00.methods.md").read()
+        in open(tmp_path / filename).read()
     )
 
     # make sure the "equation paragraph" is correctly marked
@@ -441,7 +441,42 @@ In these TWAS methods, the genotype variances and covariances are always estimat
 Since S-PrediXcan provides tissue-specific direction of effects (for instance, whether a higher or lower predicted expression of a gene confers more or less disease risk), we used the $z$-scores in our drug repurposing approach (described below).
 %%% PARAGRAPH END %%%
     """.strip()
-        in open(tmp_path / "07.00.methods.md").read()
+        in open(tmp_path / filename).read()
+    )
+
+
+@pytest.mark.parametrize(
+    "model,filename",
+    [
+        (
+            DummyManuscriptRevisionModel(add_paragraph_marks=True),
+            "07.00.methods_already_revised.md",
+        ),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_methods_with_equation_that_was_alrady_revised(
+    tmp_path, model, filename
+):
+    """
+    This test was added after getting an error in processing a file that was already
+    processed by the manuscript editor. The error was in ManuscriptEditor.prepare_paragraph
+    when a None sentence was added to the equation_sentences list.
+    """
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "phenoplier",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file(filename, tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR / "phenoplier" / filename,
+        output_filepath=tmp_path / filename,
     )
 
 

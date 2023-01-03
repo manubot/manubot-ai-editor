@@ -53,7 +53,9 @@ class ManuscriptEditor:
                     equation_sentences.append(sentence)
                     sentence = next(paragraph, None)
 
-                equation_sentences.append(sentence)
+                if sentence is not None:
+                    equation_sentences.append(sentence)
+
                 paragraph_text += "\n".join(equation_sentences) + "\n"
             else:
                 simple_sentences = [sentence]
@@ -331,9 +333,12 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                     # check if line ends with a colon, a letter or a number:
                     last_sentence_ends_with_alphanum_or_colon = (
-                        line_strip.endswith(":")
-                        or line_strip[-1].isalpha()
-                        or line_strip[-1].isdigit()
+                        not self.line_is_not_part_of_paragraph(line_strip)
+                        and (
+                            line_strip.endswith(":")
+                            or line_strip[-1].isalpha()
+                            or line_strip[-1].isdigit()
+                        )
                     )
 
                     paragraph.append(line_strip)
