@@ -6,8 +6,7 @@ import pytest
 
 from manubot.ai_editor.editor import ManuscriptEditor
 from manubot.ai_editor import env_vars, models
-from manubot.ai_editor.models import GPT3CompletionModel
-
+from manubot.ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
@@ -1050,3 +1049,55 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     assert "figure" not in paragraph_revised.lower()
     assert "table" not in paragraph_revised.lower()
     assert "@" not in paragraph_revised.lower()
+
+
+def test_revise_paragraph_too_few_sentences():
+    # from LLM for articles revision manuscript
+    paragraph = r"""
+Since the gold standard of drug-disease medical indications is described with Disease Ontology IDs (DOID) [@doi:10.1093/nar/gky1032], we mapped PhenomeXcan traits to the Experimental Factor Ontology [@doi:10.1093/bioinformatics/btq099] using [@url:https://github.com/EBISPOT/EFO-UKB-mappings], and then to DOID.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 1
+
+    model = RandomManuscriptRevisionModel()
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert isinstance(paragraph_text, str)
+
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised == paragraph_text
+    assert len(paragraph_revised) > 10
+    assert "<!--\nERROR:" not in paragraph_revised
+
+
+def test_revise_paragraph_too_few_words():
+    # from LLM for articles revision manuscript
+    paragraph = r"""
+We ran our regression model for all 987 LVs across the 4,091 traits in PhenomeXcan.
+For replication, we ran the model in the 309 phecodes in eMERGE.
+We adjusted the $p$-values using the Benjamini-Hochberg procedure.
+    """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 3
+
+    model = RandomManuscriptRevisionModel()
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert isinstance(paragraph_text, str)
+
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised == paragraph_text
+    assert len(paragraph_revised) > 10
+    assert "<!--\nERROR:" not in paragraph_revised

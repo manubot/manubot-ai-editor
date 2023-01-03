@@ -77,7 +77,7 @@ class ManuscriptEditor:
         section_name: str,
         revision_model: ManuscriptRevisionModel,
         outfile=None,
-    ) -> None | tuple[str]:
+    ) -> None | tuple[str, str]:
         """
         Revises and writes a paragraph to the output file.
 
@@ -91,9 +91,22 @@ class ManuscriptEditor:
             None if outfile is specified. Otherwise, it returns a tuple with
             the submitted paragraph and the revised paragraph.
         """
-
         # Process the paragraph and revise it with model
         paragraph_text = ManuscriptEditor.prepare_paragraph(paragraph)
+
+        # revise paragraph only if it has all these properties: 1) it has at
+        # least two sentences, 2) it has in total at least 60 words
+        if not (
+            len(SENTENCE_END_PATTERN.split(paragraph_text)) > 2
+            and len(paragraph_text.split()) > 60
+        ):
+            paragraph_text = ManuscriptEditor.convert_sentence_ends_to_newlines(
+                paragraph_text
+            )
+            if outfile is not None:
+                outfile.write(paragraph_text + "\n")
+            else:
+                return paragraph_text, paragraph_text
 
         error_message = None
         try:
