@@ -25,6 +25,53 @@ class ManuscriptEditor:
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
     @staticmethod
+    def prepare_paragraph(paragraph: list[str]) -> str:
+        """
+        It takes a list of sentences that are part of a paragraph and joins them
+        into a single string. The paragraph might have Equations, which are
+        between "$$" and have an identifier between curly brackets. There are
+        two kinds of paragraphs:
+        1) "Simple paragraphs" are a set of sentences with no Equations;
+        2) "Equation paragraphs" are a set of sentences where at least one
+        sentence has an Equation. When joining sentences with Equations, a
+        newline is added before and after the Equation.
+        """
+        paragraph_text = ""
+
+        paragraph = iter(paragraph)
+        for sentence in paragraph:
+            sentence = sentence.strip()
+
+            if sentence == "":
+                paragraph_text += "\n"
+            elif sentence.startswith("$$"):
+                # this is an equation
+                equation_sentences = [sentence]
+
+                sentence = next(paragraph, None)
+                while sentence is not None and not sentence.startswith("$$"):
+                    equation_sentences.append(sentence)
+                    sentence = next(paragraph, None)
+
+                equation_sentences.append(sentence)
+                paragraph_text += "\n".join(equation_sentences) + "\n"
+            else:
+                simple_sentences = [sentence]
+
+                sentence = next(paragraph, None)
+                while sentence is not None and sentence != "":
+                    simple_sentences.append(sentence)
+                    sentence = next(paragraph, None)
+
+                suffix = "\n"
+                if sentence == "":
+                    suffix += "\n"
+
+                paragraph_text += " ".join(simple_sentences) + suffix
+
+        return paragraph_text
+
+    @staticmethod
     def revise_and_write_paragraph(
         paragraph: list[str],
         section_name: str,
@@ -45,7 +92,7 @@ class ManuscriptEditor:
             the submitted paragraph and the revised paragraph.
         """
         # Process the paragraph and revise it with model
-        paragraph_text = " ".join(paragraph)
+        paragraph_text = ManuscriptEditor.prepare_paragraph(paragraph)
 
         error_message = None
         try:
