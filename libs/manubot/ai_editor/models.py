@@ -118,6 +118,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         best_of: int = None,
         top_p: float = None,
         retry_count: int = 3,
+        edit_endpoint: bool = False,
     ):
         super().__init__()
 
@@ -200,6 +201,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords
 
+        # adjust options if edits endpoint was selected
+        self.edit_endpoint = edit_endpoint
+        if self.edit_endpoint and model_engine == "text-davinci-003":
+            model_engine = "text-davinci-edit-001"
+
+        if model_engine == "text-davinci-edit-001":
+            self.edit_endpoint = True
+
         self.model_parameters = {
             "engine": model_engine,
             "temperature": temperature,
@@ -218,25 +227,32 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-    def get_prompt(self, paragraph_text: str, section_name: str) -> str:
+    def get_prompt(
+        self, paragraph_text: str, section_name: str
+    ) -> str | tuple[str, str]:
         """
-        Returns the prompt to be used for the revision of a paragraph that belongs
-        to a given section. There are three types of prompts according to the section:
-        Abstract, Introduction and the rest (i.e. Methods, Results, Discussion, etc.).
+        Returns the prompt to be used for the revision of a paragraph that
+        belongs to a given section. There are three types of prompts according
+        to the section: Abstract, Introduction, Methods, and the rest (i.e.
+        Results, Discussion, etc.).
 
         Args:
             paragraph_text: text of the paragraph to revise.
             section_name: name of the section the paragraph belongs to.
 
         Returns:
-            Prompt to be used by the model for the revision of the paragraph.
+            If self.edit_endpoint is False, then returns a string with the prompt to be used by the model for the revision of the paragraph.
             It contains two paragraphs of text: the command for the model
             ("Revise...") and the paragraph to revise.
+
+            If self.edit_endpoint is True, then returns a tuple with two strings:
+             1) the instructions to be used by the model for the revision of the paragraph,
+             2) the paragraph to revise.
         """
         if section_name in ("abstract",):
             prompt = f"""
-                Revise the following paragraph from the {section_name} of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear:
+                Revise the following paragraph from the {section_name.capitalize()} of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
+                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear
             """
         elif section_name in ("introduction",):
             prompt = f"""
@@ -247,27 +263,27 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         elif section_name in ("methods",):
             prompt = f"""
                 Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Preserve the math. Keep all the equations
+                Try to keep the math and technical details. If formulas and equations are present, then make sure all symbols are defined
             """.strip()
 
-            if "$$" not in paragraph_text:
+            if self.edit_endpoint or "$$" not in paragraph_text:
                 prompt = f"""
                     {prompt}.
-                    Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon:
-                """
-            else:
-                prompt = f"""
-                    {prompt}:
+                    Make sure the paragraph has a clear sentence structure, and it is in active voice
                 """
         else:
             prompt = f"""
                 Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon:
+                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon
             """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        return f"{prompt}\n\n{paragraph_text.strip()}"
+        if not self.edit_endpoint:
+            return f"{prompt}:\n\n{paragraph_text.strip()}"
+        else:
+            prompt = prompt.replace("the following paragraph", "this paragraph")
+            return f"{prompt}.", paragraph_text.strip()
 
     def get_max_tokens(self, paragraph_text: str, fraction: float = 2.0) -> int:
         """
@@ -357,11 +373,24 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         prompt = self.get_prompt(paragraph_text, section_name)
 
         params = {
-            "prompt": prompt,
-            "max_tokens": max_tokens,
-            "stop": None,
             "n": 1,
         }
+
+        if self.edit_endpoint:
+            params.update(
+                {
+                    "instruction": prompt[0],
+                    "input": prompt[1],
+                }
+            )
+        else:
+            params.update(
+                {
+                    "prompt": prompt,
+                    "max_tokens": max_tokens,
+                    "stop": None,
+                }
+            )
 
         params.update(self.model_parameters)
 
@@ -369,7 +398,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         message = ""
         while message == "" and retry_count < self.retry_count:
             try:
-                completions = openai.Completion.create(**params)
+                if self.edit_endpoint:
+                    completions = openai.Edit.create(**params)
+                else:
+                    completions = openai.Completion.create(**params)
+
                 message = completions.choices[0].text.strip()
             except Exception as e:
                 error_message = str(e)
