@@ -241,7 +241,14 @@ In transcriptomics, genes with correlated expression often share functions or ar
     assert max_tokens == 779
 
 
-def test_revise_abstract_ccc():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_abstract_ccc(model):
     # from CCC manuscript
     paragraph = r"""
 Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
@@ -258,14 +265,14 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 8
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "abstract", model
@@ -293,7 +300,14 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert "$" not in paragraph_revised
 
 
-def test_revise_abstract_phenoplier():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_abstract_phenoplier(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
 Genes act in concert with each other in specific contexts to perform their functions.
@@ -312,17 +326,15 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 10
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "abstract", model
@@ -350,7 +362,14 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     assert "$" not in paragraph_revised
 
 
-def test_revise_abstract_ai_revision():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_abstract_ai_revision(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
 Academics often communicate through scholarly manuscripts.
@@ -366,15 +385,13 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "abstract", model
@@ -402,7 +419,16 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     assert "$" not in paragraph_revised
 
 
-def test_revise_introduction_paragraph_with_single_and_multiple_citations_together():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_introduction_paragraph_with_single_and_multiple_citations_together(
+    model,
+):
     # from CCC manuscript
     paragraph = r"""
 In transcriptomics, many analyses start with estimating the correlation between genes.
@@ -418,14 +444,14 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "introduction", model
@@ -453,7 +479,14 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     assert "$" not in paragraph_revised
 
 
-def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
 Genes work together in context-specific networks to carry out different functions [@pmid:19104045; @doi:10.1038/ng.3259].
@@ -467,17 +500,15 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 5
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "introduction", model
@@ -505,7 +536,14 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     assert "$" not in paragraph_revised
 
 
-def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
 We developed a software publishing platform that imagines a future where authors co-write their manuscripts with the support of large language models.
@@ -556,7 +594,16 @@ Changes are presented to the user through the GitHub interface for author review
     assert "$" not in paragraph_revised
 
 
-def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations(
+    model,
+):
     # from CCC manuscript
     paragraph = r"""
 We examined how the Pearson ($p$), Spearman ($s$) and CCC ($c$) correlation coefficients behaved on different simulated data patterns.
@@ -568,14 +615,14 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 3
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "results", model
@@ -598,7 +645,14 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     assert "Figure @fig:datasets_rel" in paragraph_revised
 
 
-def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
 PhenoPLIER is a flexible computational framework that combines gene-trait and gene-drug associations with gene modules expressed in specific contexts (Figure {@fig:entire_process}a).
@@ -614,17 +668,15 @@ We performed extensive simulations for our regression model ([Supplementary Note
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "results", model
@@ -654,7 +706,14 @@ We performed extensive simulations for our regression model ([Supplementary Note
     assert "[Supplementary Note 2](#sm:clustering:null_sim)" in paragraph_revised
 
 
-def test_revise_results_paragraph_is_too_long():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_results_paragraph_is_too_long(model):
     # from CCC manuscript
     paragraph = r"""
 We sought to systematically analyze discrepant scores to assess whether associations were replicated in other datasets besides GTEx.
@@ -666,14 +725,14 @@ We sought to systematically analyze discrepant scores to assess whether associat
 
     paragraph = paragraph * 200
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "results", model
@@ -698,7 +757,14 @@ This model's maximum context length is 4097 tokens, however you requested 17570 
     assert "\n".join(paragraph) == paragraph_revised_without_error
 
 
-def test_revise_discussion_paragraph_with_markdown_formatting_and_citations():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_discussion_paragraph_with_markdown_formatting_and_citations(model):
     # from CCC manuscript
     paragraph = r"""
 It is well-known that biomedical research is biased towards a small fraction of human genes [@pmid:17620606; @pmid:17472739].
@@ -714,14 +780,14 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "discussion", model
@@ -744,7 +810,16 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     assert "*" in paragraph_revised
 
 
-def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites(
+    model,
+):
     # from PhenoPLIER manuscript
     paragraph = r"""
 Finally, we developed an LV-based regression framework to detect whether gene modules are associated with a trait using TWAS $p$-values.
@@ -760,17 +835,15 @@ The regression model, however, is approximately well-calibrated, and we did not 
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "discussion", model
@@ -797,7 +870,14 @@ The regression model, however, is approximately well-calibrated, and we did not 
     )
 
 
-def test_revise_conclusions_paragraph_with_simple_text():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_conclusions_paragraph_with_simple_text(model):
     # conclusions is the same as discussion in CCC/PhenoPLIER
 
     # from LLM for articles revision manuscript
@@ -842,7 +922,14 @@ This work lays the foundation for a future where academic manuscripts are constr
     assert "@" not in paragraph_revised
 
 
-def test_revise_methods_paragraph_with_inline_equations_and_figure_refs():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_methods_paragraph_with_inline_equations_and_figure_refs(model):
     # from CCC manuscript
     paragraph = r"""
 The Clustermatch Correlation Coefficient (CCC) computes a similarity value $c \in \left[0,1\right]$ between any pair of numerical or categorical features/variables $\mathbf{x}$ and $\mathbf{y}$ measured on $n$ objects.
@@ -860,14 +947,14 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 9
 
-    model = GPT3CompletionModel(
-        title="An efficient not-only-linear correlation coefficient based on machine learning",
-        keywords=[
-            "correlation coefficient",
-            "nonlinear relationships",
-            "gene expression",
-        ],
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
     )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
@@ -890,7 +977,14 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     assert "Figure @fig:datasets_rel" in paragraph_revised
 
 
-def test_revise_methods_paragraph_with_figure_table_and_equation_refs():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_methods_paragraph_with_figure_table_and_equation_refs(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
 Note that, since we used the MultiXcan regression model (Equation (@eq:multixcan)), $\mathbf{R}$ is only an approximation of gene correlations in S-MultiXcan.
@@ -906,17 +1000,15 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 7
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
@@ -946,7 +1038,14 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     assert "[Supplementary Note 1](#sm:reg:null_sim)" in paragraph_revised
 
 
-def test_revise_methods_paragraph_with_inline_math_and_equations():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_methods_paragraph_with_inline_math_and_equations(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
 S-PrediXcan [@doi:10.1038/s41467-018-03621-1] is the summary version of PrediXcan [@doi:10.1038/ng.3367].
@@ -973,17 +1072,15 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 18
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
@@ -1005,7 +1102,14 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
     assert "$\hat{\sigma}_a$" in paragraph_revised
 
 
-def test_revise_methods_paragraph_without_fig_table_reference():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_methods_paragraph_without_fig_table_reference(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
 We used the OpenAI API for access to large language models, with a focus on the completion endpoints.
@@ -1051,7 +1155,14 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     assert "@" not in paragraph_revised.lower()
 
 
-def test_revise_methods_paragraph_with_many_tokens():
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        # GPT3CompletionModel(None, None, edit_endpoint=True),
+    ],
+)
+def test_revise_methods_paragraph_with_many_tokens(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
 Since the error terms $\bm{\epsilon}$ could be correlated, we cannot assume they have independent normal distributions as in a standard linear regression model.
@@ -1114,17 +1225,15 @@ $$ {#eq:reg:var_gene}
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 54
 
-    model = GPT3CompletionModel(
-        title="Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms",
-        keywords=[
-            "genetic studies",
-            "functional genomics",
-            "gene co-expression",
-            "therapeutic targets",
-            "drug repurposing",
-            "clustering of complex traits",
-        ],
-    )
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
