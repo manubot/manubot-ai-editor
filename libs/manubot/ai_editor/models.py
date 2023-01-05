@@ -255,8 +255,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
-                so the problem addressed is correctly introduced,
-                   the solution proposed is clearly explained,
+                so the research problem/question is clear,
+                   the solution proposed is clear,
                    the text grammar is correct, spelling errors are fixed,
                    and the text is in active voice and has a clear sentence structure
             """
@@ -267,7 +267,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                    most of the citations to other academic papers are kept,
                    the text minimizes the use of jargon,
                    the text grammar is correct, spelling errors are fixed,
-                   and the text is in active voice and has a clear sentence structure
+                   and the text has a clear sentence structure
             """
         elif section_name in ("results",):
             prompt = f"""
@@ -278,7 +278,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                    sentences are concise and to the point,
                    the text minimizes the use of jargon,
                    the text grammar is correct, spelling errors are fixed,
-                   and the text is in active voice and has a clear sentence structure
+                   and the text has a clear sentence structure
             """
         elif section_name in ("methods",):
             equation_definition = r"\n\n$$ ... $$ {#eq:id}\n\n"
@@ -304,7 +304,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 so
                    the text minimizes the use of jargon,
                    the text grammar is correct, spelling errors are fixed,
-                   and the text is in active voice and has a clear sentence structure
+                   and the text has a clear sentence structure
             """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
