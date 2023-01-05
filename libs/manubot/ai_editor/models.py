@@ -209,6 +209,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if model_engine == "text-davinci-edit-001":
             self.edit_endpoint = True
 
+        print("Language model: ", model_engine)
+
         self.model_parameters = {
             "engine": model_engine,
             "temperature": temperature,
@@ -433,15 +435,19 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 message = completions.choices[0].text.strip()
             except Exception as e:
                 error_message = str(e)
+                # if the error message suggests to sample again, let's do that
+                if "Please sample again" in error_message:
+                    continue
+
+                # if the error mesaage suggests to reduce the number of tokens,
+                # obtain the number of tokens to reduce and retry
                 token_stats = self.get_max_tokens_from_error_message(error_message)
 
                 if token_stats is None:
                     raise e
 
                 max_context_length = token_stats["max_context_length"]
-                # requested_tokens = token_stats["requested_tokens"]
                 tokens_in_prompt = token_stats["tokens_in_prompt"]
-                # tokens_in_completion = token_stats["tokens_in_completion"]
 
                 params["max_tokens"] = max_context_length - tokens_in_prompt
 
