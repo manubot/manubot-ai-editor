@@ -59,10 +59,24 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
                 + "\n%%% PARAGRAPH END %%%"
             )
 
-        return self.sentence_end_pattern.sub(" ", paragraph_text).strip()
+        return self.sentence_end_pattern.sub(". ", paragraph_text).strip()
 
     def get_prompt(self, paragraph_text, section_name):
         return paragraph_text
+
+
+class VerboseManuscriptRevisionModel(DummyManuscriptRevisionModel):
+    """
+    This model returns the same paragraph and adds a header to it.
+    """
+
+    def __init__(self, revised_header: str = "Revised:"):
+        super().__init__()
+        self.revised_header = revised_header
+
+    def revise_paragraph(self, paragraph_text, section_name):
+        revised_paragraph = super().revise_paragraph(paragraph_text, section_name)
+        return f"{self.revised_header}{revised_paragraph}"
 
 
 class RandomManuscriptRevisionModel(ManuscriptRevisionModel):

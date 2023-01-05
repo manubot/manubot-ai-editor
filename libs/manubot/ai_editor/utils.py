@@ -4,6 +4,7 @@ import difflib
 import yaml
 
 
+SIMPLE_SENTENCE_END_PATTERN = re.compile(r"\.\s")
 SENTENCE_END_PATTERN = re.compile(r"\.\s(\S)")
 
 

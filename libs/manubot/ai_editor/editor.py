@@ -4,7 +4,11 @@ from pathlib import Path
 
 from manubot.ai_editor import env_vars
 from manubot.ai_editor.models import ManuscriptRevisionModel
-from manubot.ai_editor.utils import get_yaml_field, SENTENCE_END_PATTERN
+from manubot.ai_editor.utils import (
+    get_yaml_field,
+    SENTENCE_END_PATTERN,
+    SIMPLE_SENTENCE_END_PATTERN,
+)
 
 
 class ManuscriptEditor:
@@ -154,6 +158,15 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         Returns:
             Converted paragraph.
         """
+        # if the first sentence of the paragraph contains the word "revised" in it,
+        # then remove the entire sentence
+        if paragraph.startswith("Revised:\n"):
+            paragraph = paragraph.replace("Revised:\n", "", 1)
+        elif paragraph.startswith("We revised the paragraph "):
+            import re
+
+            paragraph = re.sub(r"We revised the paragraph [^\n]+\n\s*", "", paragraph)
+
         return SENTENCE_END_PATTERN.sub(r".\n\1", paragraph)
 
     @staticmethod

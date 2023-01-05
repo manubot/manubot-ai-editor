@@ -9,6 +9,7 @@ from manubot.ai_editor.models import (
     GPT3CompletionModel,
     RandomManuscriptRevisionModel,
     DummyManuscriptRevisionModel,
+    VerboseManuscriptRevisionModel,
 )
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
@@ -725,6 +726,56 @@ Table: Significant trait associations of LV603 in eMERGE. {#tbl:sup:emerge_assoc
     """.strip()
         in open(tmp_path / "50.01.supplementary_material.md").read()
     )
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        VerboseManuscriptRevisionModel("Revised:\n"),
+        VerboseManuscriptRevisionModel("Revised:\n\n"),
+        VerboseManuscriptRevisionModel(
+            "We revised the paragraph from the Methods section of the academic paper titled 'Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms' as follows:\n\n"
+        ),
+    ],
+)
+def test_revise_section_where_model_says_what_it_is_doing(model):
+    # sometimes, the GPT model returns an initial paragraph saying "We revised"
+    # or "Revised:". Here I make sure the editor does not include this paragraph.
+    orig_paragraph_text = r"""
+This is a paragraph that was not revised.
+And this is the second line of the same paragraph.
+And finally, a third sentence so we have more than 2.
+And finally, a third sentence so we have more than 2.
+And finally, a third sentence so we have more than 2.
+And finally, a third sentence so we have more than 2.
+        """
+
+    # make sure I have the minimum number of words to pass the "too short" check
+    assert len(orig_paragraph_text.split()) > 60, len(orig_paragraph_text.split())
+
+    paragraph = orig_paragraph_text.strip().split("\n")
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 6
+
+    model.title = "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+    model.keywords = [
+        "genetic studies",
+        "functional genomics",
+        "gene co-expression",
+        "therapeutic targets",
+        "drug repurposing",
+        "clustering of complex traits",
+    ]
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, "methods", model
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+
+    # the paragraph does not contain the "Revised:" or "We revised" initial
+    assert orig_paragraph_text.strip() == paragraph_revised.strip()
 
 
 @pytest.mark.parametrize(
