@@ -444,11 +444,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
                 # if the error message suggests to sample again, let's do that
                 if "Please sample again" in error_message:
-                    continue
+                    break
 
                 if "server is overloaded" in error_message:
                     time.sleep(5)
-                    continue
+                    break
 
                 # if the error mesaage suggests to reduce the number of tokens,
                 # obtain the number of tokens to reduce and retry
@@ -461,7 +461,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 tokens_in_prompt = token_stats["tokens_in_prompt"]
 
                 params["max_tokens"] = max_context_length - tokens_in_prompt
-
-            retry_count += 1
+            finally:
+                retry_count += 1
 
         return message
