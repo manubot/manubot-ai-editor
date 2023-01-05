@@ -251,36 +251,63 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         """
         if section_name in ("abstract",):
             prompt = f"""
-                Revise the following paragraph from the {section_name.capitalize()} of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Make sure the paragraph is easy to read, it is in active voice, and the take-home message is clear
+                Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
+                so the problem addressed is correctly introduced,
+                   the solution proposed is clearly explained,
+                   the text grammar is correct, spelling errors are fixed,
+                   and the text is in active voice and has a clear sentence structure
             """
-        elif section_name in ("introduction",):
+        elif section_name in ("introduction", "discussion"):
             prompt = f"""
-                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Make sure the paragraph has a clear and easy-to-read sentence structure, it is in active voice, and it minimizes the use of jargon.
-                Keep most of the citations to other academic papers:
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
+                so
+                   most of the citations to other academic papers are kept,
+                   the text minimizes the use of jargon,
+                   the text grammar is correct, spelling errors are fixed,
+                   and the text is in active voice and has a clear sentence structure
+            """
+        elif section_name in ("results",):
+            prompt = f"""
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
+                so
+                   most references to figures and tables are kept,
+                   the details are enough to clearly explain the outcomes,
+                   sentences are concise and to the point,
+                   the text minimizes the use of jargon,
+                   the text grammar is correct, spelling errors are fixed,
+                   and the text is in active voice and has a clear sentence structure
             """
         elif section_name in ("methods",):
-            prompt = f"""
-                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Try to keep the math and technical details. If formulas and equations are present, then make sure all symbols are defined
+            equation_definition = r"\n\n$$ ... $$ {#eq:id}\n\n"
+            revise_sentence = f"""
+                Revise the paragraph(s) below from
+                the {section_name.capitalize()} section of an academic paper
+                (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
             """.strip()
 
-            if self.edit_endpoint or "$$" not in paragraph_text:
-                prompt = f"""
-                    {prompt}.
-                    Make sure the paragraph has a clear sentence structure, and it is in active voice
-                """
+            prompt = f"""
+                {revise_sentence}
+                so
+                   most of the citations to other academic papers are kept,
+                   most of the technical details are kept,
+                   all equations (such as '{equation_definition}') are defined using '{equation_definition}',
+                   the most important symbols in equations are defined,
+                   spelling errors are fixed, the text grammar is correct,
+                   and the text has a clear sentence structure
+            """.strip()
         else:
             prompt = f"""
-                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper with the title '{self.title}' and keywords '{", ".join(self.keywords)}.'
-                Make sure the paragraph has a clear and easy-to-read sentence structure, and it minimizes the use of jargon
+                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
+                so
+                   the text minimizes the use of jargon,
+                   the text grammar is correct, spelling errors are fixed,
+                   and the text is in active voice and has a clear sentence structure
             """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
         if not self.edit_endpoint:
-            return f"{prompt}:\n\n{paragraph_text.strip()}"
+            return f"{prompt}.\n\n{paragraph_text.strip()}"
         else:
             prompt = prompt.replace("the following paragraph", "this paragraph")
             return f"{prompt}.", paragraph_text.strip()
