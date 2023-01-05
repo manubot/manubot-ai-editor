@@ -2,6 +2,7 @@ import os
 import re
 from abc import ABC, abstractmethod
 import random
+import time
 
 import openai
 
@@ -443,6 +444,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
                 # if the error message suggests to sample again, let's do that
                 if "Please sample again" in error_message:
+                    continue
+
+                if "server is overloaded" in error_message:
+                    time.sleep(5)
                     continue
 
                 # if the error mesaage suggests to reduce the number of tokens,
