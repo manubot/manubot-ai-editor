@@ -117,7 +117,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         frequency_penalty: float = None,
         best_of: int = None,
         top_p: float = None,
-        retry_count: int = 3,
+        retry_count: int = 5,
         edit_endpoint: bool = False,
     ):
         super().__init__()
