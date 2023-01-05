@@ -444,7 +444,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         while message == "" and retry_count < self.retry_count:
             try:
                 print(
-                    f"[Attempt #{retry_count}] Revising paragraph '{paragraph_text[:20]}'..."
+                    f"[Attempt #{retry_count}] Revising paragraph '{paragraph_text[:20]}'...",
+                    flush=True,
                 )
 
                 if self.edit_endpoint:

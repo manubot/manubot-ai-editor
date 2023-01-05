@@ -393,7 +393,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             ):
                 continue
 
-            print(f"Revising file {filename.name}")
+            print(f"Revising file {filename.name}", flush=True)
 
             self.revise_file(
                 filename.name,
