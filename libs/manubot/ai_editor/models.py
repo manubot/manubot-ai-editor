@@ -281,7 +281,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                    and the text has a clear sentence structure
             """
         elif section_name in ("methods",):
-            equation_definition = r"\n\n$$ ... $$ {#eq:id}\n\n"
+            equation_definition = r"$$ ... $$ {#id}"
             revise_sentence = f"""
                 Revise the paragraph(s) below from
                 the {section_name.capitalize()} section of an academic paper
@@ -293,7 +293,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 so
                    most of the citations to other academic papers are kept,
                    most of the technical details are kept,
-                   all equations (such as '{equation_definition}') are defined using '{equation_definition}',
+                   most references to equations (such as "Equation (@id)") are kept,
+                   all equations definitions (such as '{equation_definition}') are included with newlines before and after,
                    the most important symbols in equations are defined,
                    spelling errors are fixed, the text grammar is correct,
                    and the text has a clear sentence structure
