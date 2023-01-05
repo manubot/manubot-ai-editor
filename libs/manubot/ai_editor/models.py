@@ -427,6 +427,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         message = ""
         while message == "" and retry_count < self.retry_count:
             try:
+                print(
+                    f"[Attempt #{retry_count}] Revising paragraph '{paragraph_text[:20]}'..."
+                )
+
                 if self.edit_endpoint:
                     completions = openai.Edit.create(**params)
                 else:
@@ -435,6 +439,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 message = completions.choices[0].text.strip()
             except Exception as e:
                 error_message = str(e)
+                print(f"Error: {error_message}")
+
                 # if the error message suggests to sample again, let's do that
                 if "Please sample again" in error_message:
                     continue
