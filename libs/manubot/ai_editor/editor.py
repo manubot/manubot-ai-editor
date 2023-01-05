@@ -362,9 +362,22 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         Revises all the files in the content directory of the manuscript sorted
         by name, and writes each file in the output directory.
         """
+
+        # if specified, obtain the list of files names that have to be revised
+        filenames_to_revise = None
+        if env_vars.FILENAMES_TO_REVISE in os.environ:
+            filenames_to_revise = os.environ[env_vars.FILENAMES_TO_REVISE]
+            filenames_to_revise = {f.strip() for f in filenames_to_revise.split(",")}
+
         for filename in sorted(self.content_dir.glob("*.md")):
             filename_section = self.get_section_from_filename(filename.name)
             if filename_section is None:
+                continue
+
+            if (
+                filenames_to_revise is not None
+                and filename.name not in filenames_to_revise
+            ):
                 continue
 
             if debug:

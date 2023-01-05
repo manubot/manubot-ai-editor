@@ -751,3 +751,38 @@ def test_revise_entire_manuscript(tmp_path, model):
 
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 12
+
+
+@mock.patch.dict(
+    "os.environ",
+    {
+        env_vars.FILENAMES_TO_REVISE: r"01.abstract.md,02.introduction.md",
+    },
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_entire_manuscript_only_some_files_are_selected(tmp_path, model):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    output_folder = tmp_path
+    assert output_folder.exists()
+
+    me.revise_manuscript(output_folder, model)
+
+    output_md_files = list(output_folder.glob("*.md"))
+    assert len(output_md_files) == 2
+    output_md_filenames = [f.name for f in output_md_files]
+    assert "01.abstract.md" in output_md_filenames
+    assert "02.introduction.md" in output_md_filenames

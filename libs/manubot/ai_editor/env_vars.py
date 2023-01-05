@@ -43,3 +43,7 @@ SECTIONS_MAPPING = "AI_EDITOR_FILENAME_SECTION_MAPPING"
 # by running again the model. The AI Editor will try three (3) times in these
 # cases. This variable allows to specify the number of retries.
 RETRY_COUNT = "AI_EDITOR_RETRY_COUNT"
+
+# If specified, only these file names will be revised. Multiple files can be
+# specified, separated by commas. For example: "01.intro.md,02.review.md"
+FILENAMES_TO_REVISE = "AI_EDITOR_FILENAMES_TO_REVISE"
