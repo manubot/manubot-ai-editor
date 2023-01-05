@@ -446,7 +446,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 # if the error message suggests to sample again, let's do that
                 if "Please sample again" in error_message:
                     pass
-                elif "server is overloaded" in error_message:
+                elif "overloaded" in error_message:
                     time.sleep(5)
                 else:
                     # if the error mesaage suggests to reduce the number of tokens,
