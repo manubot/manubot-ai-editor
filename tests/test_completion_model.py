@@ -88,6 +88,16 @@ def test_model_object_init_read_language_model_from_environment():
     assert model.model_parameters["engine"] == "text-curie-001"
 
 
+@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: ""})
+def test_model_object_init_read_language_model_from_environment_is_empty():
+    model = GPT3CompletionModel(
+        title="Test title",
+        keywords=["test", "keywords"],
+    )
+
+    assert model.model_parameters["engine"] == "text-davinci-003"
+
+
 def test_get_prompt_for_abstract():
     me = ManuscriptEditor(
         content_dir=MANUSCRIPTS_DIR / "ccc",

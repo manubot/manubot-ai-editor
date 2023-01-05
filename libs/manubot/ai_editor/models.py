@@ -151,10 +151,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
-            model_engine = os.environ[env_vars.LANGUAGE_MODEL]
-            print(
-                f"Using language model from environment variable '{env_vars.LANGUAGE_MODEL}'"
-            )
+            val = os.environ[env_vars.LANGUAGE_MODEL]
+            if val.strip() != "":
+                model_engine = val
+                print(
+                    f"Using language model from environment variable '{env_vars.LANGUAGE_MODEL}'"
+                )
 
         if env_vars.TEMPERATURE in os.environ:
             try:
