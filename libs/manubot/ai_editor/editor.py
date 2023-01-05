@@ -380,7 +380,14 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         filenames_to_revise = None
         if env_vars.FILENAMES_TO_REVISE in os.environ:
             filenames_to_revise = os.environ[env_vars.FILENAMES_TO_REVISE]
-            filenames_to_revise = {f.strip() for f in filenames_to_revise.split(",")}
+
+            if filenames_to_revise.strip() != "":
+                filenames_to_revise = {
+                    f.strip() for f in filenames_to_revise.split(",")
+                }
+                print(f"File names to revise: {filenames_to_revise}", flush=True)
+            else:
+                filenames_to_revise = None
 
         for filename in sorted(self.content_dir.glob("*.md")):
             filename_section = self.get_section_from_filename(filename.name)
