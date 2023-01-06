@@ -465,6 +465,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     pass
                 elif "overloaded" in error_message:
                     time.sleep(5)
+                elif "limit reached" in error_message and "on requests per min" in error_message:
+                    # wait a little before retrying
+                    time.sleep(30)
                 else:
                     # if the error mesaage suggests to reduce the number of tokens,
                     # obtain the number of tokens to reduce and retry
