@@ -242,6 +242,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
 
+            prev_line = None
             current_table_paragraph = False
             last_sentence_ends_with_alphanum_or_colon = False
 
@@ -268,6 +269,16 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                     while line is not None and line.strip() != "":
                         outfile.write(line)
                         line = next(infile, None)
+
+                # if the previous line is part of an image definition, then skip all those lines
+                if prev_line is not None and prev_line.startswith(("![",)):
+                    outfile.write(prev_line)
+
+                    while line is not None and line.strip() != "":
+                        outfile.write(line)
+                        line = next(infile, None)
+
+                    paragraph = []
 
                 # for "table paragraphs", there is a blank line after the table
                 # and then the next paragraph is the table caption that starts
@@ -306,7 +317,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                             prev_line.strip() == ""
                             and (
                                 (line[0].isalnum() and line[0].isupper())
-                                or line.startswith("#")
+                                or line.startswith(("#", "![", "|"))
                             )
                         ):
                             paragraph.append(line.strip())
@@ -335,6 +346,9 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                         outfile.write(prev_line)
 
                         if line.startswith("#"):
+                            outfile.write(line)
+                            paragraph = []
+                        elif line.startswith("|"):
                             outfile.write(line)
                             paragraph = []
                         else:
