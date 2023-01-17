@@ -292,6 +292,69 @@ This is the revision of the first paragraph of the introduction of CCC:
         )
 
 
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        DummyManuscriptRevisionModel(add_paragraph_marks=True),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_results_with_table_below_nonended_paragraph(tmp_path, model):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "custom",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("00.results_table_below_nonended_paragraph.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR
+        / "custom"
+        / "00.results_table_below_nonended_paragraph.md",
+        output_filepath=tmp_path / "00.results_table_below_nonended_paragraph.md",
+    )
+
+    # make sure the "image paragraph" was exactly copied to the output file
+    assert (
+        r"""
+| Pathway                             | AUC   | FDR      |
+|:------------------------------------|:------|:---------|
+| IRIS Neutrophil-Resting             | 0.91  | 4.51e-35 |
+| SVM Neutrophils                     | 0.98  | 1.43e-09 |
+| PID IL8CXCR2 PATHWAY                | 0.81  | 7.04e-03 |
+| SIG PIP3 SIGNALING IN B LYMPHOCYTES | 0.77  | 1.95e-02 |
+
+Table: Pathways aligned to LV603 from the MultiPLIER models. {#tbl:sup:multiplier_pathways:lv603}
+
+The tool, again, significantly revised the text, producing a much better and more concise introductory paragraph.
+For example, the revised first sentence (on the right) incorportes the ideas of "large datasets", and the "opportunities/possibilities" for "scientific exploration" in a clearly and briefly.
+    """.strip()
+        in open(tmp_path / "00.results_table_below_nonended_paragraph.md").read()
+    )
+
+    if isinstance(model, DummyManuscriptRevisionModel):
+        assert (
+            r"""
+%%% PARAGRAPH START %%%
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC:
+%%% PARAGRAPH END %%%
+            """.strip()
+            in open(tmp_path / "00.results_table_below_nonended_paragraph.md").read()
+        )
+
+
 def test_prepare_paragraph_with_simple_text():
     paragraph = r"""
 This is the first sentence.
