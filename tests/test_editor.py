@@ -235,6 +235,63 @@ Vertical and horizontal red lines show how CCC clustered data points using $x$ a
     )
 
 
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        DummyManuscriptRevisionModel(add_paragraph_marks=True),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_results_with_figure_without_caption(tmp_path, model):
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "custom",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    me.revise_file("00.results_image_with_no_caption.md", tmp_path, model)
+
+    _check_nonparagraph_lines_are_preserved(
+        input_filepath=MANUSCRIPTS_DIR
+        / "custom"
+        / "00.results_image_with_no_caption.md",
+        output_filepath=tmp_path / "00.results_image_with_no_caption.md",
+    )
+
+    # make sure the "image paragraph" was exactly copied to the output file
+    assert (
+        r"""
+![
+](images/diffs/introduction/ccc-paragraph-01.svg "Diffs - CCC introduction paragraph 01"){width="100%"}
+
+The tool, again, significantly revised the text, producing a much better and more concise introductory paragraph.
+For example, the revised first sentence (on the right) incorportes the ideas of "large datasets", and the "opportunities/possibilities" for "scientific exploration" in a clearly and briefly.
+    """.strip()
+        in open(tmp_path / "00.results_image_with_no_caption.md").read()
+    )
+
+    if isinstance(model, DummyManuscriptRevisionModel):
+        assert (
+            r"""
+%%% PARAGRAPH START %%%
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC.
+This is the revision of the first paragraph of the introduction of CCC:
+%%% PARAGRAPH END %%%
+            """.strip()
+            in open(tmp_path / "00.results_image_with_no_caption.md").read()
+        )
+
+
 def test_prepare_paragraph_with_simple_text():
     paragraph = r"""
 This is the first sentence.
