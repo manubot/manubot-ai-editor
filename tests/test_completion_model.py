@@ -4,7 +4,8 @@ from unittest import mock
 
 import pytest
 
-from manubot_ai_editor.editor import ManuscriptEditor, models, env_vars
+from manubot_ai_editor.editor import ManuscriptEditor, env_vars
+from manubot_ai_editor import models
 from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
 from manubot_ai_editor.utils import starts_with_similar
 
