@@ -482,7 +482,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     max_context_length = token_stats["max_context_length"]
                     tokens_in_prompt = token_stats["tokens_in_prompt"]
 
-                    params["max_tokens"] = max_context_length - tokens_in_prompt
+                    new_max_tokens = max_context_length - tokens_in_prompt
+
+                    if new_max_tokens <= 0:
+                        raise e
+
+                    params["max_tokens"] = new_max_tokens
             finally:
                 retry_count += 1
 
