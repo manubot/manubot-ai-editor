@@ -15,8 +15,8 @@ pip install -U manubot-ai-editor
 import shutil
 from pathlib import Path
 
-from manubot.ai_editor.editor import ManuscriptEditor
-from manubot.ai_editor.models import GPT3CompletionModel
+from manubot_ai_editor.editor import ManuscriptEditor
+from manubot_ai_editor.models import GPT3CompletionModel
 
 # create a manuscript editor
 #  here content_dir points to the "content" directory of the Manubot-based

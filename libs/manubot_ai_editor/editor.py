@@ -2,12 +2,11 @@ import json
 import os
 from pathlib import Path
 
-from manubot.ai_editor import env_vars
-from manubot.ai_editor.models import ManuscriptRevisionModel
-from manubot.ai_editor.utils import (
+from manubot_ai_editor import env_vars
+from manubot_ai_editor.models import ManuscriptRevisionModel
+from manubot_ai_editor.utils import (
     get_yaml_field,
     SENTENCE_END_PATTERN,
-    SIMPLE_SENTENCE_END_PATTERN,
 )
 
 

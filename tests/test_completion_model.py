@@ -4,10 +4,9 @@ from unittest import mock
 
 import pytest
 
-from manubot.ai_editor.editor import ManuscriptEditor
-from manubot.ai_editor import env_vars, models
-from manubot.ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
-from manubot.ai_editor.utils import starts_with_similar
+from manubot_ai_editor.editor import ManuscriptEditor, models, env_vars
+from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
+from manubot_ai_editor.utils import starts_with_similar
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
@@ -49,7 +48,7 @@ def test_model_object_init_with_openai_api_key_as_parameter():
             openai_api_key="test_value",
         )
 
-        from manubot.ai_editor import models
+        from manubot_ai_editor import models
 
         assert models.openai.api_key == "test_value"
     finally:
@@ -64,7 +63,7 @@ def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority(
         openai_api_key="test_value",
     )
 
-    from manubot.ai_editor import models
+    from manubot_ai_editor import models
 
     assert models.openai.api_key == "test_value"
 

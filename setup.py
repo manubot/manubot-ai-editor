@@ -21,7 +21,7 @@ setuptools.setup(
     url="https://github.com/miltondp/manubot-chatgpt-editor",
     package_dir={"": "libs"},
     packages=[
-        "manubot/ai_editor/",
+        "manubot_ai_editor/",
     ],
     python_requires=">=3.10",
     install_requires=[

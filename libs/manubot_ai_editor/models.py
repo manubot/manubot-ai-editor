@@ -6,7 +6,7 @@ import time
 
 import openai
 
-from manubot.ai_editor import env_vars
+from manubot_ai_editor import env_vars
 
 
 class ManuscriptRevisionModel(ABC):
@@ -188,7 +188,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         if env_vars.FREQUENCY_PENALTY in os.environ:
             try:
-                frequency_penalty = float(os.environ[env_vars.FREQUENCY_PENALTY])
+                frequency_penalty = float(os.environ[
+                                              env_vars.FREQUENCY_PENALTY])
                 print(
                     f"Using frequency_penalty from environment variable '{env_vars.FREQUENCY_PENALTY}'"
                 )

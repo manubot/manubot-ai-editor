@@ -3,10 +3,9 @@ from unittest import mock
 
 import pytest
 
-from manubot.ai_editor import env_vars
-from manubot.ai_editor.editor import ManuscriptEditor
-from manubot.ai_editor.models import (
-    GPT3CompletionModel,
+from manubot_ai_editor import env_vars
+from manubot_ai_editor.editor import ManuscriptEditor
+from manubot_ai_editor.models import (
     RandomManuscriptRevisionModel,
     DummyManuscriptRevisionModel,
     VerboseManuscriptRevisionModel,
