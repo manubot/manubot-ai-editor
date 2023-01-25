@@ -188,8 +188,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         if env_vars.FREQUENCY_PENALTY in os.environ:
             try:
-                frequency_penalty = float(os.environ[
-                                              env_vars.FREQUENCY_PENALTY])
+                frequency_penalty = float(os.environ[env_vars.FREQUENCY_PENALTY])
                 print(
                     f"Using frequency_penalty from environment variable '{env_vars.FREQUENCY_PENALTY}'"
                 )
@@ -466,7 +465,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     pass
                 elif "overloaded" in error_message:
                     time.sleep(5)
-                elif "limit reached" in error_message and "on requests per min" in error_message:
+                elif (
+                    "limit reached" in error_message
+                    and "on requests per min" in error_message
+                ):
                     # wait a little before retrying
                     time.sleep(30)
                 else:
