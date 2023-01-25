@@ -18,7 +18,7 @@ setuptools.setup(
     license="BSD-2-Clause Plus Patent",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/miltondp/manubot-chatgpt-editor",
+    url="https://github.com/greenelab/manubot-ai-editor",
     package_dir={"": "libs"},
     packages=[
         "manubot_ai_editor/",
