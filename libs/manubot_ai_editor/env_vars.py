@@ -31,6 +31,10 @@ BEST_OF = "AI_EDITOR_BEST_OF"
 
 # It allows to specify a JSON string, where keys are filenames and values are
 # section names. For example: '{"01.intro.md": "introduction"}'
+# Possible values for section names are: "abstract", "introduction",
+# "results", "discussion", "conclusions", "methods", and "supplementary material".
+# Take a look at function 'get_prompt' in 'libs/manubot_ai_editor/models.py'
+# to see which prompts are used for each section.
 # Although the AI Editor tries to infer the section name from the filename,
 # sometimes filenames are not descriptive enough (e.g., "01.intro.md" or
 # "02.review.md" might indicate an introduction).
