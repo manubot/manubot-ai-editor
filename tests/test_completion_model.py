@@ -75,7 +75,7 @@ def test_model_object_init_default_language_model():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-davinci-003"
+    assert model.model_parameters["model"] == "text-davinci-003"
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})
@@ -85,7 +85,7 @@ def test_model_object_init_read_language_model_from_environment():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-curie-001"
+    assert model.model_parameters["model"] == "text-curie-001"
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: ""})
@@ -95,7 +95,7 @@ def test_model_object_init_read_language_model_from_environment_is_empty():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-davinci-003"
+    assert model.model_parameters["model"] == "text-davinci-003"
 
 
 def test_get_prompt_for_abstract():
