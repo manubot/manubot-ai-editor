@@ -218,18 +218,24 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords
 
-        # adjust options if edits endpoint was selected
+        # adjust options if edits or chat endpoint was selected
         self.edit_endpoint = edit_endpoint
+        self.chat_endpoint = False
+
         if self.edit_endpoint and model_engine == "text-davinci-003":
             model_engine = "text-davinci-edit-001"
 
         if model_engine == "text-davinci-edit-001":
             self.edit_endpoint = True
 
+        if model_engine == "gpt-3.5-turbo":
+            self.edit_endpoint = False
+            self.chat_endpoint = True
+
         print("Language model: ", model_engine)
 
         self.model_parameters = {
-            "engine": model_engine,
+            "model": model_engine,
             "temperature": temperature,
             "top_p": top_p,
             "presence_penalty": presence_penalty,
@@ -430,6 +436,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     "input": prompt[1],
                 }
             )
+        elif self.chat_endpoint:
+            params.update(
+                {
+                    "messages": [
+                        {"role": "user", "content": prompt},
+                    ],
+                    "max_tokens": max_tokens,
+                    "stop": None,
+                }
+            )
         else:
             params.update(
                 {
@@ -452,10 +468,15 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
                 if self.edit_endpoint:
                     completions = openai.Edit.create(**params)
+                elif self.chat_endpoint:
+                    completions = openai.ChatCompletion.create(**params)
                 else:
                     completions = openai.Completion.create(**params)
 
-                message = completions.choices[0].text.strip()
+                if self.chat_endpoint:
+                    message = completions.choices[0].message.content.strip()
+                else:
+                    message = completions.choices[0].text.strip()
             except Exception as e:
                 error_message = str(e)
                 print(f"Error: {error_message}")
