@@ -605,15 +605,13 @@ Changes are presented to the user through the GitHub interface for author review
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 6
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "introduction", model
@@ -947,15 +945,13 @@ This work lays the foundation for a future where academic manuscripts are constr
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 4
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "conclusions", model
@@ -1182,15 +1178,13 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 5
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
