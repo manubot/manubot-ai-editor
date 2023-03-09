@@ -75,7 +75,7 @@ def test_model_object_init_default_language_model():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-davinci-003"
+    assert model.model_parameters["model"] == "text-davinci-003"
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})
@@ -85,7 +85,7 @@ def test_model_object_init_read_language_model_from_environment():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-curie-001"
+    assert model.model_parameters["model"] == "text-curie-001"
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: ""})
@@ -95,7 +95,7 @@ def test_model_object_init_read_language_model_from_environment_is_empty():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["engine"] == "text-davinci-003"
+    assert model.model_parameters["model"] == "text-davinci-003"
 
 
 def test_get_prompt_for_abstract():
@@ -287,6 +287,7 @@ In transcriptomics, genes with correlated expression often share functions or ar
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_abstract_ccc(model):
@@ -346,6 +347,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_abstract_phenoplier(model):
@@ -408,6 +410,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_abstract_ai_revision(model):
@@ -465,6 +468,7 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_introduction_paragraph_with_single_and_multiple_citations_together(
@@ -525,6 +529,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first(model):
@@ -582,6 +587,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last(model):
@@ -599,15 +605,13 @@ Changes are presented to the user through the GitHub interface for author review
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 6
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "introduction", model
@@ -640,6 +644,7 @@ Changes are presented to the user through the GitHub interface for author review
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations(
@@ -691,6 +696,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs(model):
@@ -752,6 +758,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_results_paragraph_is_too_long(model):
@@ -805,6 +812,7 @@ This model's maximum context length is 4097 tokens, however you requested 17570 
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_discussion_paragraph_with_markdown_formatting_and_citations(model):
@@ -858,6 +866,7 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites(
@@ -918,6 +927,7 @@ The regression model, however, is approximately well-calibrated, and we did not 
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_conclusions_paragraph_with_simple_text(model):
@@ -935,15 +945,13 @@ This work lays the foundation for a future where academic manuscripts are constr
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 4
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "conclusions", model
@@ -970,6 +978,7 @@ This work lays the foundation for a future where academic manuscripts are constr
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_methods_paragraph_with_inline_equations_and_figure_refs(model):
@@ -1025,6 +1034,7 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_methods_paragraph_with_figure_table_and_equation_refs(model):
@@ -1086,6 +1096,7 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_methods_paragraph_with_inline_math_and_equations(model):
@@ -1150,6 +1161,7 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_methods_paragraph_without_fig_table_reference(model):
@@ -1166,15 +1178,13 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     paragraph = [sentence.strip() for sentence in paragraph]
     assert len(paragraph) == 5
 
-    model = GPT3CompletionModel(
-        title="A publishing infrastructure for AI-assisted academic authoring",
-        keywords=[
-            "manubot",
-            "artificial intelligence",
-            "scholarly publishing",
-            "software",
-        ],
-    )
+    model.title = "A publishing infrastructure for AI-assisted academic authoring"
+    model.keywords = [
+        "manubot",
+        "artificial intelligence",
+        "scholarly publishing",
+        "software",
+    ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
         paragraph, "methods", model
@@ -1203,6 +1213,7 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     [
         GPT3CompletionModel(None, None),
         GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
 def test_revise_methods_paragraph_with_many_tokens(model):
