@@ -25,7 +25,7 @@ setuptools.setup(
     ],
     python_requires=">=3.10",
     install_requires=[
-        "openai>=0.25",
+        "openai>=0.27",
         "pyyaml",
     ],
     classifiers=[
