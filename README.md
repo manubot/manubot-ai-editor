@@ -3,6 +3,14 @@
 This package provides classes and functions for automated, AI-assisted revision of manuscript written using [Manubot](https://manubot.org/).
 Check out the [manuscript](https://github.com/greenelab/manubot-gpt-manuscript).
 
+We currently support the following OpenAI endpoints:
+* [`Completion`](https://platform.openai.com/docs/api-reference/completions)
+* [`Edits`](https://platform.openai.com/docs/api-reference/edits)
+* [`ChatCompletion`](https://platform.openai.com/docs/api-reference/chat).
+  * *Note* that the chat completion endpoint is not fully implemented yet.
+    The current implementation uses the chat completion endpoint in a similar way as the completion endpoint.
+    This is because new models such as `gpt-3.5-turbo` or `gpt-4` are only available through this endpoint. 
+
 ## Installation
 
 ```bash
