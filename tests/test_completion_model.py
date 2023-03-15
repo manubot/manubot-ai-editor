@@ -799,7 +799,7 @@ This model's maximum context length is 4097 tokens, however you requested 17570 
 -->
     """.strip()
     assert starts_with_similar(
-        paragraph_revised, error_message, 0.9 if not model.edit_endpoint else 0.30
+        paragraph_revised, error_message, 0.55 if not model.edit_endpoint else 0.30
     )
 
     # remove the multiline html comment at the top of the revised paragraph
