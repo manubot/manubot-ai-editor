@@ -51,3 +51,11 @@ RETRY_COUNT = "AI_EDITOR_RETRY_COUNT"
 # If specified, only these file names will be revised. Multiple files can be
 # specified, separated by commas. For example: "01.intro.md,02.review.md"
 FILENAMES_TO_REVISE = "AI_EDITOR_FILENAMES_TO_REVISE"
+
+# It allows to specify a single, custom prompt for all sections. For example:
+# "proofread and revise the following paragraph", where the tool will automatically
+# append the characters ':\n\n' followed by the paragraph at the end of the prompt.
+# Another example is "proofread and revise the following paragraph from the section {section_name} of scientific mauscript:\n\n{paragraph_text}".
+# The complete list of placeholders is: {paragraph_text}, {section_name},
+# {manuscript_title}, {manuscript_keywords}.
+CUSTOM_PROMPT = "AI_EDITOR_CUSTOM_PROMPT"
