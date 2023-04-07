@@ -274,6 +274,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
              1) the instructions to be used by the model for the revision of the paragraph,
              2) the paragraph to revise.
         """
+
+        if env_vars.CUSTOM_PROMPT in os.environ:
+            prompt = os.environ[env_vars.CUSTOM_PROMPT]
+            print(
+                f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
+            )
+            return f"{prompt}:\n\n{paragraph_text}"
+
         if section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
