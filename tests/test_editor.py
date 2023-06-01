@@ -887,7 +887,7 @@ And finally, a third sentence so we have more than 2.
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods",
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None

@@ -358,7 +358,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "abstract", model
+        paragraph, model, "abstract"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -421,7 +421,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "abstract", model
+        paragraph, model, "abstract"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -479,7 +479,7 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "abstract", model
+        paragraph, model, "abstract"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -540,7 +540,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "introduction", model
+        paragraph, model, "introduction"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -598,7 +598,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "introduction", model
+        paragraph, model, "introduction"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -655,7 +655,7 @@ Changes are presented to the user through the GitHub interface for author review
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "introduction", model
+        paragraph, model, "introduction"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -712,7 +712,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "results", model
+        paragraph, model, "results"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -767,7 +767,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "results", model
+        paragraph, model, "results"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -824,7 +824,7 @@ We sought to systematically analyze discrepant scores to assess whether associat
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "results", model
+        paragraph, model, "results"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -882,7 +882,7 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "discussion", model
+        paragraph, model, "discussion"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -939,7 +939,7 @@ The regression model, however, is approximately well-calibrated, and we did not 
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "discussion", model
+        paragraph, model, "discussion"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -995,7 +995,7 @@ This work lays the foundation for a future where academic manuscripts are constr
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "conclusions", model
+        paragraph, model, "conclusions"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1050,7 +1050,7 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1105,7 +1105,7 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1178,7 +1178,7 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1228,7 +1228,7 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1331,7 +1331,7 @@ $$ {#eq:reg:var_gene}
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1362,7 +1362,7 @@ Since the gold standard of drug-disease medical indications is described with Di
     model = RandomManuscriptRevisionModel()
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert isinstance(paragraph_text, str)
@@ -1389,7 +1389,7 @@ We adjusted the $p$-values using the Benjamini-Hochberg procedure.
     model = RandomManuscriptRevisionModel()
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, "methods", model
+        paragraph, model, "methods"
     )
     assert paragraph_text is not None
     assert isinstance(paragraph_text, str)
