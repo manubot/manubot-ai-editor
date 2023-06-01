@@ -8,7 +8,7 @@ more details in https://beta.openai.com/docs/api-reference/completions/create
 # OpenAI API key to use
 OPENAI_API_KEY = "OPENAI_API_KEY"
 
-# Language model to use. For example, "text-davinci-003"
+# Language model to use. For example, "text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0301", etc
 LANGUAGE_MODEL = "AI_EDITOR_LANGUAGE_MODEL"
 
 # Model parameter: max_tokens
