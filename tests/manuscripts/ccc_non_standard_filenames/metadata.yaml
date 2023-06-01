@@ -1,0 +1,50 @@
+---
+title: "An efficient not-only-linear correlation coefficient based on machine learning"
+keywords:
+  - correlation coefficient
+  - nonlinear relationships
+  - gene expression
+lang: en-US
+authors:
+  - name: Milton Pividori
+    github: miltondp
+    initials: MP
+    orcid: 0000-0002-3035-4403
+    twitter: miltondp
+    email: miltondp@gmail.com
+    affiliations:
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+    funders:
+      - The Gordon and Betty Moore Foundation GBMF 4552
+      - The National Human Genome Research Institute (R01 HG010067)
+  
+  - name: Marylyn D. Ritchie
+    initials: MDR
+    orcid: 0000-0002-1208-1720
+    twitter: MarylynRitchie
+    email: marylyn@pennmedicine.upenn.edu
+    affiliations:
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+
+  - name: Diego H. Milone
+    github: dmilone
+    initials: DHM
+    orcid: 0000-0003-2182-4351
+    twitter: d1001
+    email: dmilone@sinc.unl.edu.ar 
+    affiliations:
+      - Research Institute for Signals, Systems and Computational Intelligence (sinc(i)), Universidad Nacional del Litoral, Consejo Nacional de Investigaciones Científicas y Técnicas (CONICET), Santa Fe CP3000, Argentina
+
+  - name: Casey S. Greene
+    github: cgreene
+    initials: CSG
+    orcid: 0000-0001-8713-9213
+    twitter: GreeneScientist
+    email: casey.s.greene@cuanschutz.edu
+    affiliations:
+      - Center for Health AI, University of Colorado School of Medicine, Aurora, CO 80045, USA
+      - Department of Biochemistry and Molecular Genetics, University of Colorado School of Medicine, Aurora, CO 80045, USA
+    funders:
+      - The Gordon and Betty Moore Foundation (GBMF 4552)
+      - The National Human Genome Research Institute (R01 HG010067)
+      - The National Cancer Institute (R01 CA237170)
