@@ -253,7 +253,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.several_spaces_pattern = re.compile(r"\s+")
 
     def get_prompt(
-        self, paragraph_text: str, section_name: str
+        self, paragraph_text: str, section_name: str = None
     ) -> str | tuple[str, str]:
         """
         Returns the prompt to be used for the revision of a paragraph that
@@ -417,7 +417,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             "tokens_in_completion": tokens_in_completion,
         }
 
-    def revise_paragraph(self, paragraph_text, section_name):
+    def revise_paragraph(self, paragraph_text: str, section_name: str = None):
         """
         It revises a paragraph using GPT-3 completion model.
 

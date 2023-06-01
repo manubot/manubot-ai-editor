@@ -79,8 +79,8 @@ class ManuscriptEditor:
     @staticmethod
     def revise_and_write_paragraph(
         paragraph: list[str],
-        section_name: str,
         revision_model: ManuscriptRevisionModel,
+        section_name: str = None,
         outfile=None,
     ) -> None | tuple[str, str]:
         """
@@ -334,7 +334,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                     # revise and write paragraph to output file
                     self.revise_and_write_paragraph(
-                        paragraph, section_name, revision_model, outfile
+                        paragraph, revision_model, section_name, outfile
                     )
 
                     # clear the paragraph list
@@ -375,7 +375,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # output file
             if paragraph:
                 self.revise_and_write_paragraph(
-                    paragraph, section_name, revision_model, outfile
+                    paragraph, revision_model, section_name, outfile
                 )
 
     def revise_manuscript(
