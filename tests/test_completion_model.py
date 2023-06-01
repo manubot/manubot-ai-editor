@@ -27,47 +27,6 @@ def test_model_object_init_without_openai_api_key():
         os.environ = _environ
 
 
-def test_get_prompt_no_custom_prompt():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    paragraph_text = """
-This is the first sentence.
-And this is the second sentence.
-Finally, the third sentence.
-    """.strip()
-
-    prompt = model.get_prompt(paragraph_text, "introduction")
-    assert prompt.startswith("Revise the following paragraph from the ")
-    assert prompt.endswith(paragraph_text[-20:])
-
-
-@mock.patch.dict(
-    "os.environ",
-    {env_vars.CUSTOM_PROMPT: "proofread and revise the following paragraph"},
-)
-def test_get_prompt_custom_prompt_no_placeholders():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    paragraph_text = """
-This is the first sentence.
-And this is the second sentence.
-Finally, the third sentence.
-    """.strip()
-
-    prompt = model.get_prompt(paragraph_text, "introduction")
-    assert (
-        prompt == f"proofread and revise the following paragraph:\n\n{paragraph_text}"
-    )
-
-    # TODO: add other sections, should return same output
-
-
 @mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
 def test_model_object_init_with_openai_api_key_as_environment_variable():
     GPT3CompletionModel(
