@@ -341,12 +341,17 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                    and the text has a clear sentence structure
             """.strip()
         else:
-            prompt = f"""
-                Revise the following paragraph from the {section_name.capitalize()} section of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
+            prompt = "Revise the following paragraph"
+
+            if section_name is not None and section_name != "":
+                prompt += f" from the {section_name.capitalize()} section"
+
+            prompt += f" of an academic paper (with title '{self.title}' and keywords '{', '.join(self.keywords)}')"
+            prompt += """
                 so
-                   the text minimizes the use of jargon,
-                   the text grammar is correct, spelling errors are fixed,
-                   and the text has a clear sentence structure
+                    the text minimizes the use of jargon,
+                    the text grammar is correct, spelling errors are fixed,
+                    and the text has a clear sentence structure
             """
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
