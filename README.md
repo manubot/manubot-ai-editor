@@ -45,7 +45,7 @@ shutil.rmtree(output_folder, ignore_errors=True)
 output_folder.mkdir(parents=True, exist_ok=True)
 
 # then I revise the manuscript
-me.revise_manuscript(output_folder, model, debug=True)
+me.revise_manuscript(output_folder, model)
 
 # here I move the revised manuscript back to the content folder
 # CAUTION: this will overwrite the original manuscript

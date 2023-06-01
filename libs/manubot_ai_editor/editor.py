@@ -382,7 +382,6 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         self,
         output_dir: Path | str,
         revision_model: ManuscriptRevisionModel,
-        debug: bool = False,
     ):
         """
         Revises all the files in the content directory of the manuscript sorted
@@ -403,8 +402,14 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 filenames_to_revise = None
 
         for filename in sorted(self.content_dir.glob("*.md")):
+            # ignore front-matter file
+            if "front-matter" in filename.name:
+                continue
+
             filename_section = self.get_section_from_filename(filename.name)
-            if filename_section is None:
+
+            # we do not process the file if it has no section and there is no custom prompt
+            if filename_section is None and env_vars.CUSTOM_PROMPT not in os.environ:
                 continue
 
             if (
