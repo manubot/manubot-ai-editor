@@ -382,6 +382,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         self,
         output_dir: Path | str,
         revision_model: ManuscriptRevisionModel,
+        debug: bool = False,
     ):
         """
         Revises all the files in the content directory of the manuscript sorted
