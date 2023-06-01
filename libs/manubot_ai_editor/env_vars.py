@@ -53,9 +53,11 @@ RETRY_COUNT = "AI_EDITOR_RETRY_COUNT"
 FILENAMES_TO_REVISE = "AI_EDITOR_FILENAMES_TO_REVISE"
 
 # It allows to specify a single, custom prompt for all sections. For example:
-# "proofread and revise the following paragraph", where the tool will automatically
-# append the characters ':\n\n' followed by the paragraph at the end of the prompt.
-# Another example is "proofread and revise the following paragraph from the section {section_name} of scientific mauscript:\n\n{paragraph_text}".
+# "proofread and revise the following paragraph"; in this case, the tool will automatically
+# append the characters ':\n\n' followed by the paragraph.
+# It is also possible to include placeholders in the prompt, which will be replaced
+# by the corresponding values. For example, "proofread and revise the following
+# paragraph from the section {section_name} of a scientific manuscript with title '{title}'".
 # The complete list of placeholders is: {paragraph_text}, {section_name},
-# {manuscript_title}, {manuscript_keywords}.
+# {title}, {keywords}.
 CUSTOM_PROMPT = "AI_EDITOR_CUSTOM_PROMPT"

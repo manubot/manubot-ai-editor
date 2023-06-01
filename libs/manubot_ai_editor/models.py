@@ -280,7 +280,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             print(
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
-            return f"{prompt}:\n\n{paragraph_text}"
+
+            placeholders = {
+                "paragraph_text": paragraph_text,
+                "section_name": section_name,
+                "title": self.title,
+                "keywords": ", ".join(self.keywords),
+            }
+
+            if "{paragraph_text}" not in prompt:
+                prompt += ":\n\n{paragraph_text}"
+
+            return prompt.format(**placeholders)
 
         if section_name in ("abstract",):
             prompt = f"""
