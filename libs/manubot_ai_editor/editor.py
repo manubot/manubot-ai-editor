@@ -410,7 +410,10 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             filename_section = self.get_section_from_filename(filename.name)
 
             # we do not process the file if it has no section and there is no custom prompt
-            if filename_section is None and env_vars.CUSTOM_PROMPT not in os.environ:
+            if filename_section is None and (
+                env_vars.CUSTOM_PROMPT not in os.environ
+                or os.environ[env_vars.CUSTOM_PROMPT].strip() == ""
+            ):
                 continue
 
             if (

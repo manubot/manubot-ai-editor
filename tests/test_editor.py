@@ -887,7 +887,9 @@ And finally, a third sentence so we have more than 2.
     ]
 
     paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, model, "methods",
+        paragraph,
+        model,
+        "methods",
     )
     assert paragraph_text is not None
     assert paragraph_revised is not None
@@ -1005,7 +1007,9 @@ def test_revise_entire_manuscript_list_of_selected_files_is_empty(tmp_path, mode
         # GPT3CompletionModel(None, None),
     ],
 )
-def test_revise_entire_manuscript_non_standard_filenames_without_custom_prompt(tmp_path, model):
+def test_revise_entire_manuscript_non_standard_filenames_without_custom_prompt(
+    tmp_path, model
+):
     # in this case, the list of selected files is empty and files have non standard names,
     # so none of them are revised
     print(f"\n{str(tmp_path)}\n")
@@ -1030,7 +1034,7 @@ def test_revise_entire_manuscript_non_standard_filenames_without_custom_prompt(t
     "os.environ",
     {
         env_vars.FILENAMES_TO_REVISE: "",
-        env_vars.CUSTOM_PROMPT: "proofread and revise the following paragraph with manuscript title '{title}': {paragraph_text}"
+        env_vars.CUSTOM_PROMPT: "proofread and revise the following paragraph with manuscript title '{title}': {paragraph_text}",
     },
 )
 @pytest.mark.parametrize(
@@ -1040,7 +1044,9 @@ def test_revise_entire_manuscript_non_standard_filenames_without_custom_prompt(t
         # GPT3CompletionModel(None, None),
     ],
 )
-def test_revise_entire_manuscript_non_standard_filenames_with_custom_prompt(tmp_path, model):
+def test_revise_entire_manuscript_non_standard_filenames_with_custom_prompt(
+    tmp_path, model
+):
     # in this case, the list of selected files is empty but there is a custom prompt, so all files are revised
     print(f"\n{str(tmp_path)}\n")
 
@@ -1058,3 +1064,37 @@ def test_revise_entire_manuscript_non_standard_filenames_with_custom_prompt(tmp_
 
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 5
+
+
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.FILENAMES_TO_REVISE: "", env_vars.CUSTOM_PROMPT: ""},
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_prompt(
+    tmp_path, model
+):
+    # in this case, the list of selected files is empty and the custom prompt env variable is there but it's empty,
+    # this use case is when the custom prompt is not provided in the workflow interface
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "ccc_non_standard_filenames",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    output_folder = tmp_path
+    assert output_folder.exists()
+
+    me.revise_manuscript(output_folder, model)
+
+    output_md_files = list(output_folder.glob("*.md"))
+    assert len(output_md_files) == 0
