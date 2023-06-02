@@ -1,8 +1,15 @@
 """
 This file contains environment variables names used by manubot-ai-editor
-package. Several of them allow to specify different parameters when calling the
-OpenAI model, such as LAGUANGE_MODEL or MAX_TOKENS_PER_REQUEST. For this, see
-more details in https://beta.openai.com/docs/api-reference/completions/create
+package. They allow to specify different parameters when calling the
+OpenAI model, such as the language model or the maximum tokens per request
+(see more details in https://beta.openai.com/docs/api-reference/completions/create).
+
+If you are using our GitHub Actions workflow provided by manubot/rootstock, you need
+to modify the "Revise manuscript" step in the workflow file (.github/workflows/ai-revision.yaml)
+by adding the environment variable name specificed in the _value_ of the variables. For instance,
+if you want to provide a custom prompt, then you need to add a line like this to the workflow:
+
+    AI_EDITOR_CUSTOM_PROMPT="proofread the following paragraph"
 """
 
 # OpenAI API key to use
