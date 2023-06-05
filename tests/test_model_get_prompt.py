@@ -4,6 +4,84 @@ from manubot_ai_editor import env_vars
 from manubot_ai_editor.models import GPT3CompletionModel
 
 
+def test_get_prompt_for_abstract():
+    manuscript_title = "Title of the manuscript to be revised"
+    manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
+
+    model = GPT3CompletionModel(
+        title=manuscript_title,
+        keywords=manuscript_keywords,
+    )
+
+    paragraph_text = "Text of the abstract"
+
+    prompt = model.get_prompt(paragraph_text, "abstract")
+    assert prompt is not None
+    assert isinstance(prompt, str)
+    assert "abstract" in prompt
+    assert f"'{manuscript_title}'" in prompt
+    assert f"{manuscript_keywords[0]}" in prompt
+    assert f"{manuscript_keywords[1]}" in prompt
+    assert f"{manuscript_keywords[2]}" in prompt
+    assert paragraph_text in prompt
+    assert prompt.startswith("Revise")
+    assert "  " not in prompt
+
+
+def test_get_prompt_for_abstract_edit_endpoint():
+    manuscript_title = "Title of the manuscript to be revised"
+    manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
+
+    model = GPT3CompletionModel(
+        title=manuscript_title,
+        keywords=manuscript_keywords,
+        model_engine="text-davinci-edit-001",
+    )
+
+    paragraph_text = "Text of the abstract. "
+
+    instruction, paragraph = model.get_prompt(paragraph_text, "abstract")
+    assert instruction is not None
+    assert isinstance(instruction, str)
+    assert paragraph is not None
+    assert isinstance(paragraph, str)
+
+    assert "this paragraph" in instruction
+    assert "abstract" in instruction
+    assert f"'{manuscript_title}'" in instruction
+    assert f"{manuscript_keywords[0]}" in instruction
+    assert f"{manuscript_keywords[1]}" in instruction
+    assert f"{manuscript_keywords[2]}" in instruction
+    assert "  " not in instruction
+    assert instruction.startswith("Revise")
+
+    assert paragraph_text.strip() == paragraph
+
+
+def test_get_prompt_for_introduction():
+    manuscript_title = "Title of the manuscript to be revised"
+    manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
+
+    model = GPT3CompletionModel(
+        title=manuscript_title,
+        keywords=manuscript_keywords,
+    )
+
+    paragraph_text = "Text of the initial part"
+
+    prompt = model.get_prompt(paragraph_text, "introduction")
+    assert prompt is not None
+    assert isinstance(prompt, str)
+    assert "Introduction" in prompt
+    assert f"'{manuscript_title}'" in prompt
+    assert f"{manuscript_keywords[0]}" in prompt
+    assert f"{manuscript_keywords[1]}" in prompt
+    assert f"{manuscript_keywords[2]}" in prompt
+    assert paragraph_text in prompt
+    assert prompt.startswith("Revise")
+    assert "  " not in prompt
+
+
 def test_get_prompt_section_is_abstract():
     model = GPT3CompletionModel(
         title="Test title",
