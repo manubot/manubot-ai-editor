@@ -270,7 +270,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
              2) the paragraph to revise.
         """
 
-        if env_vars.CUSTOM_PROMPT in os.environ:
+        if env_vars.CUSTOM_PROMPT in os.environ and os.environ[env_vars.CUSTOM_PROMPT].strip() != "":
             prompt = os.environ[env_vars.CUSTOM_PROMPT]
             print(
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
@@ -283,12 +283,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 "keywords": ", ".join(self.keywords),
             }
 
-            if "{paragraph_text}" not in prompt:
-                prompt += ":\n\n{paragraph_text}"
-
-            return prompt.format(**placeholders)
-
-        if section_name in ("abstract",):
+            # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
+            #  a simple workaround is to remove {paragraph_text} from the prompt
+            prompt = prompt.format(**placeholders)
+        elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
                 so the research problem/question is clear,
