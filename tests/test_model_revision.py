@@ -1,292 +1,18 @@
-import os
-from pathlib import Path
-from unittest import mock
-
+"""
+These tests need to call the OpenAI API, so they are in a separate file and can incur costs.
+"""
 import pytest
 
-from manubot_ai_editor.editor import ManuscriptEditor, env_vars
-from manubot_ai_editor import models
-from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
+from manubot_ai_editor.editor import ManuscriptEditor
+from manubot_ai_editor.models import GPT3CompletionModel
 from manubot_ai_editor.utils import starts_with_similar
-
-MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
-
-
-def test_model_object_init_without_openai_api_key():
-    _environ = os.environ.copy()
-    try:
-        if env_vars.OPENAI_API_KEY in os.environ:
-            os.environ.pop(env_vars.OPENAI_API_KEY)
-
-        with pytest.raises(ValueError):
-            GPT3CompletionModel(
-                title="Test title",
-                keywords=["test", "keywords"],
-            )
-    finally:
-        os.environ = _environ
-
-
-@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
-def test_model_object_init_with_openai_api_key_as_environment_variable():
-    GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert models.openai.api_key == "env_var_test_value"
-
-
-def test_model_object_init_with_openai_api_key_as_parameter():
-    _environ = os.environ.copy()
-    try:
-        if env_vars.OPENAI_API_KEY in os.environ:
-            os.environ.pop(env_vars.OPENAI_API_KEY)
-
-        GPT3CompletionModel(
-            title="Test title",
-            keywords=["test", "keywords"],
-            openai_api_key="test_value",
-        )
-
-        from manubot_ai_editor import models
-
-        assert models.openai.api_key == "test_value"
-    finally:
-        os.environ = _environ
-
-
-@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
-def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority():
-    GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-        openai_api_key="test_value",
-    )
-
-    from manubot_ai_editor import models
-
-    assert models.openai.api_key == "test_value"
-
-
-def test_model_object_init_default_language_model():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert model.model_parameters["model"] == "text-davinci-003"
-
-
-@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})
-def test_model_object_init_read_language_model_from_environment():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert model.model_parameters["model"] == "text-curie-001"
-
-
-@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: ""})
-def test_model_object_init_read_language_model_from_environment_is_empty():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert model.model_parameters["model"] == "text-davinci-003"
-
-
-def test_get_prompt_for_abstract():
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    paragraph_text = "Text of the abstract"
-
-    prompt = model.get_prompt(paragraph_text, "abstract")
-    assert prompt is not None
-    assert isinstance(prompt, str)
-    assert "abstract" in prompt
-    assert f"'{me.title}'" in prompt
-    assert f"{me.keywords[0]}" in prompt
-    assert f"{me.keywords[1]}" in prompt
-    assert f"{me.keywords[2]}" in prompt
-    assert paragraph_text in prompt
-    assert prompt.startswith("Revise")
-    assert "  " not in prompt
-
-
-def test_get_prompt_for_abstract_edit_endpoint():
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-        edit_endpoint=True,
-    )
-
-    paragraph_text = "Text of the abstract. "
-
-    instruction, paragraph = model.get_prompt(paragraph_text, "abstract")
-    assert instruction is not None
-    assert isinstance(instruction, str)
-    assert paragraph is not None
-    assert isinstance(paragraph, str)
-
-    assert "this paragraph" in instruction
-    assert "abstract" in instruction
-    assert f"'{me.title}'" in instruction
-    assert f"{me.keywords[0]}" in instruction
-    assert f"{me.keywords[1]}" in instruction
-    assert f"{me.keywords[2]}" in instruction
-    assert "  " not in instruction
-    assert instruction.startswith("Revise")
-
-    assert paragraph_text.strip() == paragraph
-
-
-def test_get_prompt_for_introduction():
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    paragraph_text = "Text of the initial part"
-
-    prompt = model.get_prompt(paragraph_text, "introduction")
-    assert prompt is not None
-    assert isinstance(prompt, str)
-    assert "Introduction" in prompt
-    assert f"'{me.title}'" in prompt
-    assert f"{me.keywords[0]}" in prompt
-    assert f"{me.keywords[1]}" in prompt
-    assert f"{me.keywords[2]}" in prompt
-    assert paragraph_text in prompt
-    assert prompt.startswith("Revise")
-    assert "  " not in prompt
-
-
-def test_get_max_tokens_fraction_is_one():
-    paragraph = r"""
-Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
-In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    paragraph_text = " ".join(paragraph)
-
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    max_tokens = model.get_max_tokens(paragraph_text, 1.0)
-    assert max_tokens is not None
-    assert isinstance(max_tokens, int)
-    assert 50 < max_tokens < 60
-
-
-def test_get_max_tokens_using_fraction_is_two():
-    paragraph = r"""
-Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
-In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    paragraph_text = " ".join(paragraph)
-
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    max_tokens = model.get_max_tokens(paragraph_text, 2.0)
-    assert max_tokens is not None
-    assert isinstance(max_tokens, int)
-    assert 110 < max_tokens < 120
-
-
-@mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "0.5"})
-def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_float():
-    paragraph = r"""
-Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
-In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    paragraph_text = " ".join(paragraph)
-
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    max_tokens = model.get_max_tokens(paragraph_text)
-    assert max_tokens is not None
-    assert isinstance(max_tokens, int)
-    assert 25 < max_tokens < 35
-
-
-@mock.patch.dict("os.environ", {env_vars.MAX_TOKENS_PER_REQUEST: "779"})
-def test_get_max_tokens_using_fraction_is_given_by_environment_and_is_int():
-    paragraph = r"""
-Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
-In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    paragraph_text = " ".join(paragraph)
-
-    me = ManuscriptEditor(
-        content_dir=MANUSCRIPTS_DIR / "ccc",
-    )
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords,
-    )
-
-    # parameter 'fraction' is ignored when environment variable is set
-    max_tokens = model.get_max_tokens(paragraph_text, 2.0)
-    assert max_tokens is not None
-    assert isinstance(max_tokens, int)
-    assert max_tokens == 779
 
 
 @pytest.mark.parametrize(
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -346,7 +72,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -409,7 +135,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -467,7 +193,7 @@ Given the amount of time that researchers put into crafting prose, we expect thi
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -528,7 +254,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -586,7 +312,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -643,7 +369,7 @@ Changes are presented to the user through the GitHub interface for author review
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -695,7 +421,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -757,7 +483,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -811,7 +537,7 @@ This model's maximum context length is 4097 tokens, however you requested 17570 
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -865,7 +591,7 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -926,7 +652,7 @@ The regression model, however, is approximately well-calibrated, and we did not 
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -977,7 +703,7 @@ This work lays the foundation for a future where academic manuscripts are constr
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -1033,7 +759,7 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -1095,7 +821,7 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -1160,7 +886,7 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -1212,7 +938,7 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
     "model",
     [
         GPT3CompletionModel(None, None),
-        GPT3CompletionModel(None, None, edit_endpoint=True),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
@@ -1306,55 +1032,3 @@ $$ {#eq:reg:var_gene}
     # some equations are referenced in the revised text
     assert "$$ {#eq:reg:r}" in paragraph_revised
     assert "$Cor(\mathbf{P}_{i}, \mathbf{P}_{j})" in paragraph_revised
-
-
-def test_revise_paragraph_too_few_sentences():
-    # from LLM for articles revision manuscript
-    paragraph = r"""
-Since the gold standard of drug-disease medical indications is described with Disease Ontology IDs (DOID) [@doi:10.1093/nar/gky1032], we mapped PhenomeXcan traits to the Experimental Factor Ontology [@doi:10.1093/bioinformatics/btq099] using [@url:https://github.com/EBISPOT/EFO-UKB-mappings], and then to DOID.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 1
-
-    model = RandomManuscriptRevisionModel()
-
-    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, model, "methods"
-    )
-    assert paragraph_text is not None
-    assert isinstance(paragraph_text, str)
-
-    assert paragraph_revised is not None
-    assert isinstance(paragraph_revised, str)
-    assert paragraph_revised == paragraph_text
-    assert len(paragraph_revised) > 10
-    assert "<!--\nERROR:" not in paragraph_revised
-
-
-def test_revise_paragraph_too_few_words():
-    # from LLM for articles revision manuscript
-    paragraph = r"""
-We ran our regression model for all 987 LVs across the 4,091 traits in PhenomeXcan.
-For replication, we ran the model in the 309 phecodes in eMERGE.
-We adjusted the $p$-values using the Benjamini-Hochberg procedure.
-    """.strip().split(
-        "\n"
-    )
-    paragraph = [sentence.strip() for sentence in paragraph]
-    assert len(paragraph) == 3
-
-    model = RandomManuscriptRevisionModel()
-
-    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
-        paragraph, model, "methods"
-    )
-    assert paragraph_text is not None
-    assert isinstance(paragraph_text, str)
-
-    assert paragraph_revised is not None
-    assert isinstance(paragraph_revised, str)
-    assert paragraph_revised == paragraph_text
-    assert len(paragraph_revised) > 10
-    assert "<!--\nERROR:" not in paragraph_revised
