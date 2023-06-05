@@ -133,7 +133,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         best_of: int = None,
         top_p: float = None,
         retry_count: int = 5,
-        edit_endpoint: bool = False,
     ):
         super().__init__()
 
@@ -219,20 +218,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.keywords = keywords
 
         # adjust options if edits or chat endpoint was selected
-        self.edit_endpoint = edit_endpoint
-        self.chat_endpoint = False
+        self.endpoint = "chat"
 
-        if self.edit_endpoint and model_engine == "text-davinci-003":
-            model_engine = "text-davinci-edit-001"
+        if model_engine.startswith(("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")):
+            self.endpoint = "completions"
 
-        if model_engine == "text-davinci-edit-001":
-            self.edit_endpoint = True
+            if "-edit-" in model_engine:
+                self.endpoint = "edits"
 
-        if model_engine == "gpt-3.5-turbo":
-            self.edit_endpoint = False
-            self.chat_endpoint = True
-
-        print("Language model: ", model_engine)
+        print(f"Language model: {model_engine}")
+        print(f"Model endpoint used: {self.endpoint}")
 
         self.model_parameters = {
             "model": model_engine,
@@ -266,11 +261,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             section_name: name of the section the paragraph belongs to.
 
         Returns:
-            If self.edit_endpoint is False, then returns a string with the prompt to be used by the model for the revision of the paragraph.
+            If self.endpoint != "edits", then returns a string with the prompt to be used by the model for the revision of the paragraph.
             It contains two paragraphs of text: the command for the model
             ("Revise...") and the paragraph to revise.
 
-            If self.edit_endpoint is True, then returns a tuple with two strings:
+            If self.endpoint == "edits", then returns a tuple with two strings:
              1) the instructions to be used by the model for the revision of the paragraph,
              2) the paragraph to revise.
         """
@@ -356,7 +351,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        if not self.edit_endpoint:
+        if self.endpoint != "edits":
             return f"{prompt}.\n\n{paragraph_text.strip()}"
         else:
             prompt = prompt.replace("the following paragraph", "this paragraph")
@@ -453,14 +448,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             "n": 1,
         }
 
-        if self.edit_endpoint:
+        if self.endpoint == "edits":
             params.update(
                 {
                     "instruction": prompt[0],
                     "input": prompt[1],
                 }
             )
-        elif self.chat_endpoint:
+        elif self.endpoint == "chat":
             params.update(
                 {
                     "messages": [
@@ -490,14 +485,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     flush=True,
                 )
 
-                if self.edit_endpoint:
+                if self.endpoint == "edits":
                     completions = openai.Edit.create(**params)
-                elif self.chat_endpoint:
+                elif self.endpoint == "chat":
                     completions = openai.ChatCompletion.create(**params)
                 else:
                     completions = openai.Completion.create(**params)
 
-                if self.chat_endpoint:
+                if self.endpoint == "chat":
                     message = completions.choices[0].message.content.strip()
                 else:
                     message = completions.choices[0].text.strip()
