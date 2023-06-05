@@ -1,8 +1,12 @@
 """
 These tests need to call the OpenAI API, so they are in a separate file and can incur costs.
 """
+import difflib
+from unittest import mock
+
 import pytest
 
+from manubot_ai_editor import env_vars
 from manubot_ai_editor.editor import ManuscriptEditor
 from manubot_ai_editor.models import GPT3CompletionModel
 from manubot_ai_editor.utils import starts_with_similar
@@ -51,6 +55,78 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
     assert paragraph_revised != paragraph_text
     assert len(paragraph_revised) > 100
     assert "<!--\nERROR:" not in paragraph_revised
+
+    # # original and revised paragraph should be quite different
+    # _ratio = difflib.SequenceMatcher(lambda x: x in (" ", "\n",), paragraph_text, paragraph_revised).ratio()
+    # assert _ratio < 0.10 if model.endpoint != "edits" else 1.0, _ratio
+
+    # revised paragraph was finished (no incomplete sentences, which could happen
+    # if the max_tokens parameter is too low)
+    assert paragraph_revised[-1] == "."
+
+    # most citations were kept in the revised text
+    assert "[" not in paragraph_revised
+    assert "@" not in paragraph_revised
+
+    # no references to figures or tables
+    assert "Figure" not in paragraph_revised
+    assert "Table" not in paragraph_revised
+
+    # no math
+    assert "$" not in paragraph_revised
+
+
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.CUSTOM_PROMPT: "proofread the following paragraph"},
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        GPT3CompletionModel(None, None),
+        GPT3CompletionModel(None, None, model_engine="text-davinci-edit-001"),
+        GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
+    ],
+)
+def test_revise_abstract_ccc_with_custom_prompt(model):
+    # from CCC manuscript
+    paragraph = r"""
+Correlation coefficients are widely used to identify patterns in data that may be of particular interest.
+In transcriptomics, genes with correlated expression often share functions or are part of disease-relevant biological processes.
+Here we introduce the Clustermatch Correlation Coefficient (CCC), an efficient, easy-to-use and not-only-linear coefficient based on machine learning models.
+CCC reveals biologically meaningful linear and nonlinear patterns missed by standard, linear-only correlation coefficients.
+CCC captures general patterns in data by comparing clustering solutions while being much faster than state-of-the-art coefficients such as the Maximal Information Coefficient.
+When applied to human gene expression data, CCC identifies robust linear relationships while detecting nonlinear patterns associated, for example, with sex differences that are not captured by linear-only coefficients.
+Gene pairs highly ranked by CCC were enriched for interactions in integrated networks built from protein-protein interaction, transcription factor regulation, and chemical and genetic perturbations, suggesting that CCC could detect functional relationships that linear-only methods missed.
+CCC is a highly-efficient, next-generation not-only-linear correlation coefficient that can readily be applied to genome-scale data and other domains across different data types.
+        """.strip().split(
+        "\n"
+    )
+    paragraph = [sentence.strip() for sentence in paragraph]
+    assert len(paragraph) == 8
+
+    model.title = (
+        "An efficient not-only-linear correlation coefficient based on machine learning"
+    )
+    model.keywords = [
+        "correlation coefficient",
+        "nonlinear relationships",
+        "gene expression",
+    ]
+
+    paragraph_text, paragraph_revised = ManuscriptEditor.revise_and_write_paragraph(
+        paragraph, model, "abstract"
+    )
+    assert paragraph_text is not None
+    assert paragraph_revised is not None
+    assert isinstance(paragraph_revised, str)
+    assert paragraph_revised != paragraph_text
+    assert len(paragraph_revised) > 100
+    assert "<!--\nERROR:" not in paragraph_revised
+
+    # # since the custom prompt also "proofreads", the similarity between input and revised text should be very high
+    # _ratio = difflib.SequenceMatcher(lambda x: x in (" ", "\n",), paragraph_text, paragraph_revised).ratio()
+    # assert _ratio > 0.50, _ratio
 
     # revised paragraph was finished (no incomplete sentences, which could happen
     # if the max_tokens parameter is too low)
