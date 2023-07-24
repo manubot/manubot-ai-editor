@@ -48,8 +48,49 @@ In this case, you don't need to also install Manubot but only this package:
 pip install -U manubot-ai-editor
 ```
 
-Take a look at the `cli_process` function in [this file](https://github.com/manubot/manubot/blob/f62dd4cfdebf67f99f63c9b2e64edeaa591eeb69/manubot/ai_revision/ai_revision_command.py#L7) to see how to use it.
-You can also look at the [unit tests](tests/).
+The Python code below shows how to use the API:
+
+```python
+import shutil
+from pathlib import Path
+
+from manubot_ai_editor.editor import ManuscriptEditor
+from manubot_ai_editor.models import GPT3CompletionModel
+
+# create a manuscript editor object
+#  here content_dir points to the "content" directory of the Manubot-based
+#  manuscript, where Markdown files (*.md) are located
+me = ManuscriptEditor(
+    content_dir="content",
+)
+
+# create a model to revise the manuscript
+model = GPT3CompletionModel(
+    title=me.title,
+    keywords=me.keywords,
+)
+
+# create a temporary directory to store the revised manuscript
+output_folder = (Path("tmp") / "manubot-ai-editor-output").resolve()
+shutil.rmtree(output_folder, ignore_errors=True)
+output_folder.mkdir(parents=True, exist_ok=True)
+
+# then revise the manuscript
+me.revise_manuscript(output_folder, model)
+
+# the revised manuscript is now in the folder pointed by `output_folder`
+
+# uncomment the following code if you want to write back the revised manuscript to
+# the content folder
+# **CAUTION**: this will overwrite the original manuscript
+# for f in output_folder.glob("*"):
+#     f.rename(me.content_dir / f.name)
+# 
+# # remove output folder
+# output_folder.rmdir()
+```
+
+The `cli_process` function in [this file](https://github.com/manubot/manubot/blob/f62dd4cfdebf67f99f63c9b2e64edeaa591eeb69/manubot/ai_revision/ai_revision_command.py#L7) also provides an example of how to use the API.
 
 ## Support for large language models
 
