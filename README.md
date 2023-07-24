@@ -1,7 +1,7 @@
 # Manubot AI Editor
 
 This package provides classes and functions for automated, AI-assisted revision of manuscripts written using [Manubot](https://manubot.org/).
-Check out the [manuscript](https://github.com/greenelab/manubot-gpt-manuscript) for more information.
+Check out the [manuscript](https://greenelab.github.io/manubot-gpt-manuscript/) for more information.
 
 ## Support for large language models
 
