@@ -11,13 +11,7 @@ We currently support the following OpenAI endpoints:
 * [`ChatCompletion`](https://platform.openai.com/docs/api-reference/chat)
   * *Note:* this endpoint is not fully implemented yet.
     The current implementation uses the chat completion endpoint in a similar way as we use the completion endpoint (each paragraph is revised independently in a query).
-    This is because new models such as `gpt-3.5-turbo` or `gpt-4` are only available through the chat completion endpoint. 
-
-## Installation
-
-```bash
-pip install -U manubot-ai-editor
-```
+    This is because new models such as `gpt-3.5-turbo` or `gpt-4` are only available through the chat completion endpoint.
 
 ## Usage
 
@@ -48,8 +42,6 @@ You can also provide other options that will change the behavior of the tool (su
 Then, within the root directory of your Manubot-based manuscript, run the following commands (**IMPORTANT:** this will overwrite your original manuscript!):
 
 ```bash
-
-```bash
 manubot ai-revision --content-directory content/
 ```
 
@@ -57,6 +49,12 @@ The tool will revise each paragraph of your manuscript and write back the revise
 
 ### Python API
 
-There is also a Python API that you can easily use to revise your manuscript.
+There is also a Python API that you can use to revise your manuscript.
+In this case, you don't need to also install Manubot, but only this package:
+
+```bash
+pip install -U manubot-ai-editor
+```
+
 Take a look at the `cli_process` function in [this file](https://github.com/manubot/manubot/blob/f62dd4cfdebf67f99f63c9b2e64edeaa591eeb69/manubot/ai_revision/ai_revision_command.py#L7) to see how to use it.
-You can also take a look at the [unit tests](tests/).
+You can also look at the [unit tests](tests/).
