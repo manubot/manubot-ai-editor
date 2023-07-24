@@ -58,8 +58,8 @@ from manubot_ai_editor.editor import ManuscriptEditor
 from manubot_ai_editor.models import GPT3CompletionModel
 
 # create a manuscript editor object
-#  here content_dir points to the "content" directory of the Manubot-based
-#  manuscript, where Markdown files (*.md) are located
+# here content_dir points to the "content" directory of the Manubot-based
+# manuscript, where Markdown files (*.md) are located
 me = ManuscriptEditor(
     content_dir="content",
 )
