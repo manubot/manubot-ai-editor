@@ -1,7 +1,9 @@
-# AI Editor for Manubot
+# Manubot AI Editor
 
-This package provides classes and functions for automated, AI-assisted revision of manuscript written using [Manubot](https://manubot.org/).
-Check out the [manuscript](https://github.com/greenelab/manubot-gpt-manuscript).
+This package provides classes and functions for automated, AI-assisted revision of manuscripts written using [Manubot](https://manubot.org/).
+Check out the [manuscript](https://github.com/greenelab/manubot-gpt-manuscript) for more information.
+
+## Support for large language models
 
 We currently support the following OpenAI endpoints:
 * [`Completion`](https://platform.openai.com/docs/api-reference/completions)
@@ -17,43 +19,44 @@ We currently support the following OpenAI endpoints:
 pip install -U manubot-ai-editor
 ```
 
-## Example
+## Usage
 
-```python
-import shutil
-from pathlib import Path
+The Manubot AI Editor can be used from the GitHub repository of a Manubot-based manuscript, from the command line, or from Python code.
 
-from manubot_ai_editor.editor import ManuscriptEditor
-from manubot_ai_editor.models import GPT3CompletionModel
+### Manubot-based manuscript GitHub repository
 
-# create a manuscript editor
-#  here content_dir points to the "content" directory of the Manubot-based
-#  manuscript, where Markdown files are (*.md).
-me = ManuscriptEditor(
-    content_dir="content",
-)
+You first need to follow the steps to setup a Manaubot-based manuscript.
+Then, follow [these instructions](https://github.com/manubot/rootstock/blob/main/USAGE.md#ai-assisted-authoring) to setup a workflow in GitHub Actions that will allow you to quickly trigger a job to revise your manuscript.
 
-# create a model to revise the manuscript
-model = GPT3CompletionModel(
-    title=me.title,
-    keywords=me.keywords,
-)
+### Command line
 
-# first I create a temporary directory to store the revised manuscript
-output_folder = (Path("tmp") / "manubot-ai-editor-output").resolve()
-shutil.rmtree(output_folder, ignore_errors=True)
-output_folder.mkdir(parents=True, exist_ok=True)
+To use the tool from the command line, you need to install Manubot in a Python environment:
 
-# then I revise the manuscript
-me.revise_manuscript(output_folder, model)
-
-# here I move the revised manuscript back to the content folder
-# CAUTION: this will overwrite the original manuscript
-for f in output_folder.glob("*"):
-    f.rename(me.content_dir / f.name)
-
-# remove output folder
-output_folder.rmdir()
+```bash
+pip install --upgrade manubot[ai-rev]
 ```
 
-You can also take a look at the [unit tests](tests/) to see how to use it.
+You also need to export an environment variable with the OpenAI's API key:
+
+```bash
+export OPENAI_API_KEY=<your-api-key>
+```
+
+You can also provide other options that will change the behavior of the tool (such as revising certain files only).
+[This file](https://github.com/manubot/manubot-ai-editor/blob/main/libs/manubot_ai_editor/env_vars.py) documents the list of supported environment variables that can be used.
+
+Then, within the root directory of your Manubot-based manuscript, run the following commands (**IMPORTANT:** this will overwrite your original manuscript!):
+
+```bash
+
+```bash
+manubot ai-revision --content-directory content/
+```
+
+The tool will revise each paragraph of your manuscript and write back the revised files in the same directory.
+
+### Python API
+
+There is also a Python API that you can easily use to revise your manuscript.
+Take a look at the `cli_process` function in [this file](https://github.com/manubot/manubot/blob/f62dd4cfdebf67f99f63c9b2e64edeaa591eeb69/manubot/ai_revision/ai_revision_command.py#L7) to see how to use it.
+You can also take a look at the [unit tests](tests/).
