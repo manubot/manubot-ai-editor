@@ -92,7 +92,7 @@ me.revise_manuscript(output_folder, model)
 
 The `cli_process` function in [this file](https://github.com/manubot/manubot/blob/f62dd4cfdebf67f99f63c9b2e64edeaa591eeb69/manubot/ai_revision/ai_revision_command.py#L7) also provides an example of how to use the API.
 
-## Support for large language models
+## Current support for large language models
 
 We currently support the following OpenAI endpoints:
 * [`Completion`](https://platform.openai.com/docs/api-reference/completions)
