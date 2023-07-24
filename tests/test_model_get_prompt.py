@@ -248,12 +248,12 @@ Finally, the third sentence.
 
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert (
-        prompt == f"proofread and revise the following paragraph:\n\n{paragraph_text}"
+        prompt == f"proofread and revise the following paragraph.\n\n{paragraph_text}"
     )
 
     prompt = model.get_prompt(paragraph_text, "methods")
     assert (
-        prompt == f"proofread and revise the following paragraph:\n\n{paragraph_text}"
+        prompt == f"proofread and revise the following paragraph.\n\n{paragraph_text}"
     )
 
 
@@ -278,7 +278,7 @@ Finally, the third sentence.
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert (
         prompt
-        == f"proofread and revise the following paragraph from the introduction section:\n\n{paragraph_text}"
+        == f"proofread and revise the following paragraph from the introduction section.\n\n{paragraph_text}"
     )
 
 
@@ -303,7 +303,7 @@ Finally, the third sentence.
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert (
         prompt
-        == f"proofread and revise the following paragraph of a manuscript with title 'Test title':\n\n{paragraph_text}"
+        == f"proofread and revise the following paragraph of a manuscript with title 'Test title'.\n\n{paragraph_text}"
     )
 
 
@@ -328,7 +328,7 @@ Finally, the third sentence.
     prompt = model.get_prompt(paragraph_text, "introduction")
     assert (
         prompt
-        == f"proofread and revise the following paragraph of a manuscript with title 'Test title' and keywords 'test, keywords':\n\n{paragraph_text}"
+        == f"proofread and revise the following paragraph of a manuscript with title 'Test title' and keywords 'test, keywords'.\n\n{paragraph_text}"
     )
 
 
