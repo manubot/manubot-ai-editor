@@ -7,14 +7,14 @@ Check out the [manuscript](https://greenelab.github.io/manubot-gpt-manuscript/) 
 
 The Manubot AI Editor can be used from the GitHub repository of a Manubot-based manuscript, from the command line, or from Python code.
 
-### Manubot-based manuscript GitHub repository
+### Manubot-based manuscript repository
 
-You first need to follow the steps to setup a Manaubot-based manuscript.
+You first need to follow the steps to [setup a Manaubot-based manuscript](https://github.com/manubot/rootstock).
 Then, follow [these instructions](https://github.com/manubot/rootstock/blob/main/USAGE.md#ai-assisted-authoring) to setup a workflow in GitHub Actions that will allow you to quickly trigger a job to revise your manuscript.
 
 ### Command line
 
-To use the tool from the command line, you need to install Manubot in a Python environment:
+To use the tool from the command line, you first need to install Manubot in a Python environment:
 
 ```bash
 pip install --upgrade manubot[ai-rev]
@@ -28,6 +28,7 @@ export OPENAI_API_KEY=<your-api-key>
 
 You can also provide other options that will change the behavior of the tool (such as revising certain files only).
 [This file](https://github.com/manubot/manubot-ai-editor/blob/main/libs/manubot_ai_editor/env_vars.py) documents the list of supported environment variables that can be used.
+For example, to change the temperature parameter of OpenAI models, you can export the following environment variable: `export AI_EDITOR_TEMPERATURE=0.50`
 
 Then, within the root directory of your Manubot-based manuscript, run the following commands (**IMPORTANT:** this will overwrite your original manuscript!):
 
@@ -36,11 +37,12 @@ manubot ai-revision --content-directory content/
 ```
 
 The tool will revise each paragraph of your manuscript and write back the revised files in the same directory.
+Finally, you can select which changes you want to keep or discard.
 
 ### Python API
 
 There is also a Python API that you can use to revise your manuscript.
-In this case, you don't need to also install Manubot, but only this package:
+In this case, you don't need to also install Manubot but only this package:
 
 ```bash
 pip install -U manubot-ai-editor
