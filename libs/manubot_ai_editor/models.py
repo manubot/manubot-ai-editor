@@ -270,14 +270,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
              2) the paragraph to revise.
         """
 
-        if env_vars.CUSTOM_PROMPT in os.environ and os.environ[env_vars.CUSTOM_PROMPT].strip() != "":
-            prompt = os.environ[env_vars.CUSTOM_PROMPT]
+        custom_prompt = None
+        if (
+            env_vars.CUSTOM_PROMPT in os.environ
+            and os.environ[env_vars.CUSTOM_PROMPT].strip() != ""
+        ):
+            custom_prompt = os.environ[env_vars.CUSTOM_PROMPT]
             print(
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
 
             placeholders = {
-                "paragraph_text": paragraph_text,
+                "paragraph_text": paragraph_text.strip(),
                 "section_name": section_name,
                 "title": self.title,
                 "keywords": ", ".join(self.keywords),
@@ -285,7 +289,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
             # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
             #  a simple workaround is to remove {paragraph_text} from the prompt
-            prompt = prompt.format(**placeholders)
+            prompt = custom_prompt.format(**placeholders)
         elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
@@ -347,9 +351,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     and the text has a clear sentence structure
             """
 
-        prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
+        # replace multiple spaces with a single space only if there is no custom prompt,
+        # since otherwise the custom prompt might have the paragraph text within, and
+        # we are not supposed to reformat that here.
+        if custom_prompt is None:
+            prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
         if self.endpoint != "edits":
+            if custom_prompt is not None and "{paragraph_text}" in custom_prompt:
+                return prompt
+
             return f"{prompt}.\n\n{paragraph_text.strip()}"
         else:
             prompt = prompt.replace("the following paragraph", "this paragraph")
