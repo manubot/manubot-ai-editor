@@ -20,6 +20,7 @@ from manubot_ai_editor.utils import starts_with_similar
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_abstract_ccc(model):
     # from CCC manuscript
     paragraph = r"""
@@ -88,6 +89,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_abstract_ccc_with_custom_prompt(model):
     # from CCC manuscript
     paragraph = r"""
@@ -152,6 +154,7 @@ CCC is a highly-efficient, next-generation not-only-linear correlation coefficie
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_abstract_phenoplier(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
@@ -215,6 +218,7 @@ By incorporating groups of co-expressed genes, PhenoPLIER can contextualize gene
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_abstract_ai_revision(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
@@ -273,6 +277,7 @@ Given the amount of time that researchers put into crafting prose, we expect thi
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_introduction_paragraph_with_single_and_multiple_citations_together(
     model,
 ):
@@ -334,6 +339,7 @@ Therefore, advanced correlation coefficients could immediately find wide applica
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_first(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
@@ -392,6 +398,7 @@ Integrating functional genomics data and GWAS data [@doi:10.1038/s41588-018-0081
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_introduction_paragraph_with_citations_and_paragraph_is_the_last(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
@@ -449,6 +456,7 @@ Changes are presented to the user through the GitHub interface for author review
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_results_paragraph_with_short_inline_formulas_and_refs_to_figures_and_citations(
     model,
 ):
@@ -501,6 +509,7 @@ This kind of simulated data, recently revisited with the "Datasaurus" [@url:http
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_results_paragraph_with_lists_and_refs_to_sections_and_subfigs(model):
     # from PhenoPLIER manuscript
     paragraph = r"""
@@ -563,6 +572,7 @@ We performed extensive simulations for our regression model ([Supplementary Note
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_results_paragraph_is_too_long(model):
     # from CCC manuscript
     paragraph = r"""
@@ -617,6 +627,7 @@ This model's maximum context length is 4097 tokens, however you requested 17570 
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_discussion_paragraph_with_markdown_formatting_and_citations(model):
     # from CCC manuscript
     paragraph = r"""
@@ -671,6 +682,7 @@ Its nonlinear correlation with *AC068580.6* might unveil other important players
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_discussion_paragraph_with_minor_math_and_refs_to_sections_and_websites(
     model,
 ):
@@ -732,6 +744,7 @@ The regression model, however, is approximately well-calibrated, and we did not 
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_conclusions_paragraph_with_simple_text(model):
     # conclusions is the same as discussion in CCC/PhenoPLIER
 
@@ -783,6 +796,7 @@ This work lays the foundation for a future where academic manuscripts are constr
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_methods_paragraph_with_inline_equations_and_figure_refs(model):
     # from CCC manuscript
     paragraph = r"""
@@ -839,6 +853,7 @@ Therefore, the CCC algorithm (shown below) searches for this optimal number of c
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_methods_paragraph_with_figure_table_and_equation_refs(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
@@ -901,6 +916,7 @@ The model can also detect LVs associated with relevant traits (Figure @fig:lv246
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_methods_paragraph_with_inline_math_and_equations(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
@@ -966,6 +982,7 @@ Since S-PrediXcan provides tissue-specific direction of effects (for instance, w
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_methods_paragraph_without_fig_table_reference(model):
     # from LLM for articles revision manuscript
     paragraph = r"""
@@ -1018,6 +1035,7 @@ With the most complex model, `text-davinci-003`, the cost per run is under $0.50
         GPT3CompletionModel(None, None, model_engine="gpt-3.5-turbo"),
     ],
 )
+@pytest.mark.cost
 def test_revise_methods_paragraph_with_many_tokens(model):
     # from PhenoPLIER manuscript:
     paragraph = r"""
