@@ -271,11 +271,8 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         """
 
         custom_prompt = None
-        if (
-            env_vars.CUSTOM_PROMPT in os.environ
-            and os.environ[env_vars.CUSTOM_PROMPT].strip() != ""
-        ):
-            custom_prompt = os.environ[env_vars.CUSTOM_PROMPT]
+        if ((c := os.environ.get(env_vars.CUSTOM_PROMPT, "").strip()) and c != ""):
+            custom_prompt = c
             print(
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
