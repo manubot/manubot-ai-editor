@@ -9,7 +9,7 @@ The Manubot AI Editor can be used from the GitHub repository of a Manubot-based 
 
 ### Manubot-based manuscript repository
 
-You first need to follow the steps to [setup a Manaubot-based manuscript](https://github.com/manubot/rootstock).
+You first need to follow the steps to [setup a Manubot-based manuscript](https://github.com/manubot/rootstock).
 Then, follow [these instructions](https://github.com/manubot/rootstock/blob/main/USAGE.md#ai-assisted-authoring) to setup a workflow in GitHub Actions that will allow you to quickly trigger a job to revise your manuscript.
 
 ### Command line
