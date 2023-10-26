@@ -116,9 +116,9 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
 
 class GPT3CompletionModel(ManuscriptRevisionModel):
     """
-    Revises a paragraphs using completion or chat completion models. Most of the parameters
+    Revises paragraphs using completion or chat completion models. Most of the parameters
     (https://platform.openai.com/docs/guides/gpt) of the model can be specified either by
-    parameters or environment variables.
+    arguments during instantiation or environment variables (see env_vars.py).
     """
 
     def __init__(
