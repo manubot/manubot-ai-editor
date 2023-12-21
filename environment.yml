@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - openai>=0.27
+  - openai==0.28
   - pip
   - pytest=7.*
   - python=3.10.*

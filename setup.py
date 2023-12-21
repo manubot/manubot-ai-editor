@@ -11,21 +11,21 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="manubot-ai-editor",
-    version="0.4.7",
+    version="0.4.8",
     author="Milton Pividori",
     author_email="miltondp@gmail.com",
     description="A Manubot plugin to revise a manuscript using GPT-3",
     license="BSD-2-Clause Plus Patent",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/greenelab/manubot-ai-editor",
+    url="https://github.com/manubot/manubot-ai-editor",
     package_dir={"": "libs"},
     packages=[
         "manubot_ai_editor/",
     ],
     python_requires=">=3.10",
     install_requires=[
-        "openai>=0.27",
+        "openai==0.28",
         "pyyaml",
     ],
     classifiers=[
