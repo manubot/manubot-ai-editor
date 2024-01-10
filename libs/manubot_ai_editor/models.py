@@ -18,13 +18,14 @@ class ManuscriptRevisionModel(ABC):
         pass
 
     @abstractmethod
-    def revise_paragraph(self, paragraph_text, section_name):
+    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         """
         It revises a paragraph of a manuscript from a given section.
 
         Args:
             paragraph_text (str): text of the paragraph to revise.
             section_name (str): name of the section the paragraph belongs to.
+            resolved_prompt (str): prompt resolved via ai_revision config files, if available
 
         Returns:
             Revised paragraph text.
@@ -51,7 +52,7 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
         self.sentence_end_pattern = re.compile(r".\n")
         self.add_paragraph_marks = add_paragraph_marks
 
-    def revise_paragraph(self, paragraph_text, section_name):
+    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         if self.add_paragraph_marks:
             return (
                 "%%% PARAGRAPH START %%%\n"
@@ -74,7 +75,7 @@ class VerboseManuscriptRevisionModel(DummyManuscriptRevisionModel):
         super().__init__()
         self.revised_header = revised_header
 
-    def revise_paragraph(self, paragraph_text, section_name):
+    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         revised_paragraph = super().revise_paragraph(paragraph_text, section_name)
         return f"{self.revised_header}{revised_paragraph}"
 
@@ -89,7 +90,7 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
         super().__init__()
         self.sentence_end_pattern = re.compile(r"\n")
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str) -> str:
+    def revise_paragraph(self, paragraph_text: str, section_name: str, resolved_prompt=None) -> str:
         """
         It takes each sentence of the paragraph and randomizes the words.
         """
@@ -248,7 +249,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.several_spaces_pattern = re.compile(r"\s+")
 
     def get_prompt(
-        self, paragraph_text: str, section_name: str = None
+        self, paragraph_text: str, section_name: str = None, resolved_prompt: str = None
     ) -> str | tuple[str, str]:
         """
         Returns the prompt to be used for the revision of a paragraph that
@@ -259,6 +260,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         Args:
             paragraph_text: text of the paragraph to revise.
             section_name: name of the section the paragraph belongs to.
+            resolved_prompt: prompt resolved via ai_revision config, if available
 
         Returns:
             If self.endpoint != "edits", then returns a string with the prompt to be used by the model for the revision of the paragraph.
@@ -269,6 +271,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
              1) the instructions to be used by the model for the revision of the paragraph,
              2) the paragraph to revise.
         """
+
+        # prompts are resolved in the following order, with the first satisfied
+        # condition taking effect:
+
+        # 1. if a custom prompt is specified via the env var specified by
+        #    env_vars.CUSTOM_PROMPT, then the text in that env var is used as
+        #    the prompt.
+        # 2. if the files ai_revision-config.yaml and/or ai_revision-prompt.yaml
+        #    are available, then a prompt resolved from the filename via those
+        #    config files is used. (this is initially resolved in
+        #    ManuscriptEditor.revise_manuscript() and passed down to here via
+        #    the 'resolved_prompt' argument.)
+        # 3. if a section_name is specified, then a canned section-specific
+        #    prompt matching the section name is used.
+        # 4. finally, if none of the above are true, then a generic prompt is
+        #    used.
 
         custom_prompt = None
         if ((c := os.environ.get(env_vars.CUSTOM_PROMPT, "").strip()) and c != ""):
@@ -287,6 +305,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
             #  a simple workaround is to remove {paragraph_text} from the prompt
             prompt = custom_prompt.format(**placeholders)
+        elif resolved_prompt:
+            # use the resolved prompt from the ai_revision config files, if available
+            prompt = resolved_prompt
         elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
