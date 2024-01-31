@@ -1,0 +1,25 @@
+files:
+  matchings:
+    - files:
+        - abstract
+      prompt: abstract
+    - files:
+        - introduction
+      prompt: introduction_discussion
+    - files:
+        - 04\..+\.md
+      prompt: results
+    - files:
+        - discussion
+      prompt: introduction_discussion
+    - files:
+        - methods
+      prompt: methods
+  
+  default_prompt: This is the default prompt
+  
+  ignore:
+    - front-matter
+    - acknowledgements
+    - supplementary_material
+    - references
