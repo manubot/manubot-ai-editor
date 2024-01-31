@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from manubot_ai_editor import env_vars
-from manubot_ai_editor.prompt_config import ManuscriptPromptConfig
+from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
 from manubot_ai_editor.utils import (
     get_yaml_field,
@@ -467,11 +467,17 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # use the ai_revision prompt config to attempt to resolve a prompt
             resolved_prompt, _ = self.prompt_config.get_prompt_for_filename(filename.name)
 
+            # ignore the file if the ai-revision_* config files told us to
+            if resolved_prompt == IGNORE_FILE:
+                continue
+
             # we do not process the file if all hold:
-            # 1. it has no section
+            # 1. it has no section *or* resolved prompt
             # 2. we're unable to resolve it via ai_revision prompt configuration
             # 2. there is no custom prompt
-            if filename_section is None and (
+            if (
+                filename_section is None and resolved_prompt is None
+            ) and (
                 env_vars.CUSTOM_PROMPT not in os.environ
                 or os.environ[env_vars.CUSTOM_PROMPT].strip() == ""
             ):

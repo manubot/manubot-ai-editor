@@ -11,6 +11,10 @@ from pathlib import Path
 
 from manubot_ai_editor.utils import get_obj_path
 
+# if returned as the prompt from get_prompt_for_filename() then the file should
+# be ignored
+IGNORE_FILE = "__IGNORE_FILE__"
+
 class ManuscriptConfigException(Exception):
     """
     Parent class for exceptions raised by ManuscriptConfig's loading process.
@@ -85,8 +89,8 @@ class ManuscriptPromptConfig:
                 'The "ai_revision-config.yaml" YAML file must exist if "ai_revision-prompts.yaml" begins with the "prompts" key.'
             )
 
-        prompts = data.get('prompts', {})
-        prompts_files = data.get('prompts_files', {})
+        prompts = data.get('prompts')
+        prompts_files = data.get('prompts_files')
 
         return (prompts, prompts_files)
 
@@ -111,7 +115,7 @@ class ManuscriptPromptConfig:
         # first, check the ignore list to see if we should bail early
         for ignore in get_obj_path(self.config, ('files', 'ignore'), missing=[]):
             if (m := re.search(ignore, filename)):
-                return (None, m)
+                return (IGNORE_FILE, m)
 
         # FIXME: which takes priority, the files collection in ai_revision-config.yaml
         #  or the prompt_file? we went with config taking precendence for now
@@ -135,7 +139,7 @@ class ManuscriptPromptConfig:
         if self.prompts_files:
             for pattern, prompt in self.prompts_files.items():
                 if (m := re.search(pattern, filename)):
-                    return (prompt, m)
+                    return (prompt if prompt is not None else IGNORE_FILE, m)
 
         # finally, return the default prompt
         return (
