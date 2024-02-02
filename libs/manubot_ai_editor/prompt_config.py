@@ -15,11 +15,14 @@ from manubot_ai_editor.utils import get_obj_path
 # be ignored
 IGNORE_FILE = "__IGNORE_FILE__"
 
+
 class ManuscriptConfigException(Exception):
     """
     Parent class for exceptions raised by ManuscriptConfig's loading process.
     """
+
     pass
+
 
 class ManuscriptPromptConfig:
     """
@@ -34,6 +37,7 @@ class ManuscriptPromptConfig:
     which uses both the 'ai_revision-prompts.yaml' and 'ai_revision-config.yaml'
     files to determine the prompt for a given filename.
     """
+
     def __init__(self, content_dir: str, title: str, keywords: str) -> None:
         self.content_dir = Path(content_dir)
         self.config = self._load_config()
@@ -47,7 +51,7 @@ class ManuscriptPromptConfig:
         """
         Loads general configuration from ai_revision-config.yaml
         """
-        
+
         config_file_path = os.path.join(self.content_dir, "ai_revision-config.yaml")
 
         try:
@@ -56,7 +60,6 @@ class ManuscriptPromptConfig:
         except FileNotFoundError:
             return None
 
-        
     def _load_custom_prompts(self) -> (dict, dict):
         """
         Loads custom prompts from ai_revision-prompts.yaml. The file
@@ -79,22 +82,26 @@ class ManuscriptPromptConfig:
             return (None, None)
 
         # validate the existence of at least one of the keys we require
-        if 'prompts' not in data and 'prompts_files' not in data:
-            raise ManuscriptConfigException('The "ai_revision-prompts.yaml" YAML file must contain a "prompts" or a "prompts_files" key.')
+        if "prompts" not in data and "prompts_files" not in data:
+            raise ManuscriptConfigException(
+                'The "ai_revision-prompts.yaml" YAML file must contain a "prompts" or a "prompts_files" key.'
+            )
 
         # if the top-level key was 'prompts', that implies we need the `ai_revision-config.yaml`
         # file to match those prompts to filenames, so raise an exception if it doesn't exist
-        if 'prompts' in data and not self.config:
+        if "prompts" in data and not self.config:
             raise ManuscriptConfigException(
                 'The "ai_revision-config.yaml" YAML file must exist if "ai_revision-prompts.yaml" begins with the "prompts" key.'
             )
 
-        prompts = data.get('prompts')
-        prompts_files = data.get('prompts_files')
+        prompts = data.get("prompts")
+        prompts_files = data.get("prompts_files")
 
         return (prompts, prompts_files)
 
-    def get_prompt_for_filename(self, filename: str, use_default: bool = True) -> (Optional[str], Optional[re.Match]):
+    def get_prompt_for_filename(
+        self, filename: str, use_default: bool = True
+    ) -> (Optional[str], Optional[re.Match]):
         """
         Retrieves the prompt for a given filename. It checks the following sources
         for a match in order:
@@ -113,8 +120,8 @@ class ManuscriptPromptConfig:
         """
 
         # first, check the ignore list to see if we should bail early
-        for ignore in get_obj_path(self.config, ('files', 'ignore'), missing=[]):
-            if (m := re.search(ignore, filename)):
+        for ignore in get_obj_path(self.config, ("files", "ignore"), missing=[]):
+            if m := re.search(ignore, filename):
                 return (IGNORE_FILE, m)
 
         # FIXME: which takes priority, the files collection in ai_revision-config.yaml
@@ -122,27 +129,36 @@ class ManuscriptPromptConfig:
 
         # then, consult ai_revision-config.yaml's 'matchings' collection if a
         # match is found, use the prompt ai_revision-prompts.yaml
-        for entry in get_obj_path(self.config, ('files', 'matchings'), missing=[]):
+        for entry in get_obj_path(self.config, ("files", "matchings"), missing=[]):
             # iterate through all the 'matchings' entries, trying to find one
             # that matches the current filename
-            for pattern in entry['files']:
-                if (m := re.search(pattern, filename)):
+            for pattern in entry["files"]:
+                if m := re.search(pattern, filename):
                     # since we matched, use the 'prompts' collection to return a
                     # named prompt corresponding to the one from the 'matchings'
                     # collection
                     return (
-                        self.prompts.get(entry['prompt'], None) if self.prompts else None, m
+                        (
+                            self.prompts.get(entry["prompt"], None)
+                            if self.prompts
+                            else None
+                        ),
+                        m,
                     )
 
         # since we haven't found a match yet, consult ai_revision-prompts.yaml's
         # 'prompts_files' collection
         if self.prompts_files:
             for pattern, prompt in self.prompts_files.items():
-                if (m := re.search(pattern, filename)):
+                if m := re.search(pattern, filename):
                     return (prompt if prompt is not None else IGNORE_FILE, m)
 
         # finally, return the default prompt
         return (
-            get_obj_path(self.config, ('files', 'default_prompt')) if use_default else None,
-            None
+            (
+                get_obj_path(self.config, ("files", "default_prompt"))
+                if use_default
+                else None
+            ),
+            None,
         )

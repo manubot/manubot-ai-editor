@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
-from unittest import mock
 
 from contextlib import contextmanager
+
 
 @contextmanager
 def set_directory(new):
@@ -13,7 +13,7 @@ def set_directory(new):
     Note that if we upgrade to Python 3.11, this method can be replaced
     with https://docs.python.org/3/library/contextlib.html#contextlib.chdir
     """
-    
+
     # store the current path so we can return to it
     original = Path().absolute()
 
@@ -22,6 +22,7 @@ def set_directory(new):
         yield
     finally:
         os.chdir(original)
+
 
 def mock_unify_open(original, patched):
     """
@@ -38,12 +39,8 @@ def mock_unify_open(original, patched):
 
             # resolve all paths: the original, patched, and requested file
             target_full_path = Path(args[0]).absolute()
-            rewritten_path = (
-                str(target_full_path)
-                    .replace(
-                        str(original.absolute()),
-                        str(patched.absolute())
-                    )
+            rewritten_path = str(target_full_path).replace(
+                str(original.absolute()), str(patched.absolute())
             )
 
             return builtin_open(rewritten_path, *(args[1:]), **kwargs)

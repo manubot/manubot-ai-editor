@@ -29,9 +29,7 @@ class ManuscriptEditor:
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
         self.prompt_config = ManuscriptPromptConfig(
-            content_dir=content_dir,
-            title=self.title,
-            keywords=self.keywords
+            content_dir=content_dir, title=self.title, keywords=self.keywords
         )
 
     @staticmethod
@@ -123,9 +121,7 @@ class ManuscriptEditor:
         error_message = None
         try:
             paragraph_revised = revision_model.revise_paragraph(
-                paragraph_text,
-                section_name,
-                resolved_prompt=resolved_prompt
+                paragraph_text, section_name, resolved_prompt=resolved_prompt
             )
 
             if paragraph_revised.strip() == "":
@@ -258,7 +254,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         output_dir: Path | str,
         revision_model: ManuscriptRevisionModel,
         section_name: str = None,
-        resolved_prompt: str = None
+        resolved_prompt: str = None,
     ):
         """
         It revises an entire Markdown file and writes the revised file to the output directory.
@@ -388,7 +384,11 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                     # revise and write paragraph to output file
                     self.revise_and_write_paragraph(
-                        paragraph, revision_model, section_name, resolved_prompt=resolved_prompt, outfile=outfile
+                        paragraph,
+                        revision_model,
+                        section_name,
+                        resolved_prompt=resolved_prompt,
+                        outfile=outfile,
                     )
 
                     # clear the paragraph list
@@ -430,7 +430,11 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # output file
             if paragraph:
                 self.revise_and_write_paragraph(
-                    paragraph, revision_model, section_name, resolved_prompt=None, outfile=outfile
+                    paragraph,
+                    revision_model,
+                    section_name,
+                    resolved_prompt=None,
+                    outfile=outfile,
                 )
 
     def revise_manuscript(
@@ -465,7 +469,9 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             filename_section = self.get_section_from_filename(filename.name)
 
             # use the ai_revision prompt config to attempt to resolve a prompt
-            resolved_prompt, _ = self.prompt_config.get_prompt_for_filename(filename.name)
+            resolved_prompt, _ = self.prompt_config.get_prompt_for_filename(
+                filename.name
+            )
 
             # ignore the file if the ai-revision_* config files told us to
             if resolved_prompt == IGNORE_FILE:
@@ -475,9 +481,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # 1. it has no section *or* resolved prompt
             # 2. we're unable to resolve it via ai_revision prompt configuration
             # 2. there is no custom prompt
-            if (
-                filename_section is None and resolved_prompt is None
-            ) and (
+            if (filename_section is None and resolved_prompt is None) and (
                 env_vars.CUSTOM_PROMPT not in os.environ
                 or os.environ[env_vars.CUSTOM_PROMPT].strip() == ""
             ):
@@ -496,5 +500,5 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 output_dir,
                 revision_model,
                 section_name=filename_section,
-                resolved_prompt=resolved_prompt
+                resolved_prompt=resolved_prompt,
             )
