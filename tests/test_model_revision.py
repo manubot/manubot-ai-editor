@@ -1,7 +1,7 @@
 """
 These tests need to call the OpenAI API, so they are in a separate file and can incur costs.
 """
-import difflib
+
 from unittest import mock
 
 import pytest

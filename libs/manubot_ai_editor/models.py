@@ -30,7 +30,7 @@ class ManuscriptRevisionModel(ABC):
         Returns:
             Revised paragraph text.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     @abstractmethod
     def get_prompt(self, paragraph_text, section_name):
@@ -38,7 +38,7 @@ class ManuscriptRevisionModel(ABC):
         Returns the prompt to be used for the revision of a paragraph that
         belongs to a given section.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
@@ -90,7 +90,9 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
         super().__init__()
         self.sentence_end_pattern = re.compile(r"\n")
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str, resolved_prompt=None) -> str:
+    def revise_paragraph(
+        self, paragraph_text: str, section_name: str, resolved_prompt=None
+    ) -> str:
         """
         It takes each sentence of the paragraph and randomizes the words.
         """
@@ -221,7 +223,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # adjust options if edits or chat endpoint was selected
         self.endpoint = "chat"
 
-        if model_engine.startswith(("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")):
+        if model_engine.startswith(
+            ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
+        ):
             self.endpoint = "completions"
 
             if "-edit-" in model_engine:
@@ -289,7 +293,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         #    used.
 
         custom_prompt = None
-        if ((c := os.environ.get(env_vars.CUSTOM_PROMPT, "").strip()) and c != ""):
+        if (c := os.environ.get(env_vars.CUSTOM_PROMPT, "").strip()) and c != "":
             custom_prompt = c
             print(
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
