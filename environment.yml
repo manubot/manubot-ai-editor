@@ -1,4 +1,4 @@
-name: chatgpt
+name: manubot-ai-editor
 channels:
   - conda-forge
   - defaults
