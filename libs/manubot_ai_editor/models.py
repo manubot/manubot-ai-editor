@@ -80,24 +80,6 @@ class VerboseManuscriptRevisionModel(DummyManuscriptRevisionModel):
         return f"{self.revised_header}{revised_paragraph}"
 
 
-class DebuggingManuscriptRevisionModel(DummyManuscriptRevisionModel):
-    """
-    This model returns the same paragraph and important information submitted to
-    the final revision function (i.e., that hits the remote API), such as the section
-    name and the resolved prompt.
-    """
-
-    def __init__(self):
-        super().__init__(add_paragraph_marks=True)
-
-    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
-        revised_paragraph = super().revise_paragraph(paragraph_text, section_name)
-        # in addition to the paragraph start and end from the DummyManuscriptRevisionModel,
-        # add also some metadata including section name and resolved prompt
-        header = f"%%%\nMetadata:\n - Section: '{section_name}'\n - Resolved prompt: '{resolved_prompt}'"
-        return f"{header}\n{revised_paragraph.strip()}"
-
-
 class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
     """
     This model takes a paragraph and randomizes the words. The paragraph has the
@@ -236,7 +218,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 pass
 
         self.title = title
-        self.keywords = keywords
+        self.keywords = keywords if keywords is not None else []
 
         # adjust options if edits or chat endpoint was selected
         self.endpoint = "chat"
@@ -477,21 +459,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             "tokens_in_completion": tokens_in_completion,
         }
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str = None):
-        """
-        It revises a paragraph using GPT-3 completion model.
-
-        Arguments:
-            paragraph_text (str): Paragraph text to revise.
-            section_name (str): Section name of the paragraph.
-            throw_error (bool): If True, it throws an error if the API call fails.
-                If False, it returns the original paragraph text.
-
-        Returns:
-            Revised paragraph text.
-        """
+    def get_params(self, paragraph_text, section_name, resolved_prompt=None):
         max_tokens = self.get_max_tokens(paragraph_text)
-        prompt = self.get_prompt(paragraph_text, section_name)
+        prompt = self.get_prompt(paragraph_text, section_name, resolved_prompt)
 
         params = {
             "n": 1,
@@ -524,6 +494,23 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             )
 
         params.update(self.model_parameters)
+
+        return params
+
+    def revise_paragraph(self, paragraph_text: str, section_name: str = None, resolved_prompt=None):
+        """
+        It revises a paragraph using GPT-3 completion model.
+
+        Arguments:
+            paragraph_text (str): Paragraph text to revise.
+            section_name (str): Section name of the paragraph.
+            throw_error (bool): If True, it throws an error if the API call fails.
+                If False, it returns the original paragraph text.
+
+        Returns:
+            Revised paragraph text.
+        """
+        params = self.get_params(paragraph_text, section_name, resolved_prompt)
 
         retry_count = 0
         message = ""
@@ -581,3 +568,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 retry_count += 1
 
         return message
+
+
+class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
+    """
+    This model returns the same paragraph and important information submitted to
+    the final revision function (i.e., that hits the remote API), such as the section
+    name and the resolved prompt.
+    """
+
+    def __init__(self, title: str = "", keywords: list[str] = None, **kwargs):
+        super().__init__(title, keywords, **kwargs)
+
+    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
+        params = self.get_params(paragraph_text, section_name)
+        return f"%%%PARAGRAPH START%%%\n{params}\n%%%PARAGRAPH END%%%"
