@@ -80,6 +80,24 @@ class VerboseManuscriptRevisionModel(DummyManuscriptRevisionModel):
         return f"{self.revised_header}{revised_paragraph}"
 
 
+class DebuggingManuscriptRevisionModel(DummyManuscriptRevisionModel):
+    """
+    This model returns the same paragraph and important information submitted to
+    the final revision function (i.e., that hits the remote API), such as the section
+    name and the resolved prompt.
+    """
+
+    def __init__(self):
+        super().__init__(add_paragraph_marks=True)
+
+    def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
+        revised_paragraph = super().revise_paragraph(paragraph_text, section_name)
+        # in addition to the paragraph start and end from the DummyManuscriptRevisionModel,
+        # add also some metadata including section name and resolved prompt
+        header = f"%%%\nMetadata:\n - Section: '{section_name}'\n - Resolved prompt: '{resolved_prompt}'"
+        return f"{header}\n{revised_paragraph.strip()}"
+
+
 class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
     """
     This model takes a paragraph and randomizes the words. The paragraph has the
