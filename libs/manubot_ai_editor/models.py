@@ -3,6 +3,7 @@ import re
 from abc import ABC, abstractmethod
 import random
 import time
+import json
 
 import openai
 
@@ -582,4 +583,4 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
 
     def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         params = self.get_params(paragraph_text, section_name)
-        return f"%%%PARAGRAPH START%%%\n{params}\n%%%PARAGRAPH END%%%"
+        return f"%%%PARAGRAPH START%%%\n{json.dumps(params, indent=4)}\n%%%PARAGRAPH END%%%"
