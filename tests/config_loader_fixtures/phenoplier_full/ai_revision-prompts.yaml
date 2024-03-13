@@ -11,5 +11,5 @@ prompts:
   methods: |
     Test match methods.
 
-  default: |
-    Proofread the following paragraph
+  my_default_prompt: |
+    default prompt text
