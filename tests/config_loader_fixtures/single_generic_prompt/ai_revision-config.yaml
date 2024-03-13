@@ -1,0 +1,5 @@
+files:
+  ignore:
+    - front\-matter
+    - back\-matter
+    - response\-to\-reviewers
