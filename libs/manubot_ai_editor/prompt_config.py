@@ -137,21 +137,22 @@ class ManuscriptPromptConfig:
                     # since we matched, use the 'prompts' collection to return a
                     # named prompt corresponding to the one from the 'matchings'
                     # collection
-                    return (
-                        (
-                            self.prompts.get(entry["prompt"], None)
-                            if self.prompts
-                            else None
-                        ),
-                        m,
-                    )
+                    resolved_prompt = None
+
+                    if self.prompts:
+                        resolved_prompt = self.prompts.get(entry["prompt"], None)
+
+                        if resolved_prompt is not None:
+                            resolved_prompt = resolved_prompt.strip()
+
+                    return ( resolved_prompt, m, )
 
         # since we haven't found a match yet, consult ai_revision-prompts.yaml's
         # 'prompts_files' collection
         if self.prompts_files:
             for pattern, prompt in self.prompts_files.items():
                 if m := re.search(pattern, filename):
-                    return (prompt if prompt is not None else IGNORE_FILE, m)
+                    return (prompt.strip() if prompt is not None else IGNORE_FILE, m)
 
         # finally, resolve the default prompt, which we do by:
         # 1) checking if the 'default_prompt' key exists in the config file, using 'default' if it's unspecified
