@@ -60,7 +60,7 @@ class ManuscriptPromptConfig:
         except FileNotFoundError:
             return None
 
-    def _load_custom_prompts(self) -> (dict, dict):
+    def _load_custom_prompts(self) -> tuple[dict, dict]:
         """
         Loads custom prompts from ai_revision-prompts.yaml. The file
         must contain either 'prompts' or 'prompts_files' as top-level keys.
@@ -101,7 +101,7 @@ class ManuscriptPromptConfig:
 
     def get_prompt_for_filename(
         self, filename: str, use_default: bool = True
-    ) -> (Optional[str], Optional[re.Match]):
+    ) -> tuple[Optional[str], Optional[re.Match]]:
         """
         Retrieves the prompt for a given filename. It checks the following sources
         for a match in order:
