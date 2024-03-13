@@ -153,12 +153,18 @@ class ManuscriptPromptConfig:
                 if m := re.search(pattern, filename):
                     return (prompt if prompt is not None else IGNORE_FILE, m)
 
-        # finally, return the default prompt
-        return (
-            (
-                get_obj_path(self.config, ("files", "default_prompt"))
-                if use_default
-                else None
-            ),
-            None,
-        )
+        # finally, resolve the default prompt, which we do by:
+        # 1) checking if the 'default_prompt' key exists in the config file, using 'default' if it's unspecified
+        # 2) use whatever we resolved to reference the prompt from the 'prompts' collection
+        # 3) if we can't resolve a default prompt for whatever reason, return None
+        resolved_default_prompt = None
+        if use_default and self.prompts is not None:
+            resolved_default_prompt = self.prompts.get(
+                get_obj_path(self.config, ("files", "default_prompt"), missing="default"),
+                None
+            )
+
+            if resolved_default_prompt is not None:
+                resolved_default_prompt = resolved_default_prompt.strip()
+        
+        return (resolved_default_prompt, None)
