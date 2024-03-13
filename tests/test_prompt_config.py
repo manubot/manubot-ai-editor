@@ -137,7 +137,11 @@ BOTH_PROMPTS_CONFIG_DIR = (
 SINGLE_GENERIC_PROMPT_DIR = (
     Path(__file__).parent / "config_loader_fixtures" / "single_generic_prompt"
 )
-
+# - Both ai_revision-config.yaml and ai-revision-prompts.yaml specify filename matchings
+#   (conflicting_promptsfiles_matchings)
+CONFLICTING_PROMPTSFILES_MATCHINGS_DIR = (
+    Path(__file__).parent / "config_loader_fixtures" / "conflicting_promptsfiles_matchings"
+)
 # ---
 # test ManuscriptEditor.prompt_config sub-attributes are set correctly
 # ---
@@ -194,6 +198,42 @@ def test_single_generic_loaded():
     assert editor.prompt_config.prompts_files is not None
     assert editor.prompt_config.config is not None
 
+
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_DIR, CONFLICTING_PROMPTSFILES_MATCHINGS_DIR)
+)
+def test_conflicting_sources_warning(capfd):
+    """
+    Tests that a warning is printed when both ai_revision-prompts.yaml and
+    ai_revision-config.yaml specify filename-to-prompt mappings.
+
+    Specifically, the dicts that map filenames to prompts are:
+    - ai_revision-prompts.yaml: 'prompts_files'
+    - ai_revision-config.yaml: 'files.matchings'
+
+    If both are specified, the 'files.matchings' key in ai_revision-config.yaml
+    takes precedence, but a warning is printed.
+    """
+
+    editor = get_editor()
+
+    # ensure that only the prompts defined in ai_revision-prompts.yaml are loaded
+    assert editor.prompt_config.prompts is None
+    assert editor.prompt_config.config is not None
+    # for this test, we define both prompts_files and files.matchings which
+    # creates a conflict that produces the warning we're looking for
+    assert editor.prompt_config.prompts_files is not None
+    assert editor.prompt_config.config['files']['matchings'] is not None
+
+    expected_warning = (
+        "WARNING: Both 'ai_revision-config.yaml' and "
+        "'ai_revision-prompts.yaml' specify filename-to-prompt mappings. Only the "
+        "'ai_revision-config.yaml' file's file.matchings section will be used; "
+        "prompts_files will be ignored."
+    )
+
+    out, _ = capfd.readouterr()
+    assert expected_warning in out
 
 # ---
 # test that ignored files are ignored in applicable scenarios

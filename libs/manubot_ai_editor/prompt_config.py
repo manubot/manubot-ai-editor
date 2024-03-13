@@ -29,8 +29,8 @@ class ManuscriptPromptConfig:
     Loads configuration from two YAML files in 'content_dir':
     -  ai_revision-prompts.yaml, which contains custom prompt definitions and/or
     mappings of prompts to files
-    - ai_revision-config.yaml, containing general
-    configuration for the AI revision process
+    - ai_revision-config.yaml, containing general configuration for the AI
+    revision process
 
     After loading, the main use of this class is to resolve a prompt for a given
     filename. This is done by calling config.get_prompt_for_filename(<filename>),
@@ -42,6 +42,19 @@ class ManuscriptPromptConfig:
         self.content_dir = Path(content_dir)
         self.config = self._load_config()
         self.prompts, self.prompts_files = self._load_custom_prompts()
+
+        # validation: both self.config.files.matchings and self.prompts_files
+        # specify filename-to-prompt mappings; if both are present, we use
+        # self.config.files, but warn the user that they should only use one
+        if (
+            self.prompts_files is not None and
+            self.config is not None and
+            self.config.get('files', {}).get('matchings') is not None
+        ):
+            print(
+                "WARNING: Both 'ai_revision-config.yaml' and 'ai_revision-prompts.yaml' specify filename-to-prompt mappings. "
+                "Only the 'ai_revision-config.yaml' file's file.matchings section will be used; prompts_files will be ignored."
+            )
 
         # storing these so they can be interpolated into prompts
         self.title = title
@@ -124,9 +137,11 @@ class ManuscriptPromptConfig:
             if m := re.search(ignore, filename):
                 return (IGNORE_FILE, m)
 
-        # FIXME: which takes priority, the files collection in ai_revision-config.yaml
-        #  or the prompt_file? we went with config taking precendence for now
-
+        # if both ai_revision-config.yaml specifies files.matchings and
+        # ai_revision-prompts.yaml specifies prompts_files, then files.matchings
+        # takes precedence.
+        # (the user is notified of this in a validation warning in __init__)
+        
         # then, consult ai_revision-config.yaml's 'matchings' collection if a
         # match is found, use the prompt ai_revision-prompts.yaml
         for entry in get_obj_path(self.config, ("files", "matchings"), missing=[]):
