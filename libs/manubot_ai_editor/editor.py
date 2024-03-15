@@ -205,12 +205,16 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             return None
 
     @staticmethod
-    def line_is_not_part_of_paragraph(line: str, include_blank=True, include_equations=True) -> bool:
+    def line_is_not_part_of_paragraph(
+        line: str, include_blank=True, include_equations=True
+    ) -> bool:
         prefixes = ["![", "|", "<!--", "#", "```"]
         if include_equations:
             prefixes.append("$$")
-        
-        return line.startswith(tuple(prefixes)) or (include_blank and line.strip() == "")
+
+        return line.startswith(tuple(prefixes)) or (
+            include_blank and line.strip() == ""
+        )
 
     @staticmethod
     def get_block_char_end(line: str) -> (str, bool):
@@ -279,7 +283,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                 # if the previous line is part of an image definition, then skip all those lines
                 if prev_line is not None and self.line_is_not_part_of_paragraph(
-                        prev_line, include_blank=False
+                    prev_line, include_blank=False
                 ):
                     end_char, look_at_end = self.get_block_char_end(prev_line)
 
@@ -291,10 +295,13 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                         if not block_end:
                             if look_at_end:
                                 block_end = line is not None and line.strip().endswith(
-                                    end_char)
+                                    end_char
+                                )
                             else:
-                                block_end = line is not None and line.strip().startswith(
-                                    end_char)
+                                block_end = (
+                                    line is not None
+                                    and line.strip().startswith(end_char)
+                                )
 
                     paragraph = []
 
@@ -310,12 +317,17 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                     while line is not None and not (block_end and line.strip() == ""):
                         outfile.write(line)
                         line = next(infile, None)
-                        
+
                         if not block_end:
                             if look_at_end:
-                                block_end = line is not None and line.strip().endswith(end_char)
+                                block_end = line is not None and line.strip().endswith(
+                                    end_char
+                                )
                             else:
-                                block_end = line is not None and line.strip().startswith(end_char)
+                                block_end = (
+                                    line is not None
+                                    and line.strip().startswith(end_char)
+                                )
 
                 if line is None:
                     break
@@ -337,7 +349,9 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                             prev_line.strip() == ""
                             and (
                                 (line[0].isalnum() and line[0].isupper())
-                                or self.line_is_not_part_of_paragraph(line, include_blank=False, include_equations=False)
+                                or self.line_is_not_part_of_paragraph(
+                                    line, include_blank=False, include_equations=False
+                                )
                             )
                         ):
                             paragraph.append(line.strip())
@@ -367,7 +381,9 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                     else:
                         outfile.write(prev_line)
 
-                        if self.line_is_not_part_of_paragraph(line, include_blank=False, include_equations=False):
+                        if self.line_is_not_part_of_paragraph(
+                            line, include_blank=False, include_equations=False
+                        ):
                             outfile.write(line)
                             paragraph = []
                         else:
