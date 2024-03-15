@@ -1,0 +1,43 @@
+---
+title: "Epistasis between mutator alleles contributes to germline mutation rate variability in laboratory mice"
+date: null  # Defaults to date generated, but can specify like '2022-10-31'.
+keywords:
+  - markdown
+  - publishing
+  - manubot
+lang: en-US
+authors:
+  - name: Thomas A. Sasani
+    github: tomsasani
+    initials: TAS
+    orcid: 0000-0003-2317-1374
+    twitter: tomsasani
+    email: thomas.a.sasani@gmail.com
+    affiliations:
+      - Department of Human Genetics, University of Utah
+  - name: Aaron R. Quinlan
+    initials: ARQ
+    orcid: 0000-0003-1756-0859
+    twitter: aaronquinlan
+    email: aquinlan@genetics.utah.edu
+    affiliations:
+      - Department of Human Genetics, University of Utah
+      - Department of Biomedical Informatics, University of Utah
+    funders:
+      - NIH/NHGRI R01HG012252
+    corresponding: true
+  - name: Kelley Harris
+    initials: KH
+    orcid: 0000-0003-0302-2523
+    twitter: Kelley__Harris
+    email: harriske@uw.edu
+    affiliations:
+      - Department of Genome Sciences, University of Washington
+    funders:
+      - NIH/NIGMS R35GM133428
+      - Burroughs Wellcome Career Award at the Scientific Interface
+      - Searle Scholarship
+      - Pew Scholarship
+      - Sloan Fellowship
+      - Allen Discovery Center for Cell Lineage Tracing
+    corresponding: true
