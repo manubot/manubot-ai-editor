@@ -101,7 +101,7 @@ class ManuscriptEditor:
 
         # revise paragraph only if it has all these properties: 1) it has at
         # least two sentences, 2) it has in total at least 60 words
-        if not (len(paragraph) > 2 and len(paragraph_text.split()) > 60):
+        if not (len(paragraph) >= 2 and len(paragraph_text.split()) > 60):
             paragraph_text = ManuscriptEditor.convert_sentence_ends_to_newlines(
                 paragraph_text
             )
@@ -205,9 +205,31 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             return None
 
     @staticmethod
-    def line_is_not_part_of_paragraph(line: str, include_blank=True) -> bool:
-        prefixes = ("![", "|", "<!--", "$$", "#", "```")
-        return line.startswith(prefixes) or (include_blank and line.strip() == "")
+    def line_is_not_part_of_paragraph(line: str, include_blank=True, include_equations=True) -> bool:
+        prefixes = ["![", "|", "<!--", "#", "```"]
+        if include_equations:
+            prefixes.append("$$")
+        
+        return line.startswith(tuple(prefixes)) or (include_blank and line.strip() == "")
+
+    @staticmethod
+    def get_block_char_end(line: str) -> (str, bool):
+        """
+        Returns the character that indicates the end the block of text and whether to
+        look at the end of the line to determine the end of the block.
+        """
+        if line.startswith("```"):
+            return "```", True
+        elif line.startswith("!["):
+            return "](", False
+        elif line.startswith("|"):
+            return "Table: ", False
+        elif line.startswith("<!--"):
+            return "-->", True
+        elif line.startswith("$$"):
+            return "$$", False
+        else:
+            return "", False
 
     def revise_file(
         self,
@@ -242,7 +264,6 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             paragraph = []
 
             prev_line = None
-            current_table_paragraph = False
             last_sentence_ends_with_alphanum_or_colon = False
 
             for line in infile:
@@ -256,46 +277,46 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                         outfile.write(line)
                         line = next(infile, None)
 
+                # if the previous line is part of an image definition, then skip all those lines
+                if prev_line is not None and self.line_is_not_part_of_paragraph(
+                        prev_line, include_blank=False
+                ):
+                    end_char, look_at_end = self.get_block_char_end(prev_line)
+
+                    block_end = False
+                    while line is not None and not (block_end and line.strip() == ""):
+                        outfile.write(line)
+                        line = next(infile, None)
+
+                        if not block_end:
+                            if look_at_end:
+                                block_end = line is not None and line.strip().endswith(
+                                    end_char)
+                            else:
+                                block_end = line is not None and line.strip().startswith(
+                                    end_char)
+
+                    paragraph = []
+
                 # if line is starting either an "image paragraph", a "table
                 # paragraph" or a "html comment paragraph", then skip all lines
                 # until the end of that paragraph
                 if line is not None and self.line_is_not_part_of_paragraph(
                     line, include_blank=False
                 ):
-                    if line.startswith("|"):
-                        current_table_paragraph = True
+                    end_char, look_at_end = self.get_block_char_end(line)
 
-                    while line is not None and line.strip() != "":
+                    block_end = False
+                    while line is not None and not (block_end and line.strip() == ""):
                         outfile.write(line)
                         line = next(infile, None)
+                        
+                        if not block_end:
+                            if look_at_end:
+                                block_end = line is not None and line.strip().endswith(end_char)
+                            else:
+                                block_end = line is not None and line.strip().startswith(end_char)
 
-                # if the previous line is part of an image definition, then skip all those lines
-                if prev_line is not None and prev_line.startswith(("![",)):
-                    outfile.write(prev_line)
-
-                    while line is not None and line.strip() != "":
-                        outfile.write(line)
-                        line = next(infile, None)
-
-                    paragraph = []
-
-                # for "table paragraphs", there is a blank line after the table
-                # and then the next paragraph is the table caption that starts
-                # with "Table: ". We want to include those lines as part of the
-                # "table paragraph"
-                if (
-                    line is not None
-                    and current_table_paragraph
-                    and line.startswith("Table: ")
-                ):
-                    while line is not None and line.strip() != "":
-                        outfile.write(line)
-                        line = next(infile, None)
-
-                    # we finished processing the "table paragraph"
-                    current_table_paragraph = False
-
-                # stop if we reached the end of the file
                 if line is None:
                     break
 
@@ -316,7 +337,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                             prev_line.strip() == ""
                             and (
                                 (line[0].isalnum() and line[0].isupper())
-                                or line.startswith(("#", "![", "|"))
+                                or self.line_is_not_part_of_paragraph(line, include_blank=False, include_equations=False)
                             )
                         ):
                             paragraph.append(line.strip())
@@ -338,16 +359,15 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                     )
 
                     # clear the paragraph list
-                    if line.strip() == "":
+                    if line is None:
+                        paragraph = []
+                    elif line.strip() == "":
                         outfile.write(line)
                         paragraph = []
                     else:
                         outfile.write(prev_line)
 
-                        if line.startswith("#"):
-                            outfile.write(line)
-                            paragraph = []
-                        elif line.startswith("|"):
+                        if self.line_is_not_part_of_paragraph(line, include_blank=False, include_equations=False):
                             outfile.write(line)
                             paragraph = []
                         else:
