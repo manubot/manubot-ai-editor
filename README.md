@@ -39,6 +39,17 @@ manubot ai-revision --content-directory content/
 The tool will revise each paragraph of your manuscript and write back the revised files in the same directory.
 Finally, you can select which changes you want to keep or discard.
 
+Before using the OpenAI API and incurring costs, you can run a test by using a dummy, local revision model:
+
+```bash
+manubot ai-revision \
+  --content-directory content/ \
+  --model-type DummyManuscriptRevisionModel \
+  --model-kwargs add_paragraph_marks=True
+```
+
+This will allow you to detect whether the tool is identifying paragraphs correctly.
+
 ### Python API
 
 There is also a Python API that you can use to revise your manuscript.
