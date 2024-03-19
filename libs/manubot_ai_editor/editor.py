@@ -208,6 +208,10 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
     def line_is_not_part_of_paragraph(
         line: str, include_blank=True, include_equations=True
     ) -> bool:
+        """
+        Returns True if the line is not part of a paragraph, i.e., it is the start of
+        a new block of text, such as an image, a table, a code block, a comment, etc.
+        """
         prefixes = ["![", "|", "<!--", "#", "```"]
         if include_equations:
             prefixes.append("$$")
@@ -219,8 +223,11 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
     @staticmethod
     def get_block_char_end(line: str) -> (str, bool):
         """
-        Returns the character that indicates the end the block of text and whether to
-        look at the end of the line to determine the end of the block.
+        Returns the character that indicates the end of the block of text and whether to
+        look at the end of the line to determine the end of the block. For example,
+        for an equation block, the character is "$$" and we look at the beginning of the
+        line; for an HTML comment block that starts with "<!--", the character that
+        indicates the end of it is "-->" and we look at the end of the line.
         """
         if line.startswith("```"):
             return "```", True
