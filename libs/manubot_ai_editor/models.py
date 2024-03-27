@@ -312,7 +312,14 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             prompt = custom_prompt.format(**placeholders)
         elif resolved_prompt:
             # use the resolved prompt from the ai_revision config files, if available
-            prompt = resolved_prompt
+            # replace placeholders with their actual values
+            replacements = {
+                "paragraph_text": paragraph_text.strip(),
+                "section_name": section_name,
+                "title": self.title,
+                "keywords": ", ".join(self.keywords),
+            }
+            prompt = resolved_prompt.format(**replacements)
         elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
