@@ -433,7 +433,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                     paragraph,
                     revision_model,
                     section_name,
-                    resolved_prompt=None,
+                    resolved_prompt=resolved_prompt,
                     outfile=outfile,
                 )
 
