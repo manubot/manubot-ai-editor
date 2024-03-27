@@ -50,7 +50,7 @@ manubot ai-revision \
 
 When it finishes, check out your manuscript files.
 This will allow you to detect whether the tool is identifying paragraphs correctly.
-If you find a problem, please [report the issue](/issues/new).
+If you find a problem, please [report the issue](https://github.com/manubot/manubot-ai-editor/issues).
 
 ### Python API
 
