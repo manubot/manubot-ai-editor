@@ -48,7 +48,9 @@ manubot ai-revision \
   --model-kwargs add_paragraph_marks=True
 ```
 
+When it finishes, check out your manuscript files.
 This will allow you to detect whether the tool is identifying paragraphs correctly.
+If you find a problem, please [report the issue](/issues/new).
 
 ### Python API
 
