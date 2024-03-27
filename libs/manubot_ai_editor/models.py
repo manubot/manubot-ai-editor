@@ -34,7 +34,7 @@ class ManuscriptRevisionModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_prompt(self, paragraph_text, section_name):
+    def get_prompt(self, paragraph_text, section_name, resolved_prompt: str = None):
         """
         Returns the prompt to be used for the revision of a paragraph that
         belongs to a given section.
@@ -63,7 +63,7 @@ class DummyManuscriptRevisionModel(ManuscriptRevisionModel):
 
         return self.sentence_end_pattern.sub(". ", paragraph_text).strip()
 
-    def get_prompt(self, paragraph_text, section_name):
+    def get_prompt(self, paragraph_text, section_name, resolved_prompt: str = None):
         return paragraph_text
 
 
@@ -114,7 +114,7 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
             sentences_revised.append(" ".join(words_revised))
         return ". ".join(sentences_revised)
 
-    def get_prompt(self, paragraph_text, section_name):
+    def get_prompt(self, paragraph_text, section_name, resolved_prompt: str = None):
         return paragraph_text
 
 
