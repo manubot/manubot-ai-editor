@@ -585,9 +585,11 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     name and the resolved prompt.
     """
 
-    def __init__(self, title: str = "", keywords: list[str] = None, **kwargs):
+    def __init__(self, title: str = "debugging-manuscript", keywords: list[str] = None, **kwargs):
         super().__init__(title, keywords, **kwargs)
 
     def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
-        params = self.get_params(paragraph_text, section_name)
-        return f"%%%PARAGRAPH START%%%\n{json.dumps(params, indent=4)}\n%%%PARAGRAPH END%%%"
+        params = self.get_params(paragraph_text, section_name, resolved_prompt)
+        json_params = json.dumps(params, indent=4)
+        print(json_params)
+        return f"%%%PARAGRAPH START%%%\n{json_params}\n%%%PARAGRAPH END%%%"
