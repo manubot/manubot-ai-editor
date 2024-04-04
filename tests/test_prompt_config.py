@@ -2,7 +2,11 @@ from pathlib import Path
 from unittest import mock
 
 from manubot_ai_editor.editor import ManuscriptEditor
-from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
+from manubot_ai_editor.models import (
+    GPT3CompletionModel,
+    RandomManuscriptRevisionModel,
+    DebuggingManuscriptRevisionModel
+)
 from manubot_ai_editor.prompt_config import IGNORE_FILE
 import pytest
 
@@ -119,7 +123,8 @@ def test_unresolved_gets_default_prompt():
 
 
 # ==============================================================================
-# === prompts_files tests, using ai_revision-prompts.yaml w/ai_revision-config.yaml to process ignores, defaults
+# === prompts_files tests, using ai_revision-prompts.yaml w/
+# === ai_revision-config.yaml to process ignores, defaults
 # ==============================================================================
 
 # the following tests are derived from examples in
@@ -235,9 +240,10 @@ def test_conflicting_sources_warning(capfd):
     out, _ = capfd.readouterr()
     assert expected_warning in out
 
-# ---
-# test that ignored files are ignored in applicable scenarios
-# ---
+
+# ==============================================================================
+# === test that ignored files are ignored in applicable scenarios
+# ==============================================================================
 
 # places in configs where files can be ignored:
 # ai_revision-config.yaml: the `files.ignore` key
@@ -248,7 +254,8 @@ def test_conflicting_sources_warning(capfd):
     "model",
     [
         RandomManuscriptRevisionModel(),
-        GPT3CompletionModel(None, None),
+        DebuggingManuscriptRevisionModel()
+        # GPT3CompletionModel(None, None),
     ],
 )
 @mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_DIR, BOTH_PROMPTS_CONFIG_DIR))
@@ -267,3 +274,69 @@ def test_revise_entire_manuscript(tmp_path, model):
     # after processing ignores, we should be left with 9 files from the original 12
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 9
+
+# ==============================================================================
+# === end-to-end tests, to verify that the prompts are making it into the final result
+# ==============================================================================
+
+PROMPT_PROPOGATION_CONFIG_DIR = (
+    Path(__file__).parent / "config_loader_fixtures" / "prompt_propogation"
+)
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        DebuggingManuscriptRevisionModel(),
+    ],
+)
+@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
+def test_prompts_in_final_result(tmp_path, model):
+    """
+    Tests that the prompts are making it into the final resulting .md files.
+
+    This test uses the DebuggingManuscriptRevisionModel, which is a model that
+    inserts the prompt and other parameters into the final result. Using this
+    model, we can test that the prompt we entered is used when applying the LLM.
+
+    Note that 04.00.results.md contains no actual text, just a comment, so
+    there's no paragraphs to assign a prompt and thus no result; we explicitly
+    ignore the file in the config and in the test below.
+
+    10.references.md also contains no actual text, just an HTML element where
+    the references get inserted by another system (assumedly manubot), so we
+    ignore it in the config and in this test as well.
+    """
+    me = get_editor()
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    output_folder = tmp_path
+    assert output_folder.exists()
+
+    me.revise_manuscript(output_folder, model)
+
+    # mapping of filenames to prompts to check in the result
+    files_to_prompts = {
+        "00.front-matter.md": "This is the front-matter prompt",
+        "01.abstract.md": "This is the abstract prompt",
+        "02.introduction.md": "This is the introduction prompt",
+        # "04.00.results.md": "This is the results prompt",
+        "04.05.00.results_framework.md": "This is the results_framework prompt",
+        "04.05.01.crispr.md": "This is the crispr prompt",
+        "04.15.drug_disease_prediction.md": "This is the drug_disease_prediction prompt",
+        "04.20.00.traits_clustering.md": "This is the traits_clustering prompt",
+        "05.discussion.md": "This is the discussion prompt",
+        "07.00.methods.md": "This is the methods prompt",
+        # "10.references.md": "This is the references prompt",
+        "15.acknowledgements.md": "This is the acknowledgements prompt",
+        "50.00.supplementary_material.md": "This is the supplementary_material prompt",
+    }
+
+    # check that the prompts are in the final result
+    output_md_files = list(output_folder.glob("*.md"))
+
+    for output_md_file in output_md_files:
+        with open(output_md_file, "r") as f:
+            content = f.read()
+            assert files_to_prompts[output_md_file.name].strip() in content

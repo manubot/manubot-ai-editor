@@ -1,0 +1,17 @@
+prompts:
+  front_matter: This is the front-matter prompt
+  abstract: This is the abstract prompt
+  introduction: This is the introduction prompt
+  results: This is the results prompt
+  results_framework: This is the results_framework prompt
+  crispr: This is the crispr prompt
+  drug_disease_prediction: This is the drug_disease_prediction prompt
+  traits_clustering: This is the traits_clustering prompt
+  discussion: This is the discussion prompt
+  methods: This is the methods prompt
+  references: This is the references prompt
+  acknowledgements: This is the acknowledgements prompt
+  supplementary_material: This is the supplementary_material prompt
+
+  default: |
+    This is the default prompt
