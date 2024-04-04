@@ -16,7 +16,7 @@ files:
         - methods
       prompt: methods
   
-  default_prompt: This is the default prompt
+  default_prompt: default
   
   ignore:
     - front-matter

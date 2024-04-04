@@ -38,5 +38,7 @@ prompts_files:
 
   references: null
 
+  default: This is the default prompt
+
   \.md$: |
     Proofread the following paragraph
