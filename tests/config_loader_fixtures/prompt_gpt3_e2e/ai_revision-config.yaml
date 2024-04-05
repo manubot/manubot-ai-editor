@@ -1,0 +1,47 @@
+files:
+  matchings:
+    - files:
+      - front-matter
+      prompt: front_matter
+    - files:
+      - abstract
+      prompt: abstract
+    - files:
+      - introduction
+      prompt: introduction
+    - files:
+      - results_framework
+      prompt: results_framework
+    - files:
+      - results
+      prompt: results
+    - files:
+      - crispr
+      prompt: crispr
+    - files:
+      - drug_disease_prediction
+      prompt: drug_disease_prediction
+    - files:
+      - traits_clustering
+      prompt: traits_clustering
+    - files:
+      - discussion
+      prompt: discussion
+    - files:
+      - methods
+      prompt: methods
+    - files:
+      - references
+      prompt: references
+    - files:
+      - acknowledgements
+      prompt: acknowledgements
+    - files:
+      - supplementary_material
+      prompt: supplementary_material
+
+  default_prompt: default
+
+  ignore:
+    - results
+    - references
