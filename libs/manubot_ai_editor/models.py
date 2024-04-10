@@ -591,5 +591,4 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         params = self.get_params(paragraph_text, section_name, resolved_prompt)
         json_params = json.dumps(params, indent=4)
-        print(json_params)
         return f"%%%PARAGRAPH START%%%\n{json_params}\n%%%PARAGRAPH END%%%"
