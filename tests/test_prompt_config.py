@@ -152,8 +152,8 @@ CONFLICTING_PROMPTSFILES_MATCHINGS_DIR = (
 # ---
 
 
-def get_editor():
-    content_dir = MANUSCRIPTS_DIR.resolve(strict=True)
+def get_editor(manuscript_dir=MANUSCRIPTS_DIR):
+    content_dir = manuscript_dir.resolve(strict=True)
     editor = ManuscriptEditor(content_dir)
     assert isinstance(editor, ManuscriptEditor)
     return editor
@@ -283,14 +283,8 @@ PROMPT_PROPOGATION_CONFIG_DIR = (
     Path(__file__).parent / "config_loader_fixtures" / "prompt_propogation"
 )
 
-@pytest.mark.parametrize(
-    "model",
-    [
-        DebuggingManuscriptRevisionModel(),
-    ],
-)
 @mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
-def test_prompts_in_final_result(tmp_path, model):
+def test_prompts_in_final_result(tmp_path):
     """
     Tests that the prompts are making it into the final resulting .md files.
 
@@ -308,8 +302,9 @@ def test_prompts_in_final_result(tmp_path, model):
     """
     me = get_editor()
 
-    model.title = me.title
-    model.keywords = me.keywords
+    model = DebuggingManuscriptRevisionModel(
+        title=me.title, keywords=me.keywords
+    )
 
     output_folder = tmp_path
     assert output_folder.exists()
@@ -341,24 +336,22 @@ def test_prompts_in_final_result(tmp_path, model):
             content = f.read()
             assert files_to_prompts[output_md_file.name].strip() in content
 
-# live GPT version of the test, with a different prompt
+
+# ---------
+# --- live GPT version of the test, with a different prompt
+# ---------
+
+# to save on time/cost, we use a version of the phenoplier manuscript that only
+# contains the first paragraph of each section
+BRIEF_MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts" / "phenoplier_full_only_first_para"
 
 PROMPT_PROPOGATION_CONFIG_DIR = (
     Path(__file__).parent / "config_loader_fixtures" / "prompt_gpt3_e2e"
 )
 
-@pytest.mark.parametrize(
-    "model",
-    [
-        GPT3CompletionModel(
-            title="Debug Manuscript", keywords=["debug"],
-            model_engine="gpt-3.5-turbo"
-        ),
-    ],
-)
 @pytest.mark.cost
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
-def test_prompts_apply_gpt3(tmp_path, model):
+@mock.patch("builtins.open", mock_unify_open(BRIEF_MANUSCRIPTS_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
+def test_prompts_apply_gpt3(tmp_path):
     """
     Tests that the custom prompts are applied when actually applying
     the prompts to an LLM.
@@ -371,10 +364,12 @@ def test_prompts_apply_gpt3(tmp_path, model):
     As with test_prompts_in_final_result above, files that have no input and 
     thus no applied prompt are ignored.
     """
-    me = get_editor()
+    me = get_editor(manuscript_dir=BRIEF_MANUSCRIPTS_DIR)
 
-    model.title = me.title
-    model.keywords = me.keywords
+    model = GPT3CompletionModel(
+        title="Debug Manuscript", keywords=["debug"],
+        model_engine="gpt-3.5-turbo"
+    )
 
     output_folder = tmp_path
     assert output_folder.exists()
