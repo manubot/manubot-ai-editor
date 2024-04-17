@@ -130,7 +130,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         title: str,
         keywords: list[str],
         openai_api_key: str = None,
-        model_engine: str = "text-davinci-003",
+        model_engine: str = "gpt-3.5-turbo",
         temperature: float = 0.5,
         presence_penalty: float = None,
         frequency_penalty: float = None,
