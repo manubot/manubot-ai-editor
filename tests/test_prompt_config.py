@@ -353,9 +353,9 @@ def test_prompts_in_final_result(tmp_path):
 
     # mapping of filenames to prompts to check in the result
     files_to_prompts = {
-        "00.front-matter.md": "This is the front-matter prompt",
+        "00.front-matter.md": "This is the front-matter prompt.",
         "01.abstract.md": "This is the abstract prompt",
-        "02.introduction.md": "This is the introduction prompt",
+        "02.introduction.md": "This is the introduction prompt for the paper titled '%s'." % me.title,
         # "04.00.results.md": "This is the results prompt",
         "04.05.00.results_framework.md": "This is the results_framework prompt",
         "04.05.01.crispr.md": "This is the crispr prompt",
