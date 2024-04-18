@@ -1,7 +1,7 @@
 prompts:
   front_matter: This is the front-matter prompt
   abstract: This is the abstract prompt
-  introduction: This is the introduction prompt
+  introduction: "This is the introduction prompt for the paper titled '{title}'."
   results: This is the results prompt
   results_framework: This is the results_framework prompt
   crispr: This is the crispr prompt

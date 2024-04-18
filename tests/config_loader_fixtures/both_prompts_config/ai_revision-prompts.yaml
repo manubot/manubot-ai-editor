@@ -37,4 +37,4 @@ prompts:
        and the text has a clear sentence structure
 
   default: |
-    Proofread the following paragraph
+    Proofread the following paragraph (with the title '{title}' and keywords '{keywords}')

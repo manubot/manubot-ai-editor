@@ -275,6 +275,44 @@ def test_revise_entire_manuscript(tmp_path, model):
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 9
 
+
+@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_DIR, BOTH_PROMPTS_CONFIG_DIR))
+def test_revise_entire_manuscript_includes_title_keywords(tmp_path):
+    from os.path import basename
+
+    print(f"\n{str(tmp_path)}\n")
+    me = get_editor()
+
+    model = DebuggingManuscriptRevisionModel(
+        title="Test title", keywords=["test", "keywords"]
+    )
+
+    # ensure overwriting the title and keywords works
+    model.title = me.title
+    model.keywords = me.keywords
+
+    output_folder = tmp_path
+    assert output_folder.exists()
+
+    me.revise_manuscript(output_folder, model)
+
+    # gather up the output files so we can check their contents
+    output_md_files = list(output_folder.glob("*.md"))
+
+    # check that the title and keywords are in the final result
+    # for prompts that include that information
+    for output_md_file in output_md_files:
+        # we expressly skip results because it doesn't contain any revisable
+        # paragraphs
+        if "results" in output_md_file.name:
+            continue
+
+        with open(output_md_file, "r") as f:
+            content = f.read()
+            assert me.title in content, f"not found in filename: {basename(output_md_file)}"
+            assert ", ".join(me.keywords) in content, f"not found in filename: {basename(output_md_file)}"
+
+
 # ==============================================================================
 # === end-to-end tests, to verify that the prompts are making it into the final result
 # ==============================================================================
