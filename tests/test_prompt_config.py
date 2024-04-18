@@ -254,7 +254,9 @@ def test_conflicting_sources_warning(capfd):
     "model",
     [
         RandomManuscriptRevisionModel(),
-        DebuggingManuscriptRevisionModel()
+        DebuggingManuscriptRevisionModel(
+            title="Test title", keywords=["test", "keywords"]
+        )
         # GPT3CompletionModel(None, None),
     ],
 )
@@ -405,8 +407,8 @@ def test_prompts_apply_gpt3(tmp_path):
     me = get_editor(manuscript_dir=BRIEF_MANUSCRIPTS_DIR)
 
     model = GPT3CompletionModel(
-        title="Debug Manuscript", keywords=["debug"],
-        model_engine="gpt-3.5-turbo"
+        title=me.title,
+        keywords=me.keywords
     )
 
     output_folder = tmp_path
