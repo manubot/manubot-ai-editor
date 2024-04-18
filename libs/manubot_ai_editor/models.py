@@ -293,6 +293,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # 4. finally, if none of the above are true, then a generic prompt is
         #    used.
 
+        # set of options to replace in the prompt text, e.g.
+        # {title} would be replaced with self.title, the title of
+        # the manuscript.
+        placeholders = {
+            "paragraph_text": paragraph_text.strip(),
+            "section_name": section_name,
+            "title": self.title,
+            "keywords": ", ".join(self.keywords),
+        }
+
         custom_prompt = None
         if (c := os.environ.get(env_vars.CUSTOM_PROMPT, "").strip()) and c != "":
             custom_prompt = c
@@ -300,26 +310,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
 
-            placeholders = {
-                "paragraph_text": paragraph_text.strip(),
-                "section_name": section_name,
-                "title": self.title,
-                "keywords": ", ".join(self.keywords),
-            }
-
             # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
             #  a simple workaround is to remove {paragraph_text} from the prompt
             prompt = custom_prompt.format(**placeholders)
         elif resolved_prompt:
             # use the resolved prompt from the ai_revision config files, if available
             # replace placeholders with their actual values
-            replacements = {
-                "paragraph_text": paragraph_text.strip(),
-                "section_name": section_name,
-                "title": self.title,
-                "keywords": ", ".join(self.keywords),
-            }
-            prompt = resolved_prompt.format(**replacements)
+            prompt = resolved_prompt.format(**placeholders)
         elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
