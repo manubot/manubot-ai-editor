@@ -462,10 +462,6 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 filenames_to_revise = None
 
         for filename in sorted(self.content_dir.glob("*.md")):
-            # ignore front-matter file
-            if "front-matter" in filename.name:
-                continue
-
             filename_section = self.get_section_from_filename(filename.name)
 
             # use the ai_revision prompt config to attempt to resolve a prompt
