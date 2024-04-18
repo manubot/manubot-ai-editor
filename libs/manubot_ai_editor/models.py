@@ -585,8 +585,8 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     name and the resolved prompt.
     """
 
-    def __init__(self, title: str = "debugging-manuscript", keywords: list[str] = None, **kwargs):
-        super().__init__(title, keywords, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
         params = self.get_params(paragraph_text, section_name, resolved_prompt)
