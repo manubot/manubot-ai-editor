@@ -1,0 +1,42 @@
+prompts_files:
+  abstract: |
+    Revise the following paragraph from the Abstract of an academic paper (with the title '{title}' and keywords '{keywords}') so
+      the research problem/question is clear,
+      the solution proposed is clear,
+      the text grammar is correct,
+      spelling errors are fixed,
+      and the text is in active voice and has a clear sentence structure
+
+  introduction|discussion: |
+    Revise the following paragraph from the {section_name} of an academic paper (with the title '{title}' and keywords '{keywords}') so
+      the research problem/question is clear,
+      the solution proposed is clear,
+      the text grammar is correct,
+      spelling errors are fixed,
+      and the text is in active voice and has a clear sentence structure
+
+  results: |
+    Revise the following paragraph from the Results section of an academic paper (with the title '{title}' and keywords '{keywords}') so
+      most references to figures and tables are kept,
+      the details are enough to clearly explain the outcomes,
+      sentences are concise and to the point,
+      the text minimizes the use of jargon,
+      the text grammar is correct,
+      spelling errors are fixed,
+      and the text has a clear sentence structure
+
+  methods: |
+    Revise the paragraph(s) below from the Methods section of an academic paper (with the title '{title}' and keywords '{keywords}') so
+       most of the citations to other academic papers are kept,
+       most of the technical details are kept,
+       most references to equations (such as "Equation (@id)") are kept,
+       all equations definitions (such as '*equation_definition') are included with newlines before and after,
+       the most important symbols in equations are defined,
+       the text grammar is correct,
+       spelling errors are fixed,
+       and the text has a clear sentence structure
+
+  references: null
+
+  \.md$: |
+    Proofread the following paragraph

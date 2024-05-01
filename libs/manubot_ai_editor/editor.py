@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
 from manubot_ai_editor.utils import (
     get_yaml_field,
@@ -26,6 +27,10 @@ class ManuscriptEditor:
         assert metadata_file.exists(), f"Metadata file {metadata_file} does not exist"
         self.title = get_yaml_field(metadata_file, "title")
         self.keywords = get_yaml_field(metadata_file, "keywords")
+
+        self.prompt_config = ManuscriptPromptConfig(
+            content_dir=content_dir, title=self.title, keywords=self.keywords
+        )
 
     @staticmethod
     def prepare_paragraph(paragraph: list[str]) -> str:
@@ -81,6 +86,7 @@ class ManuscriptEditor:
         paragraph: list[str],
         revision_model: ManuscriptRevisionModel,
         section_name: str = None,
+        resolved_prompt: str = None,
         outfile=None,
     ) -> None | tuple[str, str]:
         """
@@ -89,6 +95,7 @@ class ManuscriptEditor:
         Arguments:
             paragraph: list of lines of the paragraph.
             section_name: name of the section the paragraph belongs to.
+            resolved_prompt: a prompt resolved via the ai_revision prompt config; None if unavailable
             revision_model: model to use for revision.
             outfile: file object to write the revised paragraph to.
 
@@ -114,8 +121,7 @@ class ManuscriptEditor:
         error_message = None
         try:
             paragraph_revised = revision_model.revise_paragraph(
-                paragraph_text,
-                section_name,
+                paragraph_text, section_name, resolved_prompt=resolved_prompt
             )
 
             if paragraph_revised.strip() == "":
@@ -248,6 +254,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         output_dir: Path | str,
         revision_model: ManuscriptRevisionModel,
         section_name: str = None,
+        resolved_prompt: str = None,
     ):
         """
         It revises an entire Markdown file and writes the revised file to the output directory.
@@ -258,6 +265,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             output_dir (Path | str): path to the directory where the revised file will be written.
             revision_model (ManuscriptRevisionModel): model to use for revision.
             section_name (str, optional): Defaults to None. If so, it will be inferred from the filename.
+            resolved_prompt (str, optional): A prompt resolved via ai_revision prompt config files, which overrides any custom or section-derived prompts; None if unavailable.
         """
         input_filepath = self.content_dir / input_filename
         assert input_filepath.exists(), f"Input file {input_filepath} does not exist"
@@ -376,7 +384,11 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
                     # revise and write paragraph to output file
                     self.revise_and_write_paragraph(
-                        paragraph, revision_model, section_name, outfile
+                        paragraph,
+                        revision_model,
+                        section_name,
+                        resolved_prompt=resolved_prompt,
+                        outfile=outfile,
                     )
 
                     # clear the paragraph list
@@ -418,7 +430,11 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             # output file
             if paragraph:
                 self.revise_and_write_paragraph(
-                    paragraph, revision_model, section_name, outfile
+                    paragraph,
+                    revision_model,
+                    section_name,
+                    resolved_prompt=resolved_prompt,
+                    outfile=outfile,
                 )
 
     def revise_manuscript(
@@ -446,14 +462,22 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 filenames_to_revise = None
 
         for filename in sorted(self.content_dir.glob("*.md")):
-            # ignore front-matter file
-            if "front-matter" in filename.name:
-                continue
-
             filename_section = self.get_section_from_filename(filename.name)
 
-            # we do not process the file if it has no section and there is no custom prompt
-            if filename_section is None and (
+            # use the ai_revision prompt config to attempt to resolve a prompt
+            resolved_prompt, _ = self.prompt_config.get_prompt_for_filename(
+                filename.name
+            )
+
+            # ignore the file if the ai-revision_* config files told us to
+            if resolved_prompt == IGNORE_FILE:
+                continue
+
+            # we do not process the file if all hold:
+            # 1. it has no section *or* resolved prompt
+            # 2. we're unable to resolve it via ai_revision prompt configuration
+            # 2. there is no custom prompt
+            if (filename_section is None and resolved_prompt is None) and (
                 env_vars.CUSTOM_PROMPT not in os.environ
                 or os.environ[env_vars.CUSTOM_PROMPT].strip() == ""
             ):
@@ -472,4 +496,5 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 output_dir,
                 revision_model,
                 section_name=filename_section,
+                resolved_prompt=resolved_prompt,
             )
