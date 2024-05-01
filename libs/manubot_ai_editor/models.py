@@ -583,6 +583,11 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     """
 
     def __init__(self, *args, **kwargs):
+        if 'title' not in kwargs or kwargs['title'] is None:
+            kwargs['title'] = "Debugging Title"
+        if 'keywords' not in kwargs or kwargs['keywords'] is None:
+            kwargs['keywords'] = ["debugging", "keywords"]
+
         super().__init__(*args, **kwargs)
 
     def revise_paragraph(self, paragraph_text, section_name, resolved_prompt=None):
