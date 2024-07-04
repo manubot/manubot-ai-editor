@@ -1,9 +1,58 @@
 from unittest import mock
 
 from manubot_ai_editor import env_vars
-from manubot_ai_editor.models import GPT3CompletionModel
+from manubot_ai_editor.models import GPT3CompletionModel, DEFAULT_PROMPT_OVERRIDE
+import pytest
+
+# test decorator to skip section-specific prompt tests when
+# DEFAULT_PROMPT_OVERRIDE is set
+default_prompt_override = pytest.mark.skipif(
+    DEFAULT_PROMPT_OVERRIDE is not None, reason="DEFAULT_PROMPT_OVERRIDE is set, so section-specific prompt tests are off"
+)
+
+# ==============================
+# === default prompt override test
+# ==============================
+
+@pytest.mark.skipif(
+    DEFAULT_PROMPT_OVERRIDE is None,
+    reason="DEFAULT_PROMPT_OVERRIDE is not set, so this test is not needed"
+)
+def test_get_prompt_default_prompt_override():
+    """"
+    Tests that, when DEFAULT_PROMPT_OVERRIDE is set, the prompt matches
+    the default prompt rather than section-specific prompts.
+
+    Note that we test for the explicit text "Proofread the following paragraph..."
+    rather than just checking that it's equal to DEFAULT_PROMPT_OVERRIDE, since
+    we also want to validate that it's the default prompt MP specified.
+    """
+    
+    model = GPT3CompletionModel(
+        title="Test title",
+        keywords=["test", "keywords"],
+    )
+
+    paragraph_text = """
+This is the first sentence.
+And this is the second sentence.
+Finally, the third sentence.
+    """.strip()
+
+    prompt = model.get_prompt(paragraph_text, "introduction")
+    assert prompt.startswith("Proofread the following paragraph that is part of a scientific manuscript.")
+    assert prompt.endswith(paragraph_text[-20:])
+    assert "  " not in prompt
 
 
+# ==============================
+# === section-specific prompt tests
+# ==============================
+
+# since these all rely on the section-specific default prompt resolver, which is
+# disabled when DEFAULT_PROMPT_OVERRIDE is set, we should skip these tests.
+
+@default_prompt_override
 def test_get_prompt_for_abstract():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -28,6 +77,7 @@ def test_get_prompt_for_abstract():
     assert "  " not in prompt
 
 
+@default_prompt_override
 def test_get_prompt_for_abstract_edit_endpoint():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -58,6 +108,7 @@ def test_get_prompt_for_abstract_edit_endpoint():
     assert paragraph_text.strip() == paragraph
 
 
+@default_prompt_override
 def test_get_prompt_for_introduction():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -82,6 +133,7 @@ def test_get_prompt_for_introduction():
     assert "  " not in prompt
 
 
+@default_prompt_override
 def test_get_prompt_section_is_abstract():
     model = GPT3CompletionModel(
         title="Test title",
@@ -101,6 +153,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_is_introduction():
     model = GPT3CompletionModel(
         title="Test title",
@@ -120,6 +173,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_is_discussion():
     model = GPT3CompletionModel(
         title="Test title",
@@ -139,6 +193,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_is_methods():
     model = GPT3CompletionModel(
         title="Test title",
@@ -156,6 +211,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_is_results():
     model = GPT3CompletionModel(
         title="Test title",
@@ -173,6 +229,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_not_standard_section():
     model = GPT3CompletionModel(
         title="Test title",
@@ -193,6 +250,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_not_provided():
     model = GPT3CompletionModel(
         title="Test title",
@@ -213,6 +271,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
+@default_prompt_override
 def test_get_prompt_section_is_none():
     model = GPT3CompletionModel(
         title="Test title",
@@ -229,6 +288,10 @@ Finally, the third sentence.
     assert prompt.startswith("Revise the following paragraph of an academic paper ")
     assert prompt.endswith(paragraph_text[-20:])
 
+
+# ==============================
+# === custom prompt tests
+# ==============================
 
 @mock.patch.dict(
     "os.environ",
