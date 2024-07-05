@@ -121,6 +121,6 @@ The following placeholders are available:
 - `{title}`: the title of the manuscript, as defined in the metadata
 - `{keywords}`: comma-delimited keywords from the manuscript metadata
 - `{paragraph_text}`: the text from the current paragraph
-- `{section_name}`: the name of the section (e.g., "introduction", "conclusion"), derived from the filename*
+- `{section_name}`: the name of the section (which is one of the following values "abstract",  "introduction", "results", "discussion", "conclusions", "methods" or "supplementary material"), derived from the filename*
 
 *(\* The mechanism that produces `section_name` is out of the scope of this document, but you can find the implementation in [editor.py](https://github.com/falquaddoomi/manubot-ai-editor/blob/issue-31-customprompts-yaml/libs/manubot_ai_editor/editor.py#L178-L211))*
