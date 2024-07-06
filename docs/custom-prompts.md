@@ -121,6 +121,11 @@ The following placeholders are available:
 - `{title}`: the title of the manuscript, as defined in the metadata
 - `{keywords}`: comma-delimited keywords from the manuscript metadata
 - `{paragraph_text}`: the text from the current paragraph
-- `{section_name}`: the name of the section (which is one of the following values "abstract",  "introduction", "results", "discussion", "conclusions", "methods" or "supplementary material"), derived from the filename*
+- `{section_name}`: the name of the section (which is one of the following values "abstract",  "introduction", "results", "discussion", "conclusions", "methods" or "supplementary material"), derived from the filename.
 
-*(\* The mechanism that produces `section_name` is out of the scope of this document, but you can find the implementation in [editor.py](https://github.com/falquaddoomi/manubot-ai-editor/blob/issue-31-customprompts-yaml/libs/manubot_ai_editor/editor.py#L178-L211))*
+The `section_name` placeholder works like so:
+- if the env var `AI_EDITOR_FILENAME_SECTION_MAPPING` is specified, it will be interpreted as a dictionary mapping filenames to section names.
+If a key of the dictionary is included in the filename, the value will be used as the section name.
+Also the keys and values can be any string, not just one of the section names mentioned before.
+- If the dict mentioned above is unset or the filename doesn't match any of its keys, the filename will be matched against the following values: "introduction", "methods", "results", "discussion", "conclusions" or "supplementary".
+If the values are contained within the filename, the section name will be mapped to that value. "supplementary" is replaced with "supplementary material", but the others are used as is.
