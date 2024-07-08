@@ -10,6 +10,10 @@ default_prompt_override = pytest.mark.skipif(
     DEFAULT_PROMPT_OVERRIDE is not None, reason="DEFAULT_PROMPT_OVERRIDE is set, so section-specific prompt tests are off"
 )
 
+# test patcher that sets DEFAULT_PROMPT_OVERRIDE to None, so that the
+# tests that are invalidated by it being set can still run
+reset_default_prompt_override = mock.patch("manubot_ai_editor.models.DEFAULT_PROMPT_OVERRIDE", None)
+
 # ==============================
 # === default prompt override test
 # ==============================
@@ -52,7 +56,7 @@ Finally, the third sentence.
 # since these all rely on the section-specific default prompt resolver, which is
 # disabled when DEFAULT_PROMPT_OVERRIDE is set, we should skip these tests.
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_for_abstract():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -77,7 +81,7 @@ def test_get_prompt_for_abstract():
     assert "  " not in prompt
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_for_abstract_edit_endpoint():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -108,7 +112,7 @@ def test_get_prompt_for_abstract_edit_endpoint():
     assert paragraph_text.strip() == paragraph
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_for_introduction():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
@@ -133,7 +137,7 @@ def test_get_prompt_for_introduction():
     assert "  " not in prompt
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_abstract():
     model = GPT3CompletionModel(
         title="Test title",
@@ -153,7 +157,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_introduction():
     model = GPT3CompletionModel(
         title="Test title",
@@ -173,7 +177,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_discussion():
     model = GPT3CompletionModel(
         title="Test title",
@@ -193,7 +197,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_methods():
     model = GPT3CompletionModel(
         title="Test title",
@@ -211,7 +215,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_results():
     model = GPT3CompletionModel(
         title="Test title",
@@ -229,7 +233,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_not_standard_section():
     model = GPT3CompletionModel(
         title="Test title",
@@ -250,7 +254,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_not_provided():
     model = GPT3CompletionModel(
         title="Test title",
@@ -271,7 +275,7 @@ Finally, the third sentence.
     assert prompt.endswith(paragraph_text[-20:])
 
 
-@default_prompt_override
+@reset_default_prompt_override
 def test_get_prompt_section_is_none():
     model = GPT3CompletionModel(
         title="Test title",
