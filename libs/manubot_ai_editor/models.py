@@ -9,26 +9,6 @@ import openai
 
 from manubot_ai_editor import env_vars
 
-# if DEFAULT_PROMPT_OVERRIDE is not None, it's used in get_prompt() instead of the section-specific
-# 'canned' prompts.
-
-# specifically, the prompt resolution order is the following:
-# 1. if a custom prompt is specified via the env var specified by
-#    env_vars.CUSTOM_PROMPT, then the text in that env var is used as the
-#    prompt.
-# 2. if the files ai_revision-config.yaml and/or ai_revision-prompt.yaml are
-#    available, then a prompt resolved from the filename via those config files
-#    is used.
-# 3. if DEFAULT_PROMPT_OVERRIDE (below) is not None, then it is used as the
-#    prompt.
-# 4. if a section_name is specified, then a canned section-specific prompt
-#    matching the section name is used.
-# 5. finally, a generic prompt is constructed and used if none of the above
-#    conditions are met.
-DEFAULT_PROMPT_OVERRIDE = """
-Proofread the following paragraph that is part of a scientific manuscript.
-Keep all Markdown formatting, citations to other articles, mathematical expressions, and equations.
-"""
 
 class ManuscriptRevisionModel(ABC):
     """
@@ -337,10 +317,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             # use the resolved prompt from the ai_revision config files, if available
             # replace placeholders with their actual values
             prompt = resolved_prompt.format(**placeholders)
-        elif DEFAULT_PROMPT_OVERRIDE is not None:
-            # if a default prompt override is specified, use it in favor
-            # of any section-specific prompts
-            prompt = DEFAULT_PROMPT_OVERRIDE.format(**placeholders)
         elif section_name in ("abstract",):
             prompt = f"""
                 Revise the following paragraph from the {section_name} of an academic paper (with the title '{self.title}' and keywords '{", ".join(self.keywords)}')
