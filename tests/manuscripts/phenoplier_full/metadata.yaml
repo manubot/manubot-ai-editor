@@ -1,0 +1,134 @@
+---
+title: "Projecting genetic associations through gene expression patterns highlights disease etiology and drug mechanisms"
+date: 2023-09-09  # Defaults to date generated, but can specify like '2022-10-31'.
+keywords:
+  - genetic studies
+  - functional genomics
+  - gene co-expression
+  - therapeutic targets
+  - drug repurposing
+  - clustering of complex traits
+lang: en-US
+authors:
+  - name: Milton Pividori
+    github: miltondp
+    initials: MP
+    orcid: 0000-0002-3035-4403
+    twitter: miltondp
+    mastodon: miltondp
+    mastodon-server: genomic.social
+    email: milton.pividori@cuanschutz.edu
+    affiliations:
+      - Department of Biomedical Informatics, University of Colorado School of Medicine, Aurora, CO 80045, USA
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+    funders:
+      - The Gordon and Betty Moore Foundation GBMF 4552
+      - The National Human Genome Research Institute (R01 HG010067)
+      - The National Human Genome Research Institute (K99HG011898)
+      - The Eunice Kennedy Shriver National Institute of Child Health and Human Development (R01 HD109765)
+  
+  - name: Sumei Lu
+    affiliations:
+      - Center for Spatial and Functional Genomics, Children's Hospital of Philadelphia, Philadelphia, PA 19104, USA
+
+  - name: Binglan Li
+    orcid: 0000-0002-0103-6107
+    affiliations:
+      - Department of Biomedical Data Science, Stanford University, Stanford, CA 94305, USA.
+
+  - name: Chun Su
+    orcid:  0000-0001-6388-8666
+    github: sckinta
+    affiliations:
+      - Center for Spatial and Functional Genomics, Children's Hospital of Philadelphia, Philadelphia, PA 19104, USA
+
+  - name: Matthew E. Johnson
+    affiliations:
+      - Center for Spatial and Functional Genomics, Children's Hospital of Philadelphia, Philadelphia, PA 19104, USA
+
+  - name: Wei-Qi Wei
+    affiliations:
+      - Vanderbilt University Medical Center, Nashville, TN 37232, USA
+
+  - name: Qiping Feng
+    orcid: 0000-0002-6213-793X
+    affiliations:
+      - Vanderbilt University Medical Center, Nashville, TN 37232, USA
+
+  - name: Bahram Namjou
+    affiliations:
+      - Cincinnati Children's Hospital Medical Center, Cincinnati, OH 45229, USA
+
+  - name: Krzysztof Kiryluk
+    orcid: 0000-0002-5047-6715
+    twitter: kirylukk
+    affiliations:
+      - Department of Medicine, Division of Nephrology, Vagelos College of Physicians \& Surgeons, Columbia University, New York, NY 10032, USA
+
+  - name: Iftikhar Kullo
+    affiliations:
+      - Mayo Clinic, Rochester, MN 55905, USA
+
+  - name: Yuan Luo
+    orcid: 0000-0003-0195-7456
+    affiliations:
+      - Northwestern University, Chicago, IL 60611, USA
+
+  - name: Blair D. Sullivan
+    github: bdsullivan
+    orcid: 0000-0001-7720-6208
+    twitter: blairdsullivan
+    affiliations:
+      - Kahlert School of Computing, University of Utah, Salt Lake City, UT 84112, USA
+
+  - name: Benjamin F. Voight
+    orcid: 0000-0002-6205-9994
+    twitter: bvoight28
+    github: bvoight
+    affiliations:
+      - Department of Systems Pharmacology and Translational Therapeutics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+      - Institute for Translational Medicine and Therapeutics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+
+  - name: Carsten Skarke
+    orcid: 0000-0001-5145-3681
+    twitter: CarstenSkarke
+    affiliations:
+      - Institute for Translational Medicine and Therapeutics, Department of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+
+  - name: Marylyn D. Ritchie
+    initials: MDR
+    orcid: 0000-0002-1208-1720
+    twitter: MarylynRitchie
+    email: marylyn@pennmedicine.upenn.edu
+    affiliations:
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA 19104, USA
+
+  - name: Struan F.A. Grant
+    email: grants@chop.edu
+    orcid: 0000-0003-2025-5302
+    twitter: STRUANGRANT
+    affiliations:
+      - Center for Spatial and Functional Genomics, Children's Hospital of Philadelphia, Philadelphia, PA 19104, USA
+      - Division of Endocrinology and Diabetes, Children's Hospital of Philadelphia, Philadelphia, PA, 19104, USA
+      - Division of Human Genetics, Children's Hospital of Philadelphia, Philadelphia, PA, 19104, USA
+      - Department of Pediatrics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA, 19104, USA
+      - Department of Genetics, Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA, 19104, USA
+
+  - name: Casey S. Greene
+    github: cgreene
+    initials: CSG
+    orcid: 0000-0001-8713-9213
+    twitter: GreeneScientist
+    mastodon: greenescientist
+    mastodon-server: genomic.social
+    email: casey.s.greene@cuanschutz.edu
+    affiliations:
+      - Center for Health AI, University of Colorado School of Medicine, Aurora, CO 80045, USA
+      - Department of Biomedical Informatics, University of Colorado School of Medicine, Aurora, CO 80045, USA
+    funders:
+      - The Gordon and Betty Moore Foundation (GBMF 4552)
+      - The National Human Genome Research Institute (R01 HG010067)
+      - The National Cancer Institute (R01 CA237170)
+      - The Eunice Kennedy Shriver National Institute of Child Health and Human Development (R01 HD109765)
+    corresponding: true

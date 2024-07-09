@@ -1,0 +1,29 @@
+default_language_version:
+  python: python3.10
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Check for files that contain merge conflict strings.
+      - id: check-merge-conflict
+      # Check for debugger imports and py37+ `breakpoint()` calls in python source.
+      - id: debug-statements
+      # Replaces or checks mixed line ending
+      - id: mixed-line-ending
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+      # This hook checks toml files for parseable syntax.
+      - id: check-toml
+      # This hook checks yaml files for parseable syntax.
+      - id: check-yaml
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.2.0
+    hooks:
+      - id: ruff
+        args:
+        - --fix
+  - repo: https://github.com/python/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3

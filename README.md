@@ -12,6 +12,21 @@ The Manubot AI Editor can be used from the GitHub repository of a Manubot-based 
 You first need to follow the steps to [setup a Manubot-based manuscript](https://github.com/manubot/rootstock).
 Then, follow [these instructions](https://github.com/manubot/rootstock/blob/main/USAGE.md#ai-assisted-authoring) to setup a workflow in GitHub Actions that will allow you to quickly trigger a job to revise your manuscript.
 
+### Configuring Prompts
+
+In order to revise your manuscript, prompts must be provided to the AI model. There are two ways to do this:
+- **Default prompts**: you can use the default prompts provided by the tool, in which case you don't need to do anything.
+- **Custom prompts**: you can define your own prompts to apply to specific files using YAML configuration files that you include with your manuscript.
+
+The default prompt, which should work for most manuscripts, is the following:
+
+```
+Proofread the following paragraph that is part of a scientific manuscript.
+Keep all Markdown formatting, citations to other articles, mathematical expressions, and equations.
+```
+
+If you wish to customize the prompts on a per-file basis, see [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
+
 ### Command line
 
 To use the tool from the command line, you first need to install Manubot in a Python environment:

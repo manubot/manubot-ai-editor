@@ -1160,7 +1160,7 @@ def test_revise_entire_manuscript_non_standard_filenames_with_custom_prompt(
     me.revise_manuscript(output_folder, model)
 
     output_md_files = list(output_folder.glob("*.md"))
-    assert len(output_md_files) == 5
+    assert len(output_md_files) == 6
 
 
 @mock.patch.dict(

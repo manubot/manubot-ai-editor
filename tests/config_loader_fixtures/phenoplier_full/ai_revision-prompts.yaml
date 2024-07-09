@@ -1,0 +1,15 @@
+prompts:
+  abstract: |
+    Test match abstract.
+
+  introduction_discussion: |
+    Test match introduction or discussion.
+
+  results: |
+    Test match results.
+
+  methods: |
+    Test match methods.
+
+  my_default_prompt: |
+    default prompt text
