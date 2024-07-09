@@ -18,13 +18,6 @@ In order to revise your manuscript, prompts must be provided to the AI model. Th
 - **Default prompts**: you can use the default prompts provided by the tool, in which case you don't need to do anything.
 - **Custom prompts**: you can define your own prompts to apply to specific files using YAML configuration files that you include with your manuscript.
 
-The default prompt, which should work for most manuscripts, is the following:
-
-```
-Proofread the following paragraph that is part of a scientific manuscript.
-Keep all Markdown formatting, citations to other articles, mathematical expressions, and equations.
-```
-
 If you wish to customize the prompts on a per-file basis, see [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
 
 ### Command line

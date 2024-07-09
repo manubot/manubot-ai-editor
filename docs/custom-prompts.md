@@ -12,6 +12,8 @@ These files should be placed in the `content` directory alongside your manuscrip
 
 See [Functionality Notes](#functionality-notes) later in this document for more information on how to write regular expressions and use placeholders in your prompts.
 
+See [Example Configuration](#example-configuration) for a quick guide on how to enable the custom prompts system.
+
 ## Approach 1: Single file
 
 With this approach, you can define your prompts and how they map to your manuscript files in a single file.
@@ -87,6 +89,14 @@ In this case, the `default_prompt` is used when no other regex matches, and it u
 
 The `ignores` list specifies files that should be skipped entirely during the revision process; they won't have the default prompt applied to them.
 
+## Example Configuration
+
+You can find an example of the `ai-revision_prompts.yaml` and `ai-revision_config.yaml` files in the `docs/example` directory of this repository.
+
+The prompts file, [`docs/example/ai-revision_prompts.yaml`](docs/example/ai-revision_prompts.yaml), contains some example prompts as well as a default prompt.
+The config file, [`docs/example/ai-revision_config.yaml`](docs/example/ai-revision_config.yaml), maps all `.md` files to the prompt with the identifier `default`.
+
+You can copy these two files into your manuscript's `content` directory to start using the custom prompts system, then modify them to suit your needs.
 
 ## Functionality Notes
 
