@@ -10,9 +10,10 @@ You would then specify a second file, `ai-revision_config.yaml`, that maps the p
 
 These files should be placed in the `content` directory alongside your manuscript markdown files.
 
+See [Example Configuration](#example-configuration) for a quick guide on how to enable the custom prompts system.
+
 See [Functionality Notes](#functionality-notes) later in this document for more information on how to write regular expressions and use placeholders in your prompts.
 
-See [Example Configuration](#example-configuration) for a quick guide on how to enable the custom prompts system.
 
 ## Approach 1: Single file
 
