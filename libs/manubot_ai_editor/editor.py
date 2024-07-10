@@ -18,10 +18,12 @@ class ManuscriptEditor:
 
     Args:
         content_dir: Path to the "content" directory of a Manubot-based manuscript.
+        config_dir: Path to the directory containing the AI revision configuration files, typically "ci".
     """
 
-    def __init__(self, content_dir: str | Path):
+    def __init__(self, content_dir: str | Path, config_dir: str | Path = None):
         self.content_dir = Path(content_dir)
+        self.config_dir = Path(config_dir) if config_dir is not None else None
 
         metadata_file = self.content_dir / "metadata.yaml"
         assert metadata_file.exists(), f"Metadata file {metadata_file} does not exist"
@@ -29,7 +31,7 @@ class ManuscriptEditor:
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
         self.prompt_config = ManuscriptPromptConfig(
-            content_dir=content_dir, title=self.title, keywords=self.keywords
+            config_dir=config_dir, title=self.title, keywords=self.keywords
         )
 
     @staticmethod
@@ -469,7 +471,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
                 filename.name
             )
 
-            # ignore the file if the ai-revision_* config files told us to
+            # ignore the file if the ai-revision-* config files told us to
             if resolved_prompt == IGNORE_FILE:
                 continue
 
