@@ -82,8 +82,12 @@ from manubot_ai_editor.models import GPT3CompletionModel
 # create a manuscript editor object
 # here content_dir points to the "content" directory of the Manubot-based
 # manuscript, where Markdown files (*.md) are located
+# config_dir points to where CI-related configuration, including the AI
+# editor's configuration, is stored. it's optional, and if left out will
+# resort to defaults.
 me = ManuscriptEditor(
     content_dir="content",
+    config_dir="ci"
 )
 
 # create a model to revise the manuscript
