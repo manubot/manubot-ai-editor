@@ -97,7 +97,7 @@ class ManuscriptEditor:
         Arguments:
             paragraph: list of lines of the paragraph.
             section_name: name of the section the paragraph belongs to.
-            resolved_prompt: a prompt resolved via the ai_revision prompt config; None if unavailable
+            resolved_prompt: a prompt resolved via the ai-revision prompt config; None if unavailable
             revision_model: model to use for revision.
             outfile: file object to write the revised paragraph to.
 
@@ -267,7 +267,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             output_dir (Path | str): path to the directory where the revised file will be written.
             revision_model (ManuscriptRevisionModel): model to use for revision.
             section_name (str, optional): Defaults to None. If so, it will be inferred from the filename.
-            resolved_prompt (str, optional): A prompt resolved via ai_revision prompt config files, which overrides any custom or section-derived prompts; None if unavailable.
+            resolved_prompt (str, optional): A prompt resolved via ai-revision prompt config files, which overrides any custom or section-derived prompts; None if unavailable.
         """
         input_filepath = self.content_dir / input_filename
         assert input_filepath.exists(), f"Input file {input_filepath} does not exist"
@@ -466,7 +466,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         for filename in sorted(self.content_dir.glob("*.md")):
             filename_section = self.get_section_from_filename(filename.name)
 
-            # use the ai_revision prompt config to attempt to resolve a prompt
+            # use the ai-revision prompt config to attempt to resolve a prompt
             resolved_prompt, _ = self.prompt_config.get_prompt_for_filename(
                 filename.name
             )
@@ -477,7 +477,7 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
 
             # we do not process the file if all hold:
             # 1. it has no section *or* resolved prompt
-            # 2. we're unable to resolve it via ai_revision prompt configuration
+            # 2. we're unable to resolve it via ai-revision prompt configuration
             # 2. there is no custom prompt
             if (filename_section is None and resolved_prompt is None) and (
                 env_vars.CUSTOM_PROMPT not in os.environ
