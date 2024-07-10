@@ -41,7 +41,7 @@ For example, to change the temperature parameter of OpenAI models, you can expor
 Then, within the root directory of your Manubot-based manuscript, run the following commands (**IMPORTANT:** this will overwrite your original manuscript!):
 
 ```bash
-manubot ai-revision --content-directory content/
+manubot ai-revision --content-directory content/ --config-directory ci/
 ```
 
 The tool will revise each paragraph of your manuscript and write back the revised files in the same directory.
@@ -52,6 +52,7 @@ Before using the OpenAI API and incurring costs, you can run a test by using a d
 ```bash
 manubot ai-revision \
   --content-directory content/ \
+  --config-directory ci/ \
   --model-type DummyManuscriptRevisionModel \
   --model-kwargs add_paragraph_marks=True
 ```
