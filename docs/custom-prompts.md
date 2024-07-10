@@ -4,9 +4,9 @@ Rather than using the default prompt, you can specify custom prompts for each fi
 This can be useful when you want specific sections of your manuscript to be revised in specific ways, or not revised at all.
 
 There are two ways that you can use the custom prompts system:
-1. You can define your prompts and how they map to your manuscript files in a single file, `ai_revision-prompts.yaml`.
-2. You can create the `ai_revision-prompts.yaml`, but only specify prompts and identifiers, which makes it suitable for sharing with others who have different names for their manuscripts' files.
-You would then specify a second file, `ai_revision-config.yaml`, that maps the prompt identifiers to the actual files in your manuscript.
+1. You can define your prompts and how they map to your manuscript files in a single file, `ai-revision-prompts.yaml`.
+2. You can create the `ai-revision-prompts.yaml`, but only specify prompts and identifiers, which makes it suitable for sharing with others who have different names for their manuscripts' files.
+You would then specify a second file, `ai-revision-config.yaml`, that maps the prompt identifiers to the actual files in your manuscript.
 
 These files should be placed in the `content` directory alongside your manuscript markdown files.
 
@@ -18,7 +18,7 @@ See [Functionality Notes](#functionality-notes) later in this document for more 
 ## Approach 1: Single file
 
 With this approach, you can define your prompts and how they map to your manuscript files in a single file.
-The single file should be named `ai_revision-prompts.yaml` and placed in the `content` folder.
+The single file should be named `ai-revision-prompts.yaml` and placed in the `content` folder.
 
 The file would look something like the following:
 
@@ -45,12 +45,12 @@ Even if a file matches multiple regexes, only the first one will be used.
 
 ## Approach 2: Prompt file plus configuration file
 
-In this case, we specify two files, `ai_revision-prompts.yaml` and `ai_revision-config.yaml`.
+In this case, we specify two files, `ai-revision-prompts.yaml` and `ai-revision-config.yaml`.
 
-The `ai_revision-prompts.yaml` file contains only the prompts and their identifiers.
+The `ai-revision-prompts.yaml` file contains only the prompts and their identifiers.
 The top-level element is `prompts` in this case rather than `prompts_files`, as it defines a set of resuable prompts and not prompt-file mappings.
 
-Here's an example of what the `ai_revision-prompts.yaml` file might look like:
+Here's an example of what the `ai-revision-prompts.yaml` file might look like:
 ```yaml
 prompts:
   intro_prompt: "Prompt text here"
@@ -61,9 +61,9 @@ prompts:
   my_default: "Revise this paragraph so it sounds nicer."
 ```
 
-The `ai_revision-config.yaml` file maps the prompt identifiers to the actual files in your manuscript.
+The `ai-revision-config.yaml` file maps the prompt identifiers to the actual files in your manuscript.
 
-An example of the `ai_revision-config.yaml` file:
+An example of the `ai-revision-config.yaml` file:
 ```yaml
 files:
   matchings:
@@ -76,7 +76,7 @@ files:
       prompt: content_prompts
 
   # the special value default_prompt is used when no other regex matches
-  # it also uses a prompt identifier taken from ai_revision-prompts.yaml
+  # it also uses a prompt identifier taken from ai-revision-prompts.yaml
   default_prompt: my_default
 
   # any file you want to be skipped can be specified in this list
@@ -86,7 +86,7 @@ files:
 
 Multiple regexes can be specified in a list under `files` to match multiple files to a single prompt.
 
-In this case, the `default_prompt` is used when no other regex matches, and it uses a prompt identifier taken from `ai_revision-prompts.yaml`.
+In this case, the `default_prompt` is used when no other regex matches, and it uses a prompt identifier taken from `ai-revision-prompts.yaml`.
 
 The `ignores` list specifies files that should be skipped entirely during the revision process; they won't have the default prompt applied to them.
 

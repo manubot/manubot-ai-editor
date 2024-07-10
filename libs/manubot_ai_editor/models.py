@@ -283,7 +283,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # 1. if a custom prompt is specified via the env var specified by
         #    env_vars.CUSTOM_PROMPT, then the text in that env var is used as
         #    the prompt.
-        # 2. if the files ai_revision-config.yaml and/or ai_revision-prompt.yaml
+        # 2. if the files ai-revision-config.yaml and/or ai-revision-prompt.yaml
         #    are available, then a prompt resolved from the filename via those
         #    config files is used. (this is initially resolved in
         #    ManuscriptEditor.revise_manuscript() and passed down to here via
