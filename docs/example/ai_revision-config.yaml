@@ -1,5 +1,0 @@
-files:
-  matchings:
-    - files:
-        - .*\.md$
-      prompt: default
