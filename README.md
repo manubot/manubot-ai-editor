@@ -20,6 +20,13 @@ In order to revise your manuscript, prompts must be provided to the AI model. Th
 
 If you wish to customize the prompts on a per-file basis, see [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
 
+### Caveats
+
+In the current implementation, the editor can only process one paragraph at a time.
+This limits the contextual information the LLM receives and thus the specificity of what it can check and fix.
+For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure, but the AI editor can only judge each paragraph in the same way.
+We plan to reduce or remove this limitation in the future.
+
 ### Command line
 
 To use the tool from the command line, you first need to install Manubot in a Python environment:
