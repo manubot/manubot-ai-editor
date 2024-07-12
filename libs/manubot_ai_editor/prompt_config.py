@@ -185,7 +185,7 @@ class ManuscriptPromptConfig:
         resolved_default_prompt = None
         if use_default and self.prompts is not None:
             resolved_default_prompt = self.prompts.get(
-                get_obj_path(self.config, ("files", "default_prompt"), missing="default"),
+                get_obj_path(self.config, ("files", "default_prompt")),
                 None
             )
 

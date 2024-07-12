@@ -8,14 +8,15 @@ There are two ways that you can use the custom prompts system:
 2. You can create the `ai-revision-prompts.yaml`, but only specify prompts and identifiers, which makes it suitable for sharing with others who have different names for their manuscripts' files.
 You would then specify a second file, `ai-revision-config.yaml`, that maps the prompt identifiers to the actual files in your manuscript.
 
-These files should be placed in the `content` directory alongside your manuscript markdown files.
+These files should be placed in the `ci` directory under your manubot root directory.
 
 See [Functionality Notes](#functionality-notes) later in this document for more information on how to write regular expressions and use placeholders in your prompts.
+
 
 ## Approach 1: Single file
 
 With this approach, you can define your prompts and how they map to your manuscript files in a single file.
-The single file should be named `ai-revision-prompts.yaml` and placed in the `content` folder.
+The single file should be named `ai-revision-prompts.yaml` and placed in the `ci` folder.
 
 The file would look something like the following:
 

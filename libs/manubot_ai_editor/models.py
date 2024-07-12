@@ -26,7 +26,7 @@ class ManuscriptRevisionModel(ABC):
         Args:
             paragraph_text (str): text of the paragraph to revise.
             section_name (str): name of the section the paragraph belongs to.
-            resolved_prompt (str): prompt resolved via ai_revision config files, if available
+            resolved_prompt (str): prompt resolved via ai-revision config files, if available
 
         Returns:
             Revised paragraph text.
@@ -265,7 +265,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         Args:
             paragraph_text: text of the paragraph to revise.
             section_name: name of the section the paragraph belongs to.
-            resolved_prompt: prompt resolved via ai_revision config, if available
+            resolved_prompt: prompt resolved via ai-revision config, if available
 
         Returns:
             If self.endpoint != "edits", then returns a string with the prompt to be used by the model for the revision of the paragraph.
@@ -314,7 +314,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             #  a simple workaround is to remove {paragraph_text} from the prompt
             prompt = custom_prompt.format(**placeholders)
         elif resolved_prompt:
-            # use the resolved prompt from the ai_revision config files, if available
+            # use the resolved prompt from the ai-revision config files, if available
             # replace placeholders with their actual values
             prompt = resolved_prompt.format(**placeholders)
         elif section_name in ("abstract",):

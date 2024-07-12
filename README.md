@@ -18,14 +18,14 @@ In order to revise your manuscript, prompts must be provided to the AI model. Th
 - **Default prompts**: you can use the default prompts provided by the tool, in which case you don't need to do anything.
 - **Custom prompts**: you can define your own prompts to apply to specific files using YAML configuration files that you include with your manuscript.
 
-The default prompt, which should work for most manuscripts, is the following:
-
-```
-Proofread the following paragraph that is part of a scientific manuscript.
-Keep all Markdown formatting, citations to other articles, mathematical expressions, and equations.
-```
-
 If you wish to customize the prompts on a per-file basis, see [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
+
+### Caveats
+
+In the current implementation, the editor can only process one paragraph at a time.
+This limits the contextual information the LLM receives and thus the specificity of what it can check and fix.
+For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure, but the AI editor can only judge each paragraph in the same way.
+We plan to reduce or remove this limitation in the future.
 
 ### Command line
 
@@ -48,7 +48,7 @@ For example, to change the temperature parameter of OpenAI models, you can expor
 Then, within the root directory of your Manubot-based manuscript, run the following commands (**IMPORTANT:** this will overwrite your original manuscript!):
 
 ```bash
-manubot ai-revision --content-directory content/
+manubot ai-revision --content-directory content/ --config-directory ci/
 ```
 
 The tool will revise each paragraph of your manuscript and write back the revised files in the same directory.
@@ -59,6 +59,7 @@ Before using the OpenAI API and incurring costs, you can run a test by using a d
 ```bash
 manubot ai-revision \
   --content-directory content/ \
+  --config-directory ci/ \
   --model-type DummyManuscriptRevisionModel \
   --model-kwargs add_paragraph_marks=True
 ```
@@ -88,8 +89,12 @@ from manubot_ai_editor.models import GPT3CompletionModel
 # create a manuscript editor object
 # here content_dir points to the "content" directory of the Manubot-based
 # manuscript, where Markdown files (*.md) are located
+# config_dir points to where CI-related configuration, including the AI
+# editor's configuration, is stored. it's optional, and if left out will
+# resort to defaults.
 me = ManuscriptEditor(
     content_dir="content",
+    config_dir="ci"
 )
 
 # create a model to revise the manuscript
