@@ -85,8 +85,9 @@ If you find a problem, please [report the issue](https://github.com/manubot/manu
 
 ## Using the Python API
 
-You can also use the low-level functions of the editor directly from Python, without being tied to a particular manuscript.
-As such, you can just install this package:
+You can also use the functions of the editor directly from Python.
+
+Since these functions are low-level and not tied to a particular manuscript, you don't have to install Manubot and can just install this package:
 
 ```bash
 pip install -U manubot-ai-editor
