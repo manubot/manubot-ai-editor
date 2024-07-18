@@ -38,7 +38,7 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 ### Configuring prompts
 
 In order to revise your manuscript, prompts must be provided to the AI model.
-Manubot Rootstock comes with several default, general-purpose prompts so that you can immediately use the AI editor without having to write and configure your own prompts.
+Manubot rootstock comes with several default, general-purpose prompts so that you can immediately use the AI editor without having to write and configure your own prompts.
 
 But you can also define your own prompts, apply them to specific content, and control other behavior using YAML configuration files that you include with your manuscript.
 See [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
