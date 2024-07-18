@@ -3,7 +3,7 @@
 A tool for performing automatic, AI-assisted revisions of [Manubot](https://manubot.org/) manuscripts.
 Check out the [manuscript about this tool](https://greenelab.github.io/manubot-gpt-manuscript/) for more background information.
 
-## Supported Large Language Models
+## Supported Large Language Models (LLMs)
 
 We currently support the following OpenAI ChatGPT endpoints:
 
@@ -11,8 +11,8 @@ We currently support the following OpenAI ChatGPT endpoints:
 - [`Edits`](https://platform.openai.com/docs/api-reference/edits)
 - [`ChatCompletion`](https://platform.openai.com/docs/api-reference/chat)
 
-  - _Note:_ this endpoint is not fully implemented yet.
-    We use the chat completion endpoint like we use the regular completion endpoint (each paragraph is revised independently), because newer models such as `gpt-3.5-turbo` or `gpt-4` are only available through the chat completion endpoint.
+_Note:_ this endpoint is not fully implemented yet.
+We use the chat completion endpoint like we use the regular completion endpoint (each paragraph is revised independently), because newer models such as `gpt-3.5-turbo` or `gpt-4` are only available through the chat completion endpoint.
 
 ## Caveats
 
@@ -23,6 +23,11 @@ We plan to reduce or remove this limitation in the future.
 
 ## Using in a Manubot manuscript
 
+Much of these instructions rely on the specific details of GitHub's website interface, which can change over time.
+See their official docs for more info on [configuring GitHub Actions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository), [managing secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository), and [running workflows](https://docs.github.com/en/actions/using-workflows/manually-running-a-workflow).
+
+### Setup
+
 Start with a manuscript repo [forked from Manubot rootstock](https://github.com/manubot/rootstock), then follow these steps:
 
 1. In your forks's "▶️ Actions" tab, enable GitHub Actions.
@@ -30,15 +35,21 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 1. If you haven't already, [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
 1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `OPENAI_API_KEY` and paste in your API key as the secret.
 
-Since the details of GitHub's website interface can change, see their official docs for more info on configuring [GitHub Actions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository) and [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
-
-### Configuring Prompts
+### Configuring prompts
 
 In order to revise your manuscript, prompts must be provided to the AI model.
 Manubot Rootstock comes with several default, general-purpose prompts so that you can immediately use the AI editor without having to write and configure your own prompts.
 
 But you can also define your own prompts, apply them to specific content, and control other behavior using YAML configuration files that you include with your manuscript.
 See [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
+
+### Running the editor
+
+1. In your forks's "▶️ Actions" tab, go to the `ai-revision` workflow.
+1. Manually run the workflow.
+   You should see several options you can specify, such as the branch to revise and the AI model to use.
+   [See these docs for an explanation of each option](https://github.com/manubot/manubot?tab=readme-ov-file#ai-assisted-academic-authoring).
+1. Within a few minutes, the workflow should run, the editor should generate revisions, and a pull request should be created in your fork!
 
 ## Using from the command line
 
