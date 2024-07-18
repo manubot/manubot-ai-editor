@@ -5,7 +5,7 @@ Check out the [manuscript about this tool](https://greenelab.github.io/manubot-g
 
 ## Supported Large Language Models
 
-We currently support the following OpenAI endpoints:
+We currently support the following OpenAI ChatGPT endpoints:
 
 - [`Completion`](https://platform.openai.com/docs/api-reference/completions)
 - [`Edits`](https://platform.openai.com/docs/api-reference/edits)
