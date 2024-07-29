@@ -5,14 +5,9 @@ Check out the [manuscript about this tool](https://greenelab.github.io/manubot-g
 
 ## Supported Large Language Models (LLMs)
 
-We currently support the following OpenAI ChatGPT endpoints:
-
-- [`Completion`](https://platform.openai.com/docs/api-reference/completions)
-- [`Edits`](https://platform.openai.com/docs/api-reference/edits)
-- [`ChatCompletion`](https://platform.openai.com/docs/api-reference/chat)
-
-_Note:_ this endpoint is not fully implemented yet.
-We use the chat completion endpoint like we use the regular completion endpoint (each paragraph is revised independently), because newer models such as `gpt-3.5-turbo` or `gpt-4` are only available through the chat completion endpoint.
+We currently support OpenAI models only, and are working to add support for other models.
+[Our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that GPT 4 Turbo is in general the best model for revising academic manuscripts.
+We recommend using the latest OpenAI model available, which is currently `gpt-4o`.
 
 ## Caveats
 
