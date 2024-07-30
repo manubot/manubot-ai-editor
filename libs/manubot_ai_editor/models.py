@@ -146,7 +146,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if openai.api_key is None:
             openai.api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
 
-            if openai.api_key is None:
+            if openai.api_key is None or openai.api_key.strip() == "":
                 raise ValueError(
                     f"OpenAI API key not found. Please provide it as parameter "
                     f"or set it as an the environment variable "
