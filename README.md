@@ -11,10 +11,14 @@ We recommend using the latest OpenAI model available, which is currently `gpt-4o
 
 ## Caveats
 
-In the current implementation, the editor can only process one paragraph at a time.
+In the current implementation, the AI editor can only process, independently, one paragraph at a time.
 This limits the contextual information the LLM receives and thus the specificity of what it can check and fix.
-For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure, but the AI editor can only judge each paragraph in the same way.
-We plan to reduce or remove this limitation in the future.
+For instance, the revision process does not use information in other places of the manuscript to revise the current paragraph.
+In addition, we provide section-specific prompts to revise text from different sections of the manuscript, such as the Abstract, Introduction, Results, etc.
+However, some paragraphs from the same section [need different revision strategies](https://doi.org/10.1371/journal.pcbi.1005619).
+For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure.
+The AI editor, however, can only judge each paragraph with the same section-specific prompt.
+We plan to reduce or remove these limitations in the future.
 
 ## Using in a Manubot manuscript
 
