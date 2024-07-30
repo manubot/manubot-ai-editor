@@ -48,6 +48,10 @@ In addition, we provide section-specific prompts to revise text from different s
 However, some paragraphs from the same section [need different revision strategies](https://doi.org/10.1371/journal.pcbi.1005619).
 For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure.
 The AI editor, however, can only judge each paragraph with the same section-specific prompt.
+
+Finally, in addition to revising the paragraph using an LLM, the AI Editor will also perform some postprocessing of the revised text such as using one line per sentence to simplify diffs.
+This might not work as expected in some cases.
+
 We plan to reduce or remove these limitations in the future.
 
 ## Using from the command line
