@@ -6,8 +6,8 @@ Check out the [manuscript about this tool](https://greenelab.github.io/manubot-g
 ## Supported Large Language Models (LLMs)
 
 We currently support OpenAI models only, and are working to add support for other models.
-[Our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that GPT 4 Turbo is in general the best model for revising academic manuscripts.
-We recommend using the latest OpenAI model available, which is currently `gpt-4o`.
+[Our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that `gpt-4-turbo` is in general the best model for revising academic manuscripts.
+Therefore, this is the default option.
 
 ## Using in a Manubot manuscript
 
