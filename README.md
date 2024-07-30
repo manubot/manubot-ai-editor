@@ -9,17 +9,6 @@ We currently support OpenAI models only, and are working to add support for othe
 [Our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that GPT 4 Turbo is in general the best model for revising academic manuscripts.
 We recommend using the latest OpenAI model available, which is currently `gpt-4o`.
 
-## Caveats
-
-In the current implementation, the AI editor can only process, independently, one paragraph at a time.
-This limits the contextual information the LLM receives and thus the specificity of what it can check and fix.
-For instance, the revision process does not use information in other places of the manuscript to revise the current paragraph.
-In addition, we provide section-specific prompts to revise text from different sections of the manuscript, such as the Abstract, Introduction, Results, etc.
-However, some paragraphs from the same section [need different revision strategies](https://doi.org/10.1371/journal.pcbi.1005619).
-For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure.
-The AI editor, however, can only judge each paragraph with the same section-specific prompt.
-We plan to reduce or remove these limitations in the future.
-
 ## Using in a Manubot manuscript
 
 Much of these instructions rely on the specific details of GitHub's website interface, which can change over time.
@@ -49,6 +38,17 @@ See [docs/custom-prompts.md](docs/custom-prompts.md) for more information.
    You should see several options you can specify, such as the branch to revise and the AI model to use.
    [See these docs for an explanation of each option](https://github.com/manubot/manubot?tab=readme-ov-file#ai-assisted-academic-authoring).
 1. Within a few minutes, the workflow should run, the editor should generate revisions, and a pull request should be created in your fork!
+
+## Caveats
+
+In the current implementation, the AI editor can only process, independently, one paragraph at a time.
+This limits the contextual information the LLM receives and thus the specificity of what it can check and fix.
+For instance, the revision process does not use information in other places of the manuscript to revise the current paragraph.
+In addition, we provide section-specific prompts to revise text from different sections of the manuscript, such as the Abstract, Introduction, Results, etc.
+However, some paragraphs from the same section [need different revision strategies](https://doi.org/10.1371/journal.pcbi.1005619).
+For example, in the Discussion section of a manuscript, the first paragraph should typically summarize the findings from the Results section, while the rest of the paragraphs should follow a different structure.
+The AI editor, however, can only judge each paragraph with the same section-specific prompt.
+We plan to reduce or remove these limitations in the future.
 
 ## Using from the command line
 
