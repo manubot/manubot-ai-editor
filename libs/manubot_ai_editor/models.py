@@ -502,7 +502,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return params
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str = None, resolved_prompt=None):
+    def revise_paragraph(
+        self, paragraph_text: str, section_name: str = None, resolved_prompt=None
+    ):
         """
         It revises a paragraph using GPT-3 completion model.
 
@@ -583,10 +585,10 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     """
 
     def __init__(self, *args, **kwargs):
-        if 'title' not in kwargs or kwargs['title'] is None:
-            kwargs['title'] = "Debugging Title"
-        if 'keywords' not in kwargs or kwargs['keywords'] is None:
-            kwargs['keywords'] = ["debugging", "keywords"]
+        if "title" not in kwargs or kwargs["title"] is None:
+            kwargs["title"] = "Debugging Title"
+        if "keywords" not in kwargs or kwargs["keywords"] is None:
+            kwargs["keywords"] = ["debugging", "keywords"]
 
         super().__init__(*args, **kwargs)
 
