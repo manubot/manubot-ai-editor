@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "manubot-ai-editor"
+version = "0.5.2"
+description = "A Manubot plugin to revise a manuscript using GPT-3"
+authors = ["Milton Pividori <miltondp@gmail.com>"]
+maintainers = [
+    "Milton Pividori",
+    "Faisal Alquaddoomi",
+    "Vincent Rubinetti"
+]
+license = "BSD-2-Clause-Patent"
+readme = "README.md"
+repository = "https://github.com/manubot/manubot-ai-editor"
+homepage = "https://github.com/manubot/manubot-ai-editor"
+classifiers= [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+packages = [{include = "manubot_ai_editor", from = "libs"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+openai = "0.28"
+pyyaml = "*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.setuptools_scm]
+root = "."
