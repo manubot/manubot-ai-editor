@@ -5,7 +5,7 @@ import random
 import time
 import json
 
-import openai
+from openai import OpenAI
 
 from manubot_ai_editor import env_vars
 
@@ -141,17 +141,21 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         super().__init__()
 
         # make sure the OpenAI API key is set
-        openai.api_key = openai_api_key
+        if openai_api_key is None:
+            # attempt to get the OpenAI API key from the environment, since one
+            # wasn't specified as an argument
+            openai_api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
 
-        if openai.api_key is None:
-            openai.api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
-
-            if openai.api_key is None or openai.api_key.strip() == "":
+            # if it's *still* not set, bail
+            if openai_api_key is None or openai_api_key.strip() == "":
                 raise ValueError(
                     f"OpenAI API key not found. Please provide it as parameter "
                     f"or set it as an the environment variable "
                     f"{env_vars.OPENAI_API_KEY}"
                 )
+
+        # construct the OpenAI client
+        self.client = OpenAI(api_key=openai_api_key)
 
         if env_vars.LANGUAGE_MODEL in os.environ:
             val = os.environ[env_vars.LANGUAGE_MODEL]
@@ -527,11 +531,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 )
 
                 if self.endpoint == "edits":
-                    completions = openai.Edit.create(**params)
+                    completions = self.client.edits.create(**params)
                 elif self.endpoint == "chat":
-                    completions = openai.ChatCompletion.create(**params)
+                    completions = self.client.chat.completions.create(**params)
                 else:
-                    completions = openai.Completion.create(**params)
+                    completions = self.client.completions.create(**params)
 
                 if self.endpoint == "chat":
                     message = completions.choices[0].message.content.strip()

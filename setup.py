@@ -26,7 +26,8 @@ setuptools.setup(
     python_requires=">=3.10",
     install_requires=[
         # "openai==0.28",
-        "langchain-openai==0.2.0",
+        "openai==1.48.0",
+        # "langchain-openai==0.2.0",
         "pyyaml",
     ],
     classifiers=[

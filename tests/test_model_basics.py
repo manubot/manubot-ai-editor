@@ -32,12 +32,12 @@ def test_model_object_init_without_openai_api_key():
 
 @mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
 def test_model_object_init_with_openai_api_key_as_environment_variable():
-    GPT3CompletionModel(
+    model = GPT3CompletionModel(
         title="Test title",
         keywords=["test", "keywords"],
     )
 
-    assert models.openai.api_key == "env_var_test_value"
+    assert model.client.api_key == "env_var_test_value"
 
 
 def test_model_object_init_with_openai_api_key_as_parameter():
@@ -46,30 +46,26 @@ def test_model_object_init_with_openai_api_key_as_parameter():
         if env_vars.OPENAI_API_KEY in os.environ:
             os.environ.pop(env_vars.OPENAI_API_KEY)
 
-        GPT3CompletionModel(
+        model = GPT3CompletionModel(
             title="Test title",
             keywords=["test", "keywords"],
             openai_api_key="test_value",
         )
 
-        from manubot_ai_editor import models
-
-        assert models.openai.api_key == "test_value"
+        assert model.client.api_key == "test_value"
     finally:
         os.environ = _environ
 
 
 @mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
 def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority():
-    GPT3CompletionModel(
+    model = GPT3CompletionModel(
         title="Test title",
         keywords=["test", "keywords"],
         openai_api_key="test_value",
     )
 
-    from manubot_ai_editor import models
-
-    assert models.openai.api_key == "test_value"
+    assert model.client.api_key == "test_value"
 
 
 def test_model_object_init_default_language_model():
