@@ -9,7 +9,6 @@ from unittest import mock
 import pytest
 
 from manubot_ai_editor.editor import ManuscriptEditor, env_vars
-from manubot_ai_editor import models
 from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisionModel
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
@@ -37,7 +36,7 @@ def test_model_object_init_with_openai_api_key_as_environment_variable():
         keywords=["test", "keywords"],
     )
 
-    assert model.client.api_key == "env_var_test_value"
+    assert model.client.openai_api_key.get_secret_value() == "env_var_test_value"
 
 
 def test_model_object_init_with_openai_api_key_as_parameter():
@@ -52,7 +51,7 @@ def test_model_object_init_with_openai_api_key_as_parameter():
             openai_api_key="test_value",
         )
 
-        assert model.client.api_key == "test_value"
+        assert model.client.openai_api_key.get_secret_value() == "test_value"
     finally:
         os.environ = _environ
 
@@ -65,7 +64,7 @@ def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority(
         openai_api_key="test_value",
     )
 
-    assert model.client.api_key == "test_value"
+    assert model.client.openai_api_key.get_secret_value() == "test_value"
 
 
 def test_model_object_init_default_language_model():

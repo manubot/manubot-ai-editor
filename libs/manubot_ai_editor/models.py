@@ -5,7 +5,8 @@ import random
 import time
 import json
 
-from openai import OpenAI
+from langchain_openai import OpenAI, ChatOpenAI
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
 
@@ -154,9 +155,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     f"{env_vars.OPENAI_API_KEY}"
                 )
 
-        # construct the OpenAI client
-        self.client = OpenAI(api_key=openai_api_key)
-
         if env_vars.LANGUAGE_MODEL in os.environ:
             val = os.environ[env_vars.LANGUAGE_MODEL]
             if val.strip() != "":
@@ -256,6 +254,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         }
 
         self.several_spaces_pattern = re.compile(r"\s+")
+
+        if self.endpoint == "edits":
+            # FIXME: what's the "edits" equivalent in langchain?
+            client_cls = OpenAI
+        elif self.endpoint == "chat":
+            client_cls = ChatOpenAI
+        else:
+            client_cls = OpenAI
+
+        # construct the OpenAI client after all the rest of
+        # the settings above have been processed
+        self.client = client_cls(
+            api_key=openai_api_key,
+            **self.model_parameters,
+        )
+
 
     def get_prompt(
         self, paragraph_text: str, section_name: str = None, resolved_prompt: str = None
@@ -530,17 +544,48 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     flush=True,
                 )
 
-                if self.endpoint == "edits":
-                    completions = self.client.edits.create(**params)
-                elif self.endpoint == "chat":
-                    completions = self.client.chat.completions.create(**params)
-                else:
-                    completions = self.client.completions.create(**params)
+                # FIXME: 'params' contains a lot of fields that we're not
+                #  currently passing to the langchain client. i need to figure
+                #  out where they're supposed to be given, e.g. in the client
+                #  init or with each request.
 
-                if self.endpoint == "chat":
-                    message = completions.choices[0].message.content.strip()
+                # map the prompt to langchain's prompt types, based on what
+                # kind of endpoint we're using
+                if "messages" in params:
+                    # map the messages to langchain's message types
+                    # based on the 'role' field
+                    prompts = [
+                        HumanMessage(content=msg["content"])
+                        if msg["role"] == "user" else
+                        SystemMessage(content=msg["content"])
+                        for msg in params["messages"]
+                    ]
+                elif "instruction" in params:
+                    # since we don't know how to use the edits endpoint, we'll just
+                    # concatenate the instruction and input and use the regular
+                    # completion endpoint
+                    # FIXME: there's probably a langchain equivalent for
+                    #  "edits", so we should change this to use that
+                    prompts = [
+                        HumanMessage(content=params["instruction"]),
+                        HumanMessage(content=params["input"]),
+                    ]
+                elif "prompt" in params:
+                    prompts = [HumanMessage(content=params["prompt"])]
+
+                response = self.client.invoke(prompts)
+
+                if isinstance(response, BaseMessage):
+                    message = response.content.strip()
                 else:
-                    message = completions.choices[0].text.strip()
+                    message = response.strip()
+
+                # FIXME: the prior code retrieved the first of the 'choices'
+                #  response from the openai client. now, we only get one
+                #  response from the langchain client, but i should check
+                #  if that's really how langchain works or if there is a way
+                #  to get multiple 'choices' back from the backend.
+
             except Exception as e:
                 error_message = str(e)
                 print(f"Error: {error_message}")
