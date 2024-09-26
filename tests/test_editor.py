@@ -610,9 +610,7 @@ def test_revise_methods_with_equation_that_was_alrady_revised(
         # GPT3CompletionModel(None, None),
     ],
 )
-def test_revise_methods_mutator_epistasis_paper(
-    tmp_path, model, filename
-):
+def test_revise_methods_mutator_epistasis_paper(tmp_path, model, filename):
     """
     This papers has several test cases:
      - it ends with multiple blank lines
@@ -635,7 +633,7 @@ def test_revise_methods_mutator_epistasis_paper(
     )
 
     assert (
-            r"""
+        r"""
 %%% PARAGRAPH START %%%
 Briefly, we identified private single-nucleotide mutations in each BXD that were absent from all other BXDs, as well as from the C57BL/6J and DBA/2J parents.
 We required each private variant to be meet the following criteria:
@@ -651,11 +649,11 @@ We required each private variant to be meet the following criteria:
 * must occur on a parental haplotype that was inherited by at least one other BXD at the same locus; these other BXDs must be homozygous for the reference allele at the variant site
 %%% PARAGRAPH END %%%
         """.strip()
-            in open(tmp_path / filename).read()
+        in open(tmp_path / filename).read()
     )
-    
+
     assert (
-            r"""
+        r"""
 ### Extracting mutation signatures 
 
 We used SigProfilerExtractor (v.1.1.21) [@PMID:30371878] to extract mutation signatures from the BXD mutation data.
@@ -678,11 +676,11 @@ sig.sigProfilerExtractor(
 
 ### Comparing mutation spectra between Mouse Genomes Project strains
         """.strip()
-            in open(tmp_path / filename).read()
+        in open(tmp_path / filename).read()
     )
-    
+
     assert (
-            r"""
+        r"""
 %%% PARAGRAPH START %%%
 We investigated the region implicated by our aggregate mutation spectrum distance approach on chromosome 6 by subsetting the joint-genotyped BXD VCF file (European Nucleotide Archive accession PRJEB45429 [@url:https://www.ebi.ac.uk/ena/browser/view/PRJEB45429]) using `bcftools` [@PMID:33590861].
 We defined the candidate interval surrounding the cosine distance peak on chromosome 6 as the 90% bootstrap confidence interval (extending from approximately 95 Mbp to 114 Mbp).
@@ -693,7 +691,7 @@ To predict the functional impacts of both single-nucleotide variants and indels 
  java -Xmx16g -jar /path/to/snpeff/jarfile GRCm38.75 /path/to/bxd/vcf > /path/to/uncompressed/output/vcf
 ```
         """.strip()
-            in open(tmp_path / filename).read()
+        in open(tmp_path / filename).read()
     )
 
 

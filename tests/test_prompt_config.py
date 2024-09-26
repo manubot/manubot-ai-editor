@@ -5,7 +5,7 @@ from manubot_ai_editor.editor import ManuscriptEditor
 from manubot_ai_editor.models import (
     GPT3CompletionModel,
     RandomManuscriptRevisionModel,
-    DebuggingManuscriptRevisionModel
+    DebuggingManuscriptRevisionModel,
 )
 from manubot_ai_editor.prompt_config import IGNORE_FILE
 import pytest
@@ -13,7 +13,9 @@ import pytest
 from utils.dir_union import mock_unify_open
 
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts" / "phenoplier_full" / "content"
-MANUSCRIPTS_CONFIG_DIR = Path(__file__).parent / "manuscripts" / "phenoplier_full" / "ci"
+MANUSCRIPTS_CONFIG_DIR = (
+    Path(__file__).parent / "manuscripts" / "phenoplier_full" / "ci"
+)
 
 
 # check that this path exists and resolve it
@@ -42,7 +44,9 @@ PHENOPLIER_PROMPTS_DIR = (
 
 
 # check that we can resolve a file to a prompt, and that it's the correct prompt
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR)
+)
 def test_resolve_prompt():
     content_dir = MANUSCRIPTS_DIR.resolve(strict=True)
     config_dir = MANUSCRIPTS_CONFIG_DIR.resolve(strict=True)
@@ -100,7 +104,9 @@ def test_resolve_prompt():
 
 # test that we get the default prompt with a None match object for a
 # file we don't recognize
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR)
+)
 def test_resolve_default_prompt_unknown_file():
     content_dir = MANUSCRIPTS_DIR.resolve(strict=True)
     config_dir = MANUSCRIPTS_CONFIG_DIR.resolve(strict=True)
@@ -114,7 +120,9 @@ def test_resolve_default_prompt_unknown_file():
 
 # check that a file we don't recognize gets match==None and the 'default' prompt
 # from the ai-revision-config.yaml file
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PHENOPLIER_PROMPTS_DIR)
+)
 def test_unresolved_gets_default_prompt():
     content_dir = MANUSCRIPTS_DIR.resolve(strict=True)
     config_dir = MANUSCRIPTS_CONFIG_DIR.resolve(strict=True)
@@ -150,7 +158,9 @@ SINGLE_GENERIC_PROMPT_DIR = (
 # - Both ai-revision-config.yaml and ai-revision-prompts.yaml specify filename matchings
 #   (conflicting_promptsfiles_matchings)
 CONFLICTING_PROMPTSFILES_MATCHINGS_DIR = (
-    Path(__file__).parent / "config_loader_fixtures" / "conflicting_promptsfiles_matchings"
+    Path(__file__).parent
+    / "config_loader_fixtures"
+    / "conflicting_promptsfiles_matchings"
 )
 # ---
 # test ManuscriptEditor.prompt_config sub-attributes are set correctly
@@ -178,7 +188,9 @@ def test_no_config_unloaded():
     assert editor.prompt_config.config is None
 
 
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, ONLY_REV_PROMPTS_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, ONLY_REV_PROMPTS_DIR)
+)
 def test_only_rev_prompts_loaded():
     editor = get_editor()
 
@@ -188,7 +200,9 @@ def test_only_rev_prompts_loaded():
     assert editor.prompt_config.config is None
 
 
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR)
+)
 def test_both_prompts_loaded():
     editor = get_editor()
 
@@ -211,7 +225,8 @@ def test_single_generic_loaded():
 
 
 @mock.patch(
-    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, CONFLICTING_PROMPTSFILES_MATCHINGS_DIR)
+    "builtins.open",
+    mock_unify_open(MANUSCRIPTS_CONFIG_DIR, CONFLICTING_PROMPTSFILES_MATCHINGS_DIR),
 )
 def test_conflicting_sources_warning(capfd):
     """
@@ -234,7 +249,7 @@ def test_conflicting_sources_warning(capfd):
     # for this test, we define both prompts_files and files.matchings which
     # creates a conflict that produces the warning we're looking for
     assert editor.prompt_config.prompts_files is not None
-    assert editor.prompt_config.config['files']['matchings'] is not None
+    assert editor.prompt_config.config["files"]["matchings"] is not None
 
     expected_warning = (
         "WARNING: Both 'ai-revision-config.yaml' and "
@@ -262,11 +277,13 @@ def test_conflicting_sources_warning(capfd):
         RandomManuscriptRevisionModel(),
         DebuggingManuscriptRevisionModel(
             title="Test title", keywords=["test", "keywords"]
-        )
+        ),
         # GPT3CompletionModel(None, None),
     ],
 )
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR)
+)
 def test_revise_entire_manuscript(tmp_path, model):
     print(f"\n{str(tmp_path)}\n")
     me = get_editor()
@@ -284,7 +301,9 @@ def test_revise_entire_manuscript(tmp_path, model):
     assert len(output_md_files) == 9
 
 
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR))
+@mock.patch(
+    "builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, BOTH_PROMPTS_CONFIG_DIR)
+)
 def test_revise_entire_manuscript_includes_title_keywords(tmp_path):
     from os.path import basename
 
@@ -317,8 +336,12 @@ def test_revise_entire_manuscript_includes_title_keywords(tmp_path):
 
         with open(output_md_file, "r") as f:
             content = f.read()
-            assert me.title in content, f"not found in filename: {basename(output_md_file)}"
-            assert ", ".join(me.keywords) in content, f"not found in filename: {basename(output_md_file)}"
+            assert (
+                me.title in content
+            ), f"not found in filename: {basename(output_md_file)}"
+            assert (
+                ", ".join(me.keywords) in content
+            ), f"not found in filename: {basename(output_md_file)}"
 
 
 # ==============================================================================
@@ -329,7 +352,11 @@ PROMPT_PROPOGATION_CONFIG_DIR = (
     Path(__file__).parent / "config_loader_fixtures" / "prompt_propogation"
 )
 
-@mock.patch("builtins.open", mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
+
+@mock.patch(
+    "builtins.open",
+    mock_unify_open(MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR),
+)
 def test_prompts_in_final_result(tmp_path):
     """
     Tests that the prompts are making it into the final resulting .md files.
@@ -348,9 +375,7 @@ def test_prompts_in_final_result(tmp_path):
     """
     me = get_editor()
 
-    model = DebuggingManuscriptRevisionModel(
-        title=me.title, keywords=me.keywords
-    )
+    model = DebuggingManuscriptRevisionModel(title=me.title, keywords=me.keywords)
 
     output_folder = tmp_path
     assert output_folder.exists()
@@ -361,7 +386,8 @@ def test_prompts_in_final_result(tmp_path):
     files_to_prompts = {
         "00.front-matter.md": "This is the front-matter prompt.",
         "01.abstract.md": "This is the abstract prompt",
-        "02.introduction.md": "This is the introduction prompt for the paper titled '%s'." % me.title,
+        "02.introduction.md": "This is the introduction prompt for the paper titled '%s'."
+        % me.title,
         # "04.00.results.md": "This is the results prompt",
         "04.05.00.results_framework.md": "This is the results_framework prompt",
         "04.05.01.crispr.md": "This is the crispr prompt",
@@ -389,15 +415,26 @@ def test_prompts_in_final_result(tmp_path):
 
 # to save on time/cost, we use a version of the phenoplier manuscript that only
 # contains the first paragraph of each section
-BRIEF_MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts" / "phenoplier_full_only_first_para" / "content"
-BRIEF_MANUSCRIPTS_CONFIG_DIR = Path(__file__).parent / "manuscripts" / "phenoplier_full_only_first_para" / "ci"
+BRIEF_MANUSCRIPTS_DIR = (
+    Path(__file__).parent
+    / "manuscripts"
+    / "phenoplier_full_only_first_para"
+    / "content"
+)
+BRIEF_MANUSCRIPTS_CONFIG_DIR = (
+    Path(__file__).parent / "manuscripts" / "phenoplier_full_only_first_para" / "ci"
+)
 
 PROMPT_PROPOGATION_CONFIG_DIR = (
     Path(__file__).parent / "config_loader_fixtures" / "prompt_gpt3_e2e"
 )
 
+
 @pytest.mark.cost
-@mock.patch("builtins.open", mock_unify_open(BRIEF_MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR))
+@mock.patch(
+    "builtins.open",
+    mock_unify_open(BRIEF_MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR),
+)
 def test_prompts_apply_gpt3(tmp_path):
     """
     Tests that the custom prompts are applied when actually applying
@@ -408,15 +445,14 @@ def test_prompts_apply_gpt3(tmp_path):
     this test is marked 'cost' and requires the --runcost argument to be run,
     e.g. to run just this test: `pytest --runcost -k test_prompts_apply_gpt3`.
 
-    As with test_prompts_in_final_result above, files that have no input and 
+    As with test_prompts_in_final_result above, files that have no input and
     thus no applied prompt are ignored.
     """
-    me = get_editor(content_dir=BRIEF_MANUSCRIPTS_DIR, config_dir=BRIEF_MANUSCRIPTS_CONFIG_DIR)
-
-    model = GPT3CompletionModel(
-        title=me.title,
-        keywords=me.keywords
+    me = get_editor(
+        content_dir=BRIEF_MANUSCRIPTS_DIR, config_dir=BRIEF_MANUSCRIPTS_CONFIG_DIR
     )
+
+    model = GPT3CompletionModel(title=me.title, keywords=me.keywords)
 
     output_folder = tmp_path
     assert output_folder.exists()
