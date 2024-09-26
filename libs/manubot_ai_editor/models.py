@@ -544,17 +544,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     flush=True,
                 )
 
-                # FIXME: 'params' contains a lot of fields that we're not
-                #  currently passing to the langchain client. i need to figure
-                #  out where they're supposed to be given, e.g. in the client
-                #  init or with each request.
-
                 # map the prompt to langchain's prompt types, based on what
                 # kind of endpoint we're using
                 if "messages" in params:
                     # map the messages to langchain's message types
                     # based on the 'role' field
-                    prompts = [
+                    prompt = [
                         HumanMessage(content=msg["content"])
                         if msg["role"] == "user" else
                         SystemMessage(content=msg["content"])
@@ -566,14 +561,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     # completion endpoint
                     # FIXME: there's probably a langchain equivalent for
                     #  "edits", so we should change this to use that
-                    prompts = [
+                    prompt = [
                         HumanMessage(content=params["instruction"]),
                         HumanMessage(content=params["input"]),
                     ]
                 elif "prompt" in params:
-                    prompts = [HumanMessage(content=params["prompt"])]
+                    prompt = [HumanMessage(content=params["prompt"])]
 
-                response = self.client.invoke(prompts)
+                response = self.client.invoke(
+                    input=prompt,
+                    max_tokens=params.get("max_tokens"),
+                    stop=params.get("stop"),
+                )
 
                 if isinstance(response, BaseMessage):
                     message = response.content.strip()
