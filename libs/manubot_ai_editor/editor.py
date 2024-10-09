@@ -2,6 +2,8 @@ import json
 import os
 from pathlib import Path
 
+import chardet
+
 from manubot_ai_editor import env_vars
 from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
@@ -280,7 +282,13 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         if section_name is None:
             section_name = self.get_section_from_filename(input_filename)
 
-        with open(input_filepath, "r") as infile, open(output_filepath, "w") as outfile:
+        # detect the input file encoding using chardet
+        # maintain that encoding when reading and writing files
+        src_encoding = chardet.detect(input_filepath.read_bytes())["encoding"]
+
+        print("Detected encoding:", src_encoding, flush=True)
+
+        with open(input_filepath, "r", encoding=src_encoding) as infile, open(output_filepath, "w", encoding=src_encoding) as outfile:
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
 
