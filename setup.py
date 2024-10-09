@@ -27,6 +27,7 @@ setuptools.setup(
     install_requires=[
         "openai==0.28",
         "pyyaml",
+        "chardet==5.2.0",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
