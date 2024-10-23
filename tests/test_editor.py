@@ -1195,3 +1195,38 @@ def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_promp
 
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 0
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        RandomManuscriptRevisionModel(),
+        # GPT3CompletionModel(None, None),
+    ],
+)
+def test_revise_gbk_encoded_manuscript(tmp_path, model):
+    """
+    Tests that the editor can revise a manuscript that contains GBK-encoded
+    characters, and can detect those characters encoded in UTF-8 in the output.
+    """
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "gbk_encoded",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    output_folder = tmp_path
+    assert output_folder.exists()
+
+    me.revise_manuscript(output_folder, model)
+
+    output_md_files = list(output_folder.glob("*.md"))
+    assert len(output_md_files) == 1
+
+    # try to find the GBK-encoded text in the resulting file
+    with open(output_md_files[0], "r", encoding="gbk") as f:
+        text = f.read()
+        print(text)
+        assert "你好，世界" in text
