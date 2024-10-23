@@ -270,7 +270,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             **self.model_parameters,
         )
 
-
     def get_prompt(
         self, paragraph_text: str, section_name: str = None, resolved_prompt: str = None
     ) -> str | tuple[str, str]:
@@ -520,7 +519,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return params
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str = None, resolved_prompt=None):
+    def revise_paragraph(
+        self, paragraph_text: str, section_name: str = None, resolved_prompt=None
+    ):
         """
         It revises a paragraph using GPT-3 completion model.
 
@@ -550,9 +551,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     # map the messages to langchain's message types
                     # based on the 'role' field
                     prompt = [
-                        HumanMessage(content=msg["content"])
-                        if msg["role"] == "user" else
-                        SystemMessage(content=msg["content"])
+                        (
+                            HumanMessage(content=msg["content"])
+                            if msg["role"] == "user"
+                            else SystemMessage(content=msg["content"])
+                        )
                         for msg in params["messages"]
                     ]
                 elif "instruction" in params:
@@ -631,10 +634,10 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     """
 
     def __init__(self, *args, **kwargs):
-        if 'title' not in kwargs or kwargs['title'] is None:
-            kwargs['title'] = "Debugging Title"
-        if 'keywords' not in kwargs or kwargs['keywords'] is None:
-            kwargs['keywords'] = ["debugging", "keywords"]
+        if "title" not in kwargs or kwargs["title"] is None:
+            kwargs["title"] = "Debugging Title"
+        if "keywords" not in kwargs or kwargs["keywords"] is None:
+            kwargs["keywords"] = ["debugging", "keywords"]
 
         super().__init__(*args, **kwargs)
 
