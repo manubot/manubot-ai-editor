@@ -5,7 +5,8 @@ import random
 import time
 import json
 
-import openai
+from langchain_openai import OpenAI, ChatOpenAI
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
 
@@ -141,12 +142,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         super().__init__()
 
         # make sure the OpenAI API key is set
-        openai.api_key = openai_api_key
+        if openai_api_key is None:
+            # attempt to get the OpenAI API key from the environment, since one
+            # wasn't specified as an argument
+            openai_api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
 
-        if openai.api_key is None:
-            openai.api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
-
-            if openai.api_key is None or openai.api_key.strip() == "":
+            # if it's *still* not set, bail
+            if openai_api_key is None or openai_api_key.strip() == "":
                 raise ValueError(
                     f"OpenAI API key not found. Please provide it as parameter "
                     f"or set it as an the environment variable "
@@ -252,6 +254,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         }
 
         self.several_spaces_pattern = re.compile(r"\s+")
+
+        if self.endpoint == "edits":
+            # FIXME: what's the "edits" equivalent in langchain?
+            client_cls = OpenAI
+        elif self.endpoint == "chat":
+            client_cls = ChatOpenAI
+        else:
+            client_cls = OpenAI
+
+        # construct the OpenAI client after all the rest of
+        # the settings above have been processed
+        self.client = client_cls(
+            api_key=openai_api_key,
+            **self.model_parameters,
+        )
+
 
     def get_prompt(
         self, paragraph_text: str, section_name: str = None, resolved_prompt: str = None
@@ -526,17 +544,47 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     flush=True,
                 )
 
-                if self.endpoint == "edits":
-                    completions = openai.Edit.create(**params)
-                elif self.endpoint == "chat":
-                    completions = openai.ChatCompletion.create(**params)
-                else:
-                    completions = openai.Completion.create(**params)
+                # map the prompt to langchain's prompt types, based on what
+                # kind of endpoint we're using
+                if "messages" in params:
+                    # map the messages to langchain's message types
+                    # based on the 'role' field
+                    prompt = [
+                        HumanMessage(content=msg["content"])
+                        if msg["role"] == "user" else
+                        SystemMessage(content=msg["content"])
+                        for msg in params["messages"]
+                    ]
+                elif "instruction" in params:
+                    # since we don't know how to use the edits endpoint, we'll just
+                    # concatenate the instruction and input and use the regular
+                    # completion endpoint
+                    # FIXME: there's probably a langchain equivalent for
+                    #  "edits", so we should change this to use that
+                    prompt = [
+                        HumanMessage(content=params["instruction"]),
+                        HumanMessage(content=params["input"]),
+                    ]
+                elif "prompt" in params:
+                    prompt = [HumanMessage(content=params["prompt"])]
 
-                if self.endpoint == "chat":
-                    message = completions.choices[0].message.content.strip()
+                response = self.client.invoke(
+                    input=prompt,
+                    max_tokens=params.get("max_tokens"),
+                    stop=params.get("stop"),
+                )
+
+                if isinstance(response, BaseMessage):
+                    message = response.content.strip()
                 else:
-                    message = completions.choices[0].text.strip()
+                    message = response.strip()
+
+                # FIXME: the prior code retrieved the first of the 'choices'
+                #  response from the openai client. now, we only get one
+                #  response from the langchain client, but i should check
+                #  if that's really how langchain works or if there is a way
+                #  to get multiple 'choices' back from the backend.
+
             except Exception as e:
                 error_message = str(e)
                 print(f"Error: {error_message}")
