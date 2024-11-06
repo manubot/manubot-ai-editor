@@ -2,7 +2,7 @@ default_language_version:
   python: python3.10
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       # Check for files that contain merge conflict strings.
       - id: check-merge-conflict
@@ -17,13 +17,13 @@ repos:
       # This hook checks yaml files for parseable syntax.
       - id: check-yaml
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.6.7
+    rev: v0.7.2
     hooks:
       - id: ruff
         args:
         - --fix
   - repo: https://github.com/python/black
-    rev: 24.8.0
+    rev: 24.10.0
     hooks:
       - id: black
         language_version: python3
