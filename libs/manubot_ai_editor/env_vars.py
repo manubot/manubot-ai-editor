@@ -70,3 +70,16 @@ FILENAMES_TO_REVISE = "AI_EDITOR_FILENAMES_TO_REVISE"
 # The complete list of placeholders is: {paragraph_text}, {section_name},
 # {title}, {keywords}.
 CUSTOM_PROMPT = "AI_EDITOR_CUSTOM_PROMPT"
+
+# Specifies the source and destination encodings of input and output markdown
+# files. Behavior is as follows:
+# - If neither SRC_ENCODING nor DEST_ENCODING are specified, the tool will
+#   attempt to identify the encoding using the charset_normalizer library and
+#   use that encoding to both read and write the output files.
+# - If only SRC_ENCODING is specified, it will be used to both read and write
+#   the files.
+# - If only DEST_ENCODING is specified, it will be used to write the output
+#   files, and the input files will be read using the encoding identified by
+#   charset_normalizer.
+SRC_ENCODING = "AI_EDITOR_SRC_ENCODING"
+DEST_ENCODING = "AI_EDITOR_DEST_ENCODING"
