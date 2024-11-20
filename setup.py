@@ -15,7 +15,7 @@ setuptools.setup(
     author="Milton Pividori",
     author_email="miltondp@gmail.com",
     description="A Manubot plugin to revise a manuscript using GPT-3",
-    license="BSD-2-Clause Plus Patent",
+    license="BSD-3-Clause",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/manubot/manubot-ai-editor",
