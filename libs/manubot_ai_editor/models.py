@@ -223,16 +223,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords if keywords is not None else []
 
-        # adjust options if edits or chat endpoint was selected
+        # adjust options if chat endpoint was selected
         self.endpoint = "chat"
 
         if model_engine.startswith(
             ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
         ):
             self.endpoint = "completions"
-
-            if "-edit-" in model_engine:
-                self.endpoint = "edits"
 
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
@@ -255,10 +252,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-        if self.endpoint == "edits":
-            # FIXME: what's the "edits" equivalent in langchain?
-            client_cls = OpenAI
-        elif self.endpoint == "chat":
+        if self.endpoint == "chat":
             client_cls = ChatOpenAI
         else:
             client_cls = OpenAI
@@ -285,13 +279,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             resolved_prompt: prompt resolved via ai-revision config, if available
 
         Returns:
-            If self.endpoint != "edits", then returns a string with the prompt to be used by the model for the revision of the paragraph.
+            A string with the prompt to be used by the model for the revision of the paragraph.
             It contains two paragraphs of text: the command for the model
             ("Revise...") and the paragraph to revise.
-
-            If self.endpoint == "edits", then returns a tuple with two strings:
-             1) the instructions to be used by the model for the revision of the paragraph,
-             2) the paragraph to revise.
         """
 
         # prompts are resolved in the following order, with the first satisfied
@@ -327,8 +317,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
 
-            # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
-            #  a simple workaround is to remove {paragraph_text} from the prompt
             prompt = custom_prompt.format(**placeholders)
         elif resolved_prompt:
             # use the resolved prompt from the ai-revision config files, if available
@@ -401,14 +389,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if custom_prompt is None:
             prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        if self.endpoint != "edits":
-            if custom_prompt is not None and "{paragraph_text}" in custom_prompt:
-                return prompt
+        if custom_prompt is not None and "{paragraph_text}" in custom_prompt:
+            return prompt
 
-            return f"{prompt}.\n\n{paragraph_text.strip()}"
-        else:
-            prompt = prompt.replace("the following paragraph", "this paragraph")
-            return f"{prompt}.", paragraph_text.strip()
+        return f"{prompt}.\n\n{paragraph_text.strip()}"
 
     def get_max_tokens(self, paragraph_text: str, fraction: float = 2.0) -> int:
         """
@@ -489,14 +473,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             "n": 1,
         }
 
-        if self.endpoint == "edits":
-            params.update(
-                {
-                    "instruction": prompt[0],
-                    "input": prompt[1],
-                }
-            )
-        elif self.endpoint == "chat":
+        if self.endpoint == "chat":
             params.update(
                 {
                     "messages": [
@@ -557,16 +534,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                             else SystemMessage(content=msg["content"])
                         )
                         for msg in params["messages"]
-                    ]
-                elif "instruction" in params:
-                    # since we don't know how to use the edits endpoint, we'll just
-                    # concatenate the instruction and input and use the regular
-                    # completion endpoint
-                    # FIXME: there's probably a langchain equivalent for
-                    #  "edits", so we should change this to use that
-                    prompt = [
-                        HumanMessage(content=params["instruction"]),
-                        HumanMessage(content=params["input"]),
                     ]
                 elif "prompt" in params:
                     prompt = [HumanMessage(content=params["prompt"])]
