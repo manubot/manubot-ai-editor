@@ -466,6 +466,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         }
 
     def get_params(self, paragraph_text, section_name, resolved_prompt=None):
+        """
+        Given the paragraph text and section name, produces parameters that are
+        used when invoking an LLM via an API.
+
+        The specific parameters vary depending on the endpoint being used, which
+        is determined by the model that was chosen when GPT3CompletionModel was
+        instantiated.
+
+        Args:
+            paragraph_text: The text of the paragraph to be revised.
+            section_name: The name of the section the paragraph belongs to.
+            resolved_prompt: The prompt resolved via ai-revision config files, if available.
+
+        Returns:
+            A dictionary of parameters to be used when invoking an LLM API.
+        """
         max_tokens = self.get_max_tokens(paragraph_text)
         prompt = self.get_prompt(paragraph_text, section_name, resolved_prompt)
 
@@ -504,13 +520,15 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         Arguments:
             paragraph_text (str): Paragraph text to revise.
-            section_name (str): Section name of the paragraph.
-            throw_error (bool): If True, it throws an error if the API call fails.
-                If False, it returns the original paragraph text.
+            section_name (str): Section name of the paragrap
+            resolved_prompt (str): Prompt resolved via ai-revision config files, if available.
 
         Returns:
             Revised paragraph text.
         """
+
+        # based on the paragraph text to revise and the section to which it
+        # belongs, constructs parameters that we'll use to query the LLM's API
         params = self.get_params(paragraph_text, section_name, resolved_prompt)
 
         retry_count = 0
