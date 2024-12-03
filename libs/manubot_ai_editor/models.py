@@ -567,12 +567,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 else:
                     message = response.strip()
 
-                # FIXME: the prior code retrieved the first of the 'choices'
-                #  response from the openai client. now, we only get one
-                #  response from the langchain client, but i should check
-                #  if that's really how langchain works or if there is a way
-                #  to get multiple 'choices' back from the backend.
-
             except Exception as e:
                 error_message = str(e)
                 print(f"Error: {error_message}")
