@@ -70,7 +70,8 @@ export OPENAI_API_KEY=ABCD1234
 
 You can also provide other environment variables that will change the behavior of the editor (such as revising certain files only).
 For example, to specify the temperature parameter of OpenAI models, you can set the variable `export AI_EDITOR_TEMPERATURE=0.50`.
-[See the complete list of supported variables](https://github.com/manubot/manubot-ai-editor/blob/main/libs/manubot_ai_editor/env_vars.py) documents.
+See [the complete list of supported variables](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md) for
+more information.
 
 Then, from the root directory of your Manubot manuscript, run the following:
 
@@ -96,6 +97,12 @@ manubot ai-revision \
 When it finishes, check out your manuscript files.
 This will allow you to detect whether the editor is identifying paragraphs correctly.
 If you find a problem, please [report the issue](https://github.com/manubot/manubot-ai-editor/issues).
+
+Manubot AI Editor will make a best effort to guess and preserve the encoding of your input files when creating revised files. If
+you prefer to have your files interpreted or written using a different encoding, you can specify it with the `AI_EDITOR_SRC_ENCODING` and `AI_EDITOR_DST_ENCODING`
+environment variables. See
+[these variables' help docs](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md#encodings)
+for more information.
 
 ## Using the Python API
 

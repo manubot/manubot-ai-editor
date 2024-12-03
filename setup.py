@@ -28,6 +28,7 @@ setuptools.setup(
         "langchain-core~=0.3.6",
         "langchain-openai~=0.2.0",
         "pyyaml",
+        "charset_normalizer==3.4.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
