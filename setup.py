@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="manubot-ai-editor",
-    version="0.5.2",
+    version="0.5.3",
     author="Milton Pividori",
     author_email="miltondp@gmail.com",
     description="A Manubot plugin to revise a manuscript using GPT-3",
@@ -25,7 +25,8 @@ setuptools.setup(
     ],
     python_requires=">=3.10",
     install_requires=[
-        "openai==0.28",
+        "langchain-core~=0.3.6",
+        "langchain-openai~=0.2.0",
         "pyyaml",
     ],
     classifiers=[
