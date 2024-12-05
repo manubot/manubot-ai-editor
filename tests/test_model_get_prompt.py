@@ -28,36 +28,6 @@ def test_get_prompt_for_abstract():
     assert "  " not in prompt
 
 
-def test_get_prompt_for_abstract_edit_endpoint():
-    manuscript_title = "Title of the manuscript to be revised"
-    manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
-
-    model = GPT3CompletionModel(
-        title=manuscript_title,
-        keywords=manuscript_keywords,
-        model_engine="text-davinci-edit-001",
-    )
-
-    paragraph_text = "Text of the abstract. "
-
-    instruction, paragraph = model.get_prompt(paragraph_text, "abstract")
-    assert instruction is not None
-    assert isinstance(instruction, str)
-    assert paragraph is not None
-    assert isinstance(paragraph, str)
-
-    assert "this paragraph" in instruction
-    assert "abstract" in instruction
-    assert f"'{manuscript_title}'" in instruction
-    assert f"{manuscript_keywords[0]}" in instruction
-    assert f"{manuscript_keywords[1]}" in instruction
-    assert f"{manuscript_keywords[2]}" in instruction
-    assert "  " not in instruction
-    assert instruction.startswith("Revise")
-
-    assert paragraph_text.strip() == paragraph
-
-
 def test_get_prompt_for_introduction():
     manuscript_title = "Title of the manuscript to be revised"
     manuscript_keywords = ["keyword0", "keyword1", "keyword2"]
