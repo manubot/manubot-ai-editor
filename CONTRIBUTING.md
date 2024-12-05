@@ -12,7 +12,7 @@ This project is governed by our [code of conduct](CODE_OF_CONDUCT.md). By partic
 
 ## Development
 
-This project leverages development environments managed by a Python [`setup.py` file.](https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py)
+This project leverages development environments managed by a Python [Poetry `pyproject.toml` file](https://python-poetry.org/docs/).
 We use [pytest](https://docs.pytest.org/) for testing and [GitHub Actions](https://docs.github.com/en/actions) for automated tests.
 [`pre-commit`](https://pre-commit.com/) is used to help lint or format code.
 A [Conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is provided (via the file `environment.yml`) for convenience but is not required for development purposes.
@@ -22,8 +22,8 @@ A [Conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks
 Perform the following steps to setup a Python development environment.
 
 1. [Install Python](https://www.python.org/downloads/) (we recommend using [`pyenv`](https://github.com/pyenv/pyenv) or similar)
-1. Install package, e.g. `pip install .` (from the root directory, referencing the `setup.py`)
-1. Install pytest: `pip install pytest`
+1. [Install Poetry](https://python-poetry.org/docs/#installation).
+1. Install package, e.g. `poetry install`
 
 ### Linting
 
@@ -45,10 +45,20 @@ Work added to this project is automatically tested using [pytest](https://docs.p
 Pytest is installed through the Poetry environment for this project.
 We recommend testing your work before opening pull requests with proposed changes.
 
+Some tests require a special environment key to be set: `OPENAI_API_KEY`.
+This key is an openai.com API key tied to an account.
+See here to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
+Any key may be used if you want to perform tests without an openai.com account or key (tests which require it will then be skipped).
+You can set this key as follows:
+
+```bash
+export OPENAI_API_KEY=ABCD1234
+```
+
 You can run pytest on your work using the following example:
 
 ```sh
-% python -m pytest
+% poetry run pytest
 ```
 
 ## Making changes to this repository
