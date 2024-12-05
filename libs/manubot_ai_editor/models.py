@@ -5,7 +5,8 @@ import random
 import time
 import json
 
-import openai
+from langchain_openai import OpenAI, ChatOpenAI
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
 
@@ -141,12 +142,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         super().__init__()
 
         # make sure the OpenAI API key is set
-        openai.api_key = openai_api_key
+        if openai_api_key is None:
+            # attempt to get the OpenAI API key from the environment, since one
+            # wasn't specified as an argument
+            openai_api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
 
-        if openai.api_key is None:
-            openai.api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
-
-            if openai.api_key is None or openai.api_key.strip() == "":
+            # if it's *still* not set, bail
+            if openai_api_key is None or openai_api_key.strip() == "":
                 raise ValueError(
                     f"OpenAI API key not found. Please provide it as parameter "
                     f"or set it as an the environment variable "
@@ -221,16 +223,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords if keywords is not None else []
 
-        # adjust options if edits or chat endpoint was selected
+        # adjust options if chat endpoint was selected
         self.endpoint = "chat"
 
         if model_engine.startswith(
             ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
         ):
             self.endpoint = "completions"
-
-            if "-edit-" in model_engine:
-                self.endpoint = "edits"
 
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
@@ -253,6 +252,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
+        if self.endpoint == "chat":
+            client_cls = ChatOpenAI
+        else:
+            client_cls = OpenAI
+
+        # construct the OpenAI client after all the rest of
+        # the settings above have been processed
+        self.client = client_cls(
+            api_key=openai_api_key,
+            **self.model_parameters,
+        )
+
     def get_prompt(
         self, paragraph_text: str, section_name: str = None, resolved_prompt: str = None
     ) -> str | tuple[str, str]:
@@ -268,13 +279,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             resolved_prompt: prompt resolved via ai-revision config, if available
 
         Returns:
-            If self.endpoint != "edits", then returns a string with the prompt to be used by the model for the revision of the paragraph.
+            A string with the prompt to be used by the model for the revision of the paragraph.
             It contains two paragraphs of text: the command for the model
             ("Revise...") and the paragraph to revise.
-
-            If self.endpoint == "edits", then returns a tuple with two strings:
-             1) the instructions to be used by the model for the revision of the paragraph,
-             2) the paragraph to revise.
         """
 
         # prompts are resolved in the following order, with the first satisfied
@@ -310,8 +317,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 f"Using custom prompt from environment variable '{env_vars.CUSTOM_PROMPT}'"
             )
 
-            # FIXME: if {paragraph_text} is in the prompt, this won't work for the edits endpoint
-            #  a simple workaround is to remove {paragraph_text} from the prompt
             prompt = custom_prompt.format(**placeholders)
         elif resolved_prompt:
             # use the resolved prompt from the ai-revision config files, if available
@@ -384,14 +389,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if custom_prompt is None:
             prompt = self.several_spaces_pattern.sub(" ", prompt).strip()
 
-        if self.endpoint != "edits":
-            if custom_prompt is not None and "{paragraph_text}" in custom_prompt:
-                return prompt
+        if custom_prompt is not None and "{paragraph_text}" in custom_prompt:
+            return prompt
 
-            return f"{prompt}.\n\n{paragraph_text.strip()}"
-        else:
-            prompt = prompt.replace("the following paragraph", "this paragraph")
-            return f"{prompt}.", paragraph_text.strip()
+        return f"{prompt}.\n\n{paragraph_text.strip()}"
 
     def get_max_tokens(self, paragraph_text: str, fraction: float = 2.0) -> int:
         """
@@ -465,6 +466,22 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         }
 
     def get_params(self, paragraph_text, section_name, resolved_prompt=None):
+        """
+        Given the paragraph text and section name, produces parameters that are
+        used when invoking an LLM via an API.
+
+        The specific parameters vary depending on the endpoint being used, which
+        is determined by the model that was chosen when GPT3CompletionModel was
+        instantiated.
+
+        Args:
+            paragraph_text: The text of the paragraph to be revised.
+            section_name: The name of the section the paragraph belongs to.
+            resolved_prompt: The prompt resolved via ai-revision config files, if available.
+
+        Returns:
+            A dictionary of parameters to be used when invoking an LLM API.
+        """
         max_tokens = self.get_max_tokens(paragraph_text)
         prompt = self.get_prompt(paragraph_text, section_name, resolved_prompt)
 
@@ -472,14 +489,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             "n": 1,
         }
 
-        if self.endpoint == "edits":
-            params.update(
-                {
-                    "instruction": prompt[0],
-                    "input": prompt[1],
-                }
-            )
-        elif self.endpoint == "chat":
+        if self.endpoint == "chat":
             params.update(
                 {
                     "messages": [
@@ -502,19 +512,23 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         return params
 
-    def revise_paragraph(self, paragraph_text: str, section_name: str = None, resolved_prompt=None):
+    def revise_paragraph(
+        self, paragraph_text: str, section_name: str = None, resolved_prompt=None
+    ):
         """
         It revises a paragraph using GPT-3 completion model.
 
         Arguments:
             paragraph_text (str): Paragraph text to revise.
-            section_name (str): Section name of the paragraph.
-            throw_error (bool): If True, it throws an error if the API call fails.
-                If False, it returns the original paragraph text.
+            section_name (str): Section name of the paragrap
+            resolved_prompt (str): Prompt resolved via ai-revision config files, if available.
 
         Returns:
             Revised paragraph text.
         """
+
+        # based on the paragraph text to revise and the section to which it
+        # belongs, constructs parameters that we'll use to query the LLM's API
         params = self.get_params(paragraph_text, section_name, resolved_prompt)
 
         retry_count = 0
@@ -526,17 +540,33 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     flush=True,
                 )
 
-                if self.endpoint == "edits":
-                    completions = openai.Edit.create(**params)
-                elif self.endpoint == "chat":
-                    completions = openai.ChatCompletion.create(**params)
-                else:
-                    completions = openai.Completion.create(**params)
+                # map the prompt to langchain's prompt types, based on what
+                # kind of endpoint we're using
+                if "messages" in params:
+                    # map the messages to langchain's message types
+                    # based on the 'role' field
+                    prompt = [
+                        (
+                            HumanMessage(content=msg["content"])
+                            if msg["role"] == "user"
+                            else SystemMessage(content=msg["content"])
+                        )
+                        for msg in params["messages"]
+                    ]
+                elif "prompt" in params:
+                    prompt = [HumanMessage(content=params["prompt"])]
 
-                if self.endpoint == "chat":
-                    message = completions.choices[0].message.content.strip()
+                response = self.client.invoke(
+                    input=prompt,
+                    max_tokens=params.get("max_tokens"),
+                    stop=params.get("stop"),
+                )
+
+                if isinstance(response, BaseMessage):
+                    message = response.content.strip()
                 else:
-                    message = completions.choices[0].text.strip()
+                    message = response.strip()
+
             except Exception as e:
                 error_message = str(e)
                 print(f"Error: {error_message}")
@@ -583,10 +613,10 @@ class DebuggingManuscriptRevisionModel(GPT3CompletionModel):
     """
 
     def __init__(self, *args, **kwargs):
-        if 'title' not in kwargs or kwargs['title'] is None:
-            kwargs['title'] = "Debugging Title"
-        if 'keywords' not in kwargs or kwargs['keywords'] is None:
-            kwargs['keywords'] = ["debugging", "keywords"]
+        if "title" not in kwargs or kwargs["title"] is None:
+            kwargs["title"] = "Debugging Title"
+        if "keywords" not in kwargs or kwargs["keywords"] is None:
+            kwargs["keywords"] = ["debugging", "keywords"]
 
         super().__init__(*args, **kwargs)
 

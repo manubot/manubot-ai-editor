@@ -1,0 +1,43 @@
+---
+name: run tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  run_pre_commit_checks:
+      runs-on: ubuntu-22.04
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.10"
+        - uses: pre-commit/action@v3.0.1
+  run_tests:
+    strategy:
+      matrix:
+        # matrixed execution for parallel gh-action performance increases
+        python_version: ["3.10", "3.11", "3.12"]
+        os: [ubuntu-22.04, macos-13]
+    runs-on: ${{ matrix.os }}
+    env:
+      OS: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Setup python env
+        run: |
+          pip install pytest
+          pip install .
+      - name: Run pytest
+        env:
+          # set a placeholder OpenAI key (required by tests)
+          OPENAI_API_KEY: ABCD1234
+        run: python -m pytest
