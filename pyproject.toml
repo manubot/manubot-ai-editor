@@ -11,6 +11,7 @@ maintainers = [
   "Milton Pividori",
   "Faisal Alquaddoomi",
   "Vincent Rubinetti",
+  "Dave Bunten",
 ]
 license = "BSD-2-Clause-Patent"
 readme = "README.md"
