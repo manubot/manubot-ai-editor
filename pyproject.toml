@@ -13,7 +13,7 @@ maintainers = [
   "Vincent Rubinetti",
   "Dave Bunten",
 ]
-license = "BSD-2-Clause-Patent"
+license = "BSD-3-Clause"
 readme = "README.md"
 repository = "https://github.com/manubot/manubot-ai-editor"
 homepage = "https://github.com/manubot/manubot-ai-editor"
