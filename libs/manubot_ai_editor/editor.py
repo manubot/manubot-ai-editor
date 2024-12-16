@@ -26,7 +26,8 @@ class ManuscriptEditor:
         self.config_dir = Path(config_dir) if config_dir is not None else None
 
         metadata_file = self.content_dir / "metadata.yaml"
-        assert metadata_file.exists(), f"Metadata file {metadata_file} does not exist"
+        if not metadata_file.exists():
+            raise FileNotFoundError(f"Metadata file {metadata_file} does not exist")
         self.title = get_yaml_field(metadata_file, "title")
         self.keywords = get_yaml_field(metadata_file, "keywords")
 
@@ -270,10 +271,12 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
             resolved_prompt (str, optional): A prompt resolved via ai-revision prompt config files, which overrides any custom or section-derived prompts; None if unavailable.
         """
         input_filepath = self.content_dir / input_filename
-        assert input_filepath.exists(), f"Input file {input_filepath} does not exist"
+        if not input_filepath.exists():
+            raise FileNotFoundError(f"Input file {input_filepath} does not exist")
 
         output_dir = Path(output_dir).resolve()
-        assert output_dir.exists(), f"Output directory {output_dir} does not exist"
+        if not output_dir.exists():
+            raise FileNotFoundError(f"Output directory {output_dir} does not exist")
         output_filepath = output_dir / input_filename
 
         # infer section name from input filename if not provided
