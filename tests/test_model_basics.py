@@ -65,9 +65,9 @@ def test_model_object_init_with_provider_api_key_as_environment_variable(
 def test_model_object_init_with_provider_api_key_as_parameter(
     provider, api_key_var, client_key_attr
 ):
-    with mock.patch.dict("os.environ", {api_key_var: "env_var_test_value"}):
-        _environ = os.environ.copy()
-        try:
+    _environ = os.environ.copy()
+    try:
+        with mock.patch.dict("os.environ", {api_key_var: "env_var_test_value"}):
             if api_key_var in os.environ:
                 os.environ.pop(api_key_var)
 
@@ -82,8 +82,8 @@ def test_model_object_init_with_provider_api_key_as_parameter(
                 getattr(model.client, client_key_attr).get_secret_value()
                 == "test_value"
             )
-        finally:
-            os.environ = _environ
+    finally:
+        os.environ = _environ
 
 
 @pytest.mark.parametrize(
