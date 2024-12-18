@@ -28,6 +28,7 @@ packages = [ { include = "manubot_ai_editor", from = "libs" } ]
 python = ">=3.10,<4.0"
 langchain-core = "^0.3.6"
 langchain-openai = "^0.2.0"
+langchain-anthropic = "^0.3.0"
 pyyaml = "*"
 
 [tool.poetry.group.dev.dependencies]
