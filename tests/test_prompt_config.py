@@ -435,7 +435,10 @@ PROMPT_PROPOGATION_CONFIG_DIR = (
     "builtins.open",
     mock_unify_open(BRIEF_MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR),
 )
-def test_prompts_apply_gpt3(tmp_path):
+@pytest.mark.parametrize(
+    "provider", ["openai", "anthropic"],
+)
+def test_prompts_apply_gpt3(tmp_path, provider):
     """
     Tests that the custom prompts are applied when actually applying
     the prompts to an LLM.
@@ -452,7 +455,7 @@ def test_prompts_apply_gpt3(tmp_path):
         content_dir=BRIEF_MANUSCRIPTS_DIR, config_dir=BRIEF_MANUSCRIPTS_CONFIG_DIR
     )
 
-    model = GPT3CompletionModel(title=me.title, keywords=me.keywords)
+    model = GPT3CompletionModel(title=me.title, keywords=me.keywords, model_provider=provider)
 
     output_folder = tmp_path
     assert output_folder.exists()
