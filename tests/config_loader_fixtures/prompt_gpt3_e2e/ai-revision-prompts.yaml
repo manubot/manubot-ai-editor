@@ -1,6 +1,6 @@
 prompts:
   front_matter: Revise the following paragraph to include the keyword "testify" somewhere in the text.
-  abstract: Revise the following paragraph to include the keyword "bottle" somewhere in the text.
+  abstract: Revise the following paragraph to include the keyword "violin" somewhere in the text.
   introduction: Revise the following paragraph to include the keyword "wound" somewhere in the text.
   results: Revise the following paragraph to include the keyword "classroom" somewhere in the text.
   results_framework: Revise the following paragraph to include the keyword "secretary" somewhere in the text.

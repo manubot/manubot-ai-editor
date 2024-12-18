@@ -6,6 +6,7 @@ import time
 import json
 
 from langchain_openai import OpenAI, ChatOpenAI
+from langchain_anthropic import ChatAnthropic, Anthropic
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
@@ -119,6 +120,22 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
         return paragraph_text
 
 
+# specifies metadata for each model provider, e.g. OpenAI or Anthropic,
+# that are used in the GPT3CompletionModel to invoke the provider's API
+MODEL_PROVIDERS = {
+    "openai": {
+        "default_model_engine": "gpt-3.5-turbo",
+        "api_key_env_var": env_vars.OPENAI_API_KEY,
+        "clients": {"chat": ChatOpenAI, "completions": OpenAI},
+    },
+    "anthropic": {
+        "default_model_engine": "claude-3-haiku-20240307",
+        "api_key_env_var": env_vars.ANTHROPIC_API_KEY,
+        "clients": {"chat": ChatAnthropic, "completions": Anthropic},
+    },
+}
+
+
 class GPT3CompletionModel(ManuscriptRevisionModel):
     """
     Revises paragraphs using completion or chat completion models. Most of the parameters
@@ -130,8 +147,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self,
         title: str,
         keywords: list[str],
-        openai_api_key: str = None,
-        model_engine: str = "gpt-3.5-turbo",
+        model_provider: str = "openai",
+        api_key: str = None,
+        model_engine: str = None,
         temperature: float = 0.5,
         presence_penalty: float = None,
         frequency_penalty: float = None,
@@ -141,18 +159,31 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     ):
         super().__init__()
 
+        # first, get metadata about the model provider
+        try:
+            provider_meta = MODEL_PROVIDERS[model_provider]
+        except KeyError:
+            raise ValueError(
+                f"Model provider '{model_provider}' not found; it must be one of {', '.join(MODEL_PROVIDERS.keys())}"
+            )
+
+        if model_engine is None:
+            model_engine = provider_meta["default_model_engine"]
+
         # make sure the OpenAI API key is set
-        if openai_api_key is None:
-            # attempt to get the OpenAI API key from the environment, since one
+        if api_key is None:
+            provider_key_env_var = provider_meta["api_key_env_var"]
+
+            # attempt to get the API key from the environment, since one
             # wasn't specified as an argument
-            openai_api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
+            api_key = os.environ.get(provider_key_env_var, None)
 
             # if it's *still* not set, bail
-            if openai_api_key is None or openai_api_key.strip() == "":
+            if api_key is None or api_key.strip() == "":
                 raise ValueError(
-                    f"OpenAI API key not found. Please provide it as parameter "
+                    f"API key for provider {model_provider} not found. Please provide it as parameter "
                     f"or set it as an the environment variable "
-                    f"{env_vars.OPENAI_API_KEY}"
+                    f"{provider_key_env_var}"
                 )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
@@ -226,10 +257,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # adjust options if chat endpoint was selected
         self.endpoint = "chat"
 
-        if model_engine.startswith(
-            ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
-        ):
-            self.endpoint = "completions"
+        # switch to 'completions' endpoint for specific models, depending on the
+        # provider
+        if model_provider == "openai":
+            if model_engine.startswith(
+                ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
+            ):
+                self.endpoint = "completions"
+        elif model_provider == "anthropic":
+            if model_engine.startswith(("claude-2",)):
+                self.endpoint = "completions"
 
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
@@ -252,15 +289,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-        if self.endpoint == "chat":
-            client_cls = ChatOpenAI
-        else:
-            client_cls = OpenAI
+        client_cls = provider_meta["clients"][self.endpoint]
 
         # construct the OpenAI client after all the rest of
         # the settings above have been processed
         self.client = client_cls(
-            api_key=openai_api_key,
+            api_key=api_key,
             **self.model_parameters,
         )
 
