@@ -436,7 +436,8 @@ PROMPT_PROPOGATION_CONFIG_DIR = (
     mock_unify_open(BRIEF_MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR),
 )
 @pytest.mark.parametrize(
-    "provider", ["openai", "anthropic"],
+    "provider",
+    ["openai", "anthropic"],
 )
 def test_prompts_apply_gpt3(tmp_path, provider):
     """
@@ -455,7 +456,9 @@ def test_prompts_apply_gpt3(tmp_path, provider):
         content_dir=BRIEF_MANUSCRIPTS_DIR, config_dir=BRIEF_MANUSCRIPTS_CONFIG_DIR
     )
 
-    model = GPT3CompletionModel(title=me.title, keywords=me.keywords, model_provider=provider)
+    model = GPT3CompletionModel(
+        title=me.title, keywords=me.keywords, model_provider=provider
+    )
 
     output_folder = tmp_path
     assert output_folder.exists()
@@ -487,4 +490,6 @@ def test_prompts_apply_gpt3(tmp_path, provider):
     for output_md_file in output_md_files:
         with open(output_md_file, "r") as f:
             content = f.read()
-            assert files_to_keywords[output_md_file.name].strip() in content.replace(" ", "")
+            assert files_to_keywords[output_md_file.name].strip() in content.replace(
+                " ", ""
+            )
