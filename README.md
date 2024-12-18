@@ -5,9 +5,15 @@ Check out the [manuscript about this tool](https://greenelab.github.io/manubot-g
 
 ## Supported Large Language Models (LLMs)
 
-We currently support OpenAI models only, and are working to add support for other models.
-[Our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that `gpt-4-turbo` is in general the best model for revising academic manuscripts.
-Therefore, this is the default option.
+We internally use [LangChain](https://www.langchain.com/) to invoke models, which allows our tool to theoretically
+support whichever model providers LangChain supports. That said, we currently support OpenAI and Anthropic models only,
+and are working to add support for other model providers.
+
+When using OpenAI models, [our evaluations](https://github.com/pivlab/manubot-ai-editor-evals) show that `gpt-4-turbo`
+is in general the best model for revising academic manuscripts. Therefore, this is the default option for OpenAI.
+
+We are still evaluating the models for other providers as we add them, and will update this section accordingly
+as we complete our evaluations.
 
 ## Using in a Manubot manuscript
 
@@ -16,12 +22,17 @@ See their official docs for more info on [configuring GitHub Actions](https://do
 
 ### Setup
 
+First, you should decide which model provider you'll use. You can find details on how to set up each provider below:
+- **OpenAI:** you'll want to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
+- **Anthropic:** you'll want to [make an Anthropic account](https://www.anthropic.com/api) and [create an API key](https://console.anthropic.com/settings/keys).
+
 Start with a manuscript repo [forked from Manubot rootstock](https://github.com/manubot/rootstock), then follow these steps:
 
 1. In your forks's "▶️ Actions" tab, enable GitHub Actions.
 1. In your fork's "⚙️ Settings" tab, give GitHub Actions workflows read/write permissions and allow them to create pull requests.
-1. If you haven't already, [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
-1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `OPENAI_API_KEY` and paste in your API key as the secret.
+1. If you haven't already, follow the directions above to create an account and get an API key for your chosen model provider.
+1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `<PROVIDER>_API_KEY` and paste in your API key as the secret. Replace `<PROVIDER>`
+with your provider's name in uppercase and without any special symbols, e.g. `OPENAI` for OpenAI and `ANTHROPIC` for Anthropic.
 
 ### Configuring prompts
 
@@ -62,10 +73,11 @@ First, install Manubot in a Python environment, e.g.:
 pip install --upgrade manubot[ai-rev]
 ```
 
-You also need to export an environment variable with your OpenAI API key, e.g.:
+You also need to export an environment variable with your model provider's API key, e.g.:
 
 ```bash
 export OPENAI_API_KEY=ABCD1234
+# export ANTHROPIC_API_KEY=ABCD1234 # if you were using anthropic
 ```
 
 You can also provide other environment variables that will change the behavior of the editor (such as revising certain files only).
@@ -82,7 +94,7 @@ manubot ai-revision --content-directory content/ --config-directory ci/
 The editor will revise each paragraph of your manuscript and write back the revised files in the same directory.
 Finally, (_assuming you are tracking changes to your manuscript with git_) you can review each change and either keep it (commit it) or reject it (revert it).
 
-Using the OpenAI API can sometimes incur costs.
+Using model providers' APIs can sometimes incur costs.
 If you're worried about this or otherwise want to test things out before hitting the real API, you can run a local "dry run" by with a "fake" model:
 
 ```bash
@@ -126,9 +138,11 @@ me = ManuscriptEditor(
 )
 
 # create a model to revise the manuscript
+# (if using another provider, e.g. anthropic, replace model_provider="openai" with model_provider="anthropic")
 model = GPT3CompletionModel(
     title=me.title,
     keywords=me.keywords,
+    model_provider="openai",
 )
 
 # create a temporary directory to store the revised manuscript
