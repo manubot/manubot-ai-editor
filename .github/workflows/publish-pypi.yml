@@ -1,0 +1,37 @@
+---
+# used for publishing packages to pypi on release
+name: publish pypi release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  publish_pypi:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch tags
+        run: git fetch --all --tags
+      - name: Python setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Setup for poetry
+        run: |
+          python -m pip install poetry
+          poetry self add "poetry-dynamic-versioning[plugin]"
+      - name: Install environment
+        run: poetry install --no-interaction --no-ansi
+      - name: poetry build distribution content
+        run: poetry build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
