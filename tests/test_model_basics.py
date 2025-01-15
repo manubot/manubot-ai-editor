@@ -14,11 +14,21 @@ from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisi
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
 
+# a list of provider, api key values, and client field arguments for all the supported
+# providers. the list is used to parametrize tests that check each provider.
+# the last field is the name of the API key in the client object for each model,
+# to check that it's been populated correctly.
+PROVIDERS_API_KEYS = [
+    ("openai", env_vars.OPENAI_API_KEY, "openai_api_key"),
+    ("anthropic", env_vars.ANTHROPIC_API_KEY, "anthropic_api_key"),
+]
+
+
 @pytest.mark.parametrize(
-    "provider, api_key_var",
-    [("openai", env_vars.OPENAI_API_KEY), ("anthropic", env_vars.ANTHROPIC_API_KEY)],
+    "provider, api_key_var, _",
+    PROVIDERS_API_KEYS,
 )
-def test_model_object_init_without_provider_api_key(provider, api_key_var):
+def test_model_object_init_without_provider_api_key(provider, api_key_var, _):
     _environ = os.environ.copy()
     try:
         if api_key_var in os.environ:
@@ -36,10 +46,7 @@ def test_model_object_init_without_provider_api_key(provider, api_key_var):
 
 @pytest.mark.parametrize(
     "provider, api_key_var, client_key_attr",
-    [
-        ("openai", env_vars.OPENAI_API_KEY, "openai_api_key"),
-        ("anthropic", env_vars.ANTHROPIC_API_KEY, "anthropic_api_key"),
-    ],
+    PROVIDERS_API_KEYS,
 )
 def test_model_object_init_with_provider_api_key_as_environment_variable(
     provider, api_key_var, client_key_attr
@@ -57,10 +64,7 @@ def test_model_object_init_with_provider_api_key_as_environment_variable(
 
 @pytest.mark.parametrize(
     "provider, api_key_var, client_key_attr",
-    [
-        ("openai", env_vars.OPENAI_API_KEY, "openai_api_key"),
-        ("anthropic", env_vars.ANTHROPIC_API_KEY, "anthropic_api_key"),
-    ],
+    PROVIDERS_API_KEYS,
 )
 def test_model_object_init_with_provider_api_key_as_parameter(
     provider, api_key_var, client_key_attr
@@ -88,10 +92,7 @@ def test_model_object_init_with_provider_api_key_as_parameter(
 
 @pytest.mark.parametrize(
     "provider, api_key_var, client_key_attr",
-    [
-        ("openai", env_vars.OPENAI_API_KEY, "openai_api_key"),
-        ("anthropic", env_vars.ANTHROPIC_API_KEY, "anthropic_api_key"),
-    ],
+    PROVIDERS_API_KEYS,
 )
 def test_model_object_init_with_provider_api_key_as_parameter_has_higher_priority(
     provider, api_key_var, client_key_attr
