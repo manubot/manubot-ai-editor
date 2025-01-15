@@ -290,13 +290,13 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         # detect the input file encoding using charset_normalizer
         # maintain that encoding when reading and writing files
         if src_encoding is None:
+            src_encoding = "utf_8"
+        elif src_encoding == "_auto_":
             src_encoding = charset_normalizer.detect(input_filepath.read_bytes())["encoding"]
 
         # ensure that we have a valid encoding for the output file
         if dest_encoding is None:
             dest_encoding = src_encoding
-
-        print("Detected encoding:", src_encoding, flush=True)
 
         with open(input_filepath,  "r", encoding=src_encoding) as infile, \
              open(output_filepath, "w", encoding=dest_encoding) as outfile:

@@ -1199,6 +1199,10 @@ def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_promp
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 0
 
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.SRC_ENCODING: "_auto_"},
+)
 @pytest.mark.parametrize(
     "model",
     [
@@ -1279,7 +1283,7 @@ def test_revise_gbk_specd_manuscript_into_utf16(tmp_path:Path, model:ManuscriptR
 
 @mock.patch.dict(
     "os.environ",
-    {env_vars.DEST_ENCODING: "UTF-16"},
+    {env_vars.SRC_ENCODING: "_auto_", env_vars.DEST_ENCODING: "UTF-16"},
 )
 @pytest.mark.parametrize(
     "model",

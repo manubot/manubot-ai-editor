@@ -55,18 +55,22 @@ manuscript with title '{title}'". The complete list of placeholders is:
 
 These vars specify the source and destination encodings of input and output markdown
 files. Behavior is as follows:
-- If neither `SRC_ENCODING` nor `DEST_ENCODING` are specified, the tool will
-  attempt to identify the encoding using the charset_normalizer library and
-  use that encoding to both read and write the output files.
+- If neither `SRC_ENCODING` nor `DEST_ENCODING` are specified, both the input
+  and output encodings will default to `utf-8`.
 - If only `SRC_ENCODING` is specified, it will be used to both read and write
-  the files.
+  the files. If the special value `_auto_` is used, the tool will attempt to
+  identify the encoding using the
+  [charset_normalizer](https://github.com/jawah/charset_normalizer) library,
+  then use that encoding to both read the input files and write the output
+  files.
 - If only `DEST_ENCODING` is specified, it will be used to write the output
-  files, and the input files will be read using the encoding identified by
-  [charset_normalizer](https://github.com/jawah/charset_normalizer).
+  files; the input encoding will be assumed to be `utf-8`.
 
 The variables:
 
-- `AI_EDITOR_SRC_ENCODING`: the encoding of the input markdown files; if empty,
-defaults to auto-detecting using [charset_normalizer](https://github.com/jawah/charset_normalizer)
+- `AI_EDITOR_SRC_ENCODING`: the encoding of the input markdown files
+  - if empty, defaults to `utf-8`, and
+  - if `_auto_`, the input encoding is auto-detected.
 - `AI_EDITOR_DEST_ENCODING`: the encoding to use when writing the output markdown
-  files; if empty, defaults to `AI_EDITOR_SRC_ENCODING`.
+  files
+  - if empty, defaults to whatever was used for the source encoding.
