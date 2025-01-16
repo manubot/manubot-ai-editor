@@ -470,7 +470,7 @@ def test_prompts_apply_gpt3(tmp_path, provider):
     # fyi, not chosen for any particular reason)
     files_to_keywords = {
         "00.front-matter.md": "testify",
-        "01.abstract.md": "violin",
+        "01.abstract.md": "orchestra",
         "02.introduction.md": "wound",
         # "04.00.results.md": "classroom",
         "04.05.00.results_framework.md": "secretary",
