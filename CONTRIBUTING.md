@@ -92,3 +92,14 @@ Pull request review and approval is required by at least one project maintainer 
 We will do our best to review the code addition in a timely fashion.
 Ensuring that you follow all steps above will increase our speed and ability to review.
 We will check for accuracy, style, code coverage, and scope.
+
+## Versioning
+
+We use [`poetry-dynamic-versioning`](https://github.com/mtkennerly/poetry-dynamic-versioning) to help version this software through [`PEP 440`](https://peps.python.org/pep-0440/) standards.
+Configuration for versioning is found within the `pyproject.toml` file.
+All builds for packages include dynamic version data to help label distinct versions of the software.
+`poetry-dynamic-versioning` uses `git` tags to help distinguish version data.
+We also use the `__init__.py` file as a place to persist the version data for occaissions where the `git` history is unavailable or unwanted.
+
+The following command is used to add `poetry-dynamic-versioning` to Poetry for use with this project: `poetry self add "poetry-dynamic-versioning[plugin]"`.
+Versioning for the project is intended to align with GitHub Releases which provide `git` tag capabilities.
