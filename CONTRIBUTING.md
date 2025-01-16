@@ -72,8 +72,6 @@ Specifically, there are several ways to suggest or make changes to this reposito
 1. Open a GitHub issue: https://github.com/manubot/manubot-ai-editor/issues
 1. Create a pull request from a forked branch of the repository
 
-### Creating a pull request
-
 ### Pull requests
 
 After you’ve decided to contribute code and have written it up, please file a pull request.
@@ -122,3 +120,4 @@ manubot-ai-editor release git tags are automatically applied through [GitHub Rel
 1. On merging the pull request for the release, a [GitHub Actions workflow](https://docs.github.com/en/actions/using-workflows) defined in `draft-release.yml` leveraging [`release-drafter`](https://github.com/release-drafter/release-drafter) will draft a release for maintainers.
 1. The draft GitHub release will include a version tag based on the GitHub PR label applied and `release-drafter`.
 1. Make modifications as necessary to the draft GitHub release, then publish the release (the draft release does not require additional modifications by default).
+1. On publishing the GitHub release, another GitHub Actions workflow defined in `publish-pypi.yml` will run to build and deploy the Python package to PyPI (utilizing the earlier modified `pyproject.toml` semantic version reference for labeling the release).
