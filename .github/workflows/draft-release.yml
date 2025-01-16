@@ -1,0 +1,23 @@
+---
+# workflow for drafting releases on GitHub
+# see: https://github.com/release-drafter/release-drafter
+name: release drafter
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  draft_release:
+    permissions:
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
