@@ -47,9 +47,9 @@ class ManuscriptPromptConfig:
         # specify filename-to-prompt mappings; if both are present, we use
         # self.config.files, but warn the user that they should only use one
         if (
-            self.prompts_files is not None and
-            self.config is not None and
-            self.config.get('files', {}).get('matchings') is not None
+            self.prompts_files is not None
+            and self.config is not None
+            and self.config.get("files", {}).get("matchings") is not None
         ):
             print(
                 "WARNING: Both 'ai-revision-config.yaml' and 'ai-revision-prompts.yaml' specify filename-to-prompt mappings. "
@@ -93,7 +93,7 @@ class ManuscriptPromptConfig:
         # same as _load_config, if no config folder was specified, we just
         if self.config_dir is None:
             return (None, None)
-        
+
         prompt_file_path = os.path.join(self.config_dir, "ai-revision-prompts.yaml")
 
         try:
@@ -150,7 +150,7 @@ class ManuscriptPromptConfig:
         # ai-revision-prompts.yaml specifies prompts_files, then files.matchings
         # takes precedence.
         # (the user is notified of this in a validation warning in __init__)
-        
+
         # then, consult ai-revision-config.yaml's 'matchings' collection if a
         # match is found, use the prompt ai-revision-prompts.yaml
         for entry in get_obj_path(self.config, ("files", "matchings"), missing=[]):
@@ -169,7 +169,10 @@ class ManuscriptPromptConfig:
                         if resolved_prompt is not None:
                             resolved_prompt = resolved_prompt.strip()
 
-                    return ( resolved_prompt, m, )
+                    return (
+                        resolved_prompt,
+                        m,
+                    )
 
         # since we haven't found a match yet, consult ai-revision-prompts.yaml's
         # 'prompts_files' collection
@@ -185,11 +188,10 @@ class ManuscriptPromptConfig:
         resolved_default_prompt = None
         if use_default and self.prompts is not None:
             resolved_default_prompt = self.prompts.get(
-                get_obj_path(self.config, ("files", "default_prompt")),
-                None
+                get_obj_path(self.config, ("files", "default_prompt")), None
             )
 
             if resolved_default_prompt is not None:
                 resolved_default_prompt = resolved_default_prompt.strip()
-        
+
         return (resolved_default_prompt, None)

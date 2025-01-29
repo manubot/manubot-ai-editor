@@ -12,7 +12,7 @@ This project is governed by our [code of conduct](CODE_OF_CONDUCT.md). By partic
 
 ## Development
 
-This project leverages development environments managed by a Python [`setup.py` file.](https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/#setup-py)
+This project leverages development environments managed by a Python [Poetry `pyproject.toml` file](https://python-poetry.org/docs/).
 We use [pytest](https://docs.pytest.org/) for testing and [GitHub Actions](https://docs.github.com/en/actions) for automated tests.
 [`pre-commit`](https://pre-commit.com/) is used to help lint or format code.
 A [Conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) is provided (via the file `environment.yml`) for convenience but is not required for development purposes.
@@ -22,8 +22,8 @@ A [Conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks
 Perform the following steps to setup a Python development environment.
 
 1. [Install Python](https://www.python.org/downloads/) (we recommend using [`pyenv`](https://github.com/pyenv/pyenv) or similar)
-1. Install package, e.g. `pip install .` (from the root directory, referencing the `setup.py`)
-1. Install pytest: `pip install pytest`
+1. [Install Poetry](https://python-poetry.org/docs/#installation).
+1. Install package, e.g. `poetry install`
 
 ### Linting
 
@@ -45,10 +45,22 @@ Work added to this project is automatically tested using [pytest](https://docs.p
 Pytest is installed through the Poetry environment for this project.
 We recommend testing your work before opening pull requests with proposed changes.
 
+Some tests require a special environment key to be set: `OPENAI_API_KEY`.
+This key is an openai.com API key tied to an account.
+See here to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
+While the `OPENAI_API_KEY` environment variable must be set to a value for the testing suite to complete, any non-whitespace value will do. It doesn't have to be a valid API key, since all tests that actually query the API with the key are skipped by default.
+
+If you want to run tests that query the actual OpenAI API, you must specify a valid API key for `OPENAI_API_KEY` . You can then execute pytest with the `--runcost` option, e.g. `poetry run pytest --runcost`, which will then use the specified key to run tests that query the API. Note that this will cost you money, typically around a cent or two per execution, depending on your choice of model. You can find detailed information about cost for each model per 1M tokens on the [OpenAI API Pricing Page](https://openai.com/api/pricing/) -- our test suite uses `gpt-3.5-turbo`. The tests also take significantly longer than the non-live test suite to complete, so it's recommended to leave them disabled them unless you know you need to test the live API.
+You can set this key as follows:
+
+```bash
+export OPENAI_API_KEY=ABCD1234
+```
+
 You can run pytest on your work using the following example:
 
 ```sh
-% python -m pytest
+% poetry run pytest
 ```
 
 ## Making changes to this repository
@@ -59,8 +71,6 @@ Specifically, there are several ways to suggest or make changes to this reposito
 
 1. Open a GitHub issue: https://github.com/manubot/manubot-ai-editor/issues
 1. Create a pull request from a forked branch of the repository
-
-### Creating a pull request
 
 ### Pull requests
 
@@ -80,3 +90,34 @@ Pull request review and approval is required by at least one project maintainer 
 We will do our best to review the code addition in a timely fashion.
 Ensuring that you follow all steps above will increase our speed and ability to review.
 We will check for accuracy, style, code coverage, and scope.
+
+## Versioning
+
+We use [`poetry-dynamic-versioning`](https://github.com/mtkennerly/poetry-dynamic-versioning) to help version this software through [`PEP 440`](https://peps.python.org/pep-0440/) standards.
+Configuration for versioning is found within the `pyproject.toml` file.
+All builds for packages include dynamic version data to help label distinct versions of the software.
+`poetry-dynamic-versioning` uses `git` tags to help distinguish version data.
+We also use the `__init__.py` file as a place to persist the version data for occaissions where the `git` history is unavailable or unwanted.
+
+The following command is used to add `poetry-dynamic-versioning` to Poetry for use with this project: `poetry self add "poetry-dynamic-versioning[plugin]"`.
+Versioning for the project is intended to align with GitHub Releases which provide `git` tag capabilities.
+
+### Releases
+
+We publish source code by using [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) available [here](https://github.com/manubot/manubot-ai-editor/releases).
+We publish a related Python package through the [Python Packaging Index (PyPI)](https://pypi.org/) available [here](https://pypi.org/project/manubot-ai-editor/).
+
+#### Release Publishing Process
+
+Several manual and automated steps are involved with publishing manubot-ai-editor releases.
+See below for an overview of how this works.
+
+Notes about [semantic version](https://en.wikipedia.org/wiki/Software_versioning#Semantic_versioning) (semver) specifications:
+manubot-ai-editor version specifications are controlled through [`poetry-dynamic-versioning`](https://github.com/mtkennerly/poetry-dynamic-versioning) which leverages [`dunamai`](https://github.com/mtkennerly/dunamai) to create version data based on [git tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging) and commits.
+manubot-ai-editor release git tags are automatically applied through [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases) and related inferred changes from [`release-drafter`](https://github.com/release-drafter/release-drafter).
+
+1. Open a pull request and use a repository label for `release-<semver release type>` to label the pull request for visibility with [`release-drafter`](https://github.com/release-drafter/release-drafter).
+1. On merging the pull request for the release, a [GitHub Actions workflow](https://docs.github.com/en/actions/using-workflows) defined in `draft-release.yml` leveraging [`release-drafter`](https://github.com/release-drafter/release-drafter) will draft a release for maintainers.
+1. The draft GitHub release will include a version tag based on the GitHub PR label applied and `release-drafter`.
+1. Make modifications as necessary to the draft GitHub release, then publish the release (the draft release does not require additional modifications by default).
+1. On publishing the GitHub release, another GitHub Actions workflow defined in `publish-pypi.yml` will run to build and deploy the Python package to PyPI (utilizing the earlier modified `pyproject.toml` semantic version reference for labeling the release).
