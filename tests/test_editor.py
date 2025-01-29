@@ -1197,6 +1197,7 @@ def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_promp
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 0
 
+
 @mock.patch.dict(
     "os.environ",
     {env_vars.SRC_ENCODING: "_auto_"},
@@ -1207,7 +1208,7 @@ def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_promp
         DummyManuscriptRevisionModel(),
     ],
 )
-def test_revise_gbk_encoded_manuscript(tmp_path:Path, model:ManuscriptRevisionModel):
+def test_revise_gbk_encoded_manuscript(tmp_path: Path, model: ManuscriptRevisionModel):
     """
     Tests that the editor can revise a manuscript that contains GBK-encoded
     characters, and can detect those characters encoded in UTF-8 in the output.
@@ -1232,12 +1233,11 @@ def test_revise_gbk_encoded_manuscript(tmp_path:Path, model:ManuscriptRevisionMo
     with open(output_md_files[0], "r", encoding="gbk") as f:
         text = f.read()
         print(text)
-        
+
         # finds "hello, world"
         assert "你好，世界" in text
         # finds some lorem ipsum text
         assert "圓跳樹乞土點見央" in text
-
 
 
 @mock.patch.dict(
@@ -1250,7 +1250,9 @@ def test_revise_gbk_encoded_manuscript(tmp_path:Path, model:ManuscriptRevisionMo
         DummyManuscriptRevisionModel(),
     ],
 )
-def test_revise_gbk_specd_manuscript_into_utf16(tmp_path:Path, model:ManuscriptRevisionModel):
+def test_revise_gbk_specd_manuscript_into_utf16(
+    tmp_path: Path, model: ManuscriptRevisionModel
+):
     """
     Tests that the editor can revise a manuscript that is specified as being
     GBK-encoded, and produces a UTF-16 encoded output file per the DEST_ENCODING
@@ -1276,8 +1278,11 @@ def test_revise_gbk_specd_manuscript_into_utf16(tmp_path:Path, model:ManuscriptR
 
     # detect the encoding of the output file, ensure it's what we
     # set DEST_ENCODING to
-    encoding = charset_normalizer.detect(open(output_md_files[0], "rb").read())["encoding"]
+    encoding = charset_normalizer.detect(open(output_md_files[0], "rb").read())[
+        "encoding"
+    ]
     assert encoding == "UTF-16"
+
 
 @mock.patch.dict(
     "os.environ",
@@ -1289,7 +1294,9 @@ def test_revise_gbk_specd_manuscript_into_utf16(tmp_path:Path, model:ManuscriptR
         DummyManuscriptRevisionModel(),
     ],
 )
-def test_revise_gbk_detected_manuscript_into_utf16(tmp_path:Path, model:ManuscriptRevisionModel):
+def test_revise_gbk_detected_manuscript_into_utf16(
+    tmp_path: Path, model: ManuscriptRevisionModel
+):
     """
     Tests that the editor can revise a GBK-encoded manuscript where the input
     encoding wasn't specified and is thus auto-detected. Tests that the

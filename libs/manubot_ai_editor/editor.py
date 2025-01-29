@@ -295,15 +295,18 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         if src_encoding is None:
             src_encoding = "utf_8"
         elif src_encoding == "_auto_":
-            src_encoding = charset_normalizer.detect(input_filepath.read_bytes())["encoding"]
+            src_encoding = charset_normalizer.detect(input_filepath.read_bytes())[
+                "encoding"
+            ]
 
         # ensure that we have a valid encoding for the output file
         if dest_encoding is None:
             dest_encoding = src_encoding
 
-        with open(input_filepath,  "r", encoding=src_encoding) as infile, \
-             open(output_filepath, "w", encoding=dest_encoding) as outfile:
-            
+        with open(input_filepath, "r", encoding=src_encoding) as infile, open(
+            output_filepath, "w", encoding=dest_encoding
+        ) as outfile:
+
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
 
