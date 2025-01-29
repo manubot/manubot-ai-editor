@@ -1,10 +1,11 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = [ "poetry-core>=1" ]
+build-backend = "poetry_dynamic_versioning.backend"
+requires = [ "poetry-core>=1", "poetry-dynamic-versioning>=1,<2" ]
 
 [tool.poetry]
 name = "manubot-ai-editor"
-version = "0.5.2"
+# note: version data is maintained by poetry-dynamic-versioning (do not edit)
+version = "0.0.0"
 description = "A Manubot plugin to revise a manuscript using GPT-3"
 authors = [ "Milton Pividori <miltondp@gmail.com>" ]
 maintainers = [
@@ -33,6 +34,12 @@ pyyaml = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.3.3"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+style = "pep440"
+vcs = "git"
+substitution.files = [ "libs/manubot_ai_editor/__init__.py" ]
 
 [tool.setuptools_scm]
 root = "."
