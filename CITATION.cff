@@ -27,12 +27,13 @@ repository-code: "https://github.com/manubot/manubot-ai-editor"
 abstract: |
   A tool for performing automatic, AI-assisted revisions of Manubot manuscripts.
 keywords:
-  - Manubot
+  - manubot
   - AI
-  - Editor
-  - Manuscript
-  - Revision
-  - Research
+  - editor
+  - manuscript
+  - revision
+  - research
+  - large-language-models
 license: BSD-3-Clause
 identifiers:
   - description: Manuscript
