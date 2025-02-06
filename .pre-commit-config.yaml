@@ -1,45 +1,50 @@
 default_language_version:
   python: python3.10
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
       # Check for files that contain merge conflict strings.
-      - id: check-merge-conflict
+    -   id: check-merge-conflict
       # Check for debugger imports and py37+ `breakpoint()` calls in python source.
-      - id: debug-statements
+    -   id: debug-statements
       # Replaces or checks mixed line ending
-      - id: mixed-line-ending
+    -   id: mixed-line-ending
       # Check for files that would conflict in case-insensitive filesystems
-      - id: check-case-conflict
+    -   id: check-case-conflict
       # This hook checks toml files for parseable syntax.
-      - id: check-toml
+    -   id: check-toml
       # This hook checks yaml files for parseable syntax.
-      - id: check-yaml
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.8.2
+    -   id: check-yaml
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.9.4
     hooks:
-      - id: ruff
+    -   id: ruff
         args:
-        - --fix
-  - repo: https://github.com/python/black
-    rev: 24.10.0
+        -   --fix
+-   repo: https://github.com/python/black
+    rev: 25.1.0
     hooks:
-      - id: black
+    -   id: black
         language_version: python3
-  - repo: https://github.com/python-poetry/poetry
-    rev: "1.8.3"
+-   repo: https://github.com/python-poetry/poetry
+    rev: "2.0.1"
     hooks:
-      - id: poetry-check
-  - repo: https://github.com/tox-dev/pyproject-fmt
+    -   id: poetry-check
+-   repo: https://github.com/tox-dev/pyproject-fmt
     rev: "v2.5.0"
     hooks:
-      - id: pyproject-fmt
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.3
+    -   id: pyproject-fmt
+-   repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
     hooks:
-      - id: actionlint
-  - repo: https://github.com/citation-file-format/cffconvert
+    -   id: actionlint
+-   repo: https://github.com/citation-file-format/cffconvert
     rev: b6045d78aac9e02b039703b030588d54d53262ac
     hooks:
-      - id: validate-cff
+    -   id: validate-cff
+-   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
+    rev: v0.6.0
+    hooks:
+    -   id: pre-commit-update
+        args: ["--keep", "pre-commit-update", "--keep", "cffconvert"]
