@@ -17,7 +17,7 @@ repos:
       # This hook checks yaml files for parseable syntax.
     -   id: check-yaml
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.9.4
+    rev: v0.9.5
     hooks:
     -   id: ruff
         args:
