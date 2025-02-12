@@ -31,9 +31,13 @@ langchain-core = "^0.3.6"
 langchain-openai = "^0.2.0"
 langchain-anthropic = "^0.3.0"
 pyyaml = "*"
+charset-normalizer = "^3.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.3.3"
+
+[tool.poetry.requires-plugins]
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = [ "plugin" ] }
 
 [tool.poetry-dynamic-versioning]
 enable = true

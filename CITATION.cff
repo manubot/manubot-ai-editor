@@ -1,0 +1,41 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+---
+cff-version: 1.2.0
+title: Manubot AI Editor
+message: >-
+  If you use this work in some way, please consider
+  citing it using the metadata from this file.
+type: software
+authors:
+  - given-names: Milton
+    family-names: Pividori
+    orcid: "https://orcid.org/0000-0002-3035-4403"
+  - given-names: Faisal
+    family-names: Alquaddoomi
+    orcid: "https://orcid.org/0000-0003-4297-8747"
+  - given-names: Vincent
+    family-names: Rubinetti
+    orcid: "https://orcid.org/0000-0002-4655-3773"
+  - given-names: Dave
+    family-names: Bunten
+    orcid: "https://orcid.org/0000-0001-6041-3665"
+  - given-names: Casey
+    family-names: Greene
+    orcid: "https://orcid.org/0000-0001-8713-9213"
+repository-code: "https://github.com/manubot/manubot-ai-editor"
+abstract: |
+  A tool for performing automatic, AI-assisted revisions of Manubot manuscripts.
+keywords:
+  - manubot
+  - AI
+  - editor
+  - manuscript
+  - revision
+  - research
+  - large-language-models
+license: BSD-3-Clause
+identifiers:
+  - description: Manuscript
+    type: doi
+    value: "10.1093/jamia/ocae139"

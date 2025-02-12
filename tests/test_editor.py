@@ -3,9 +3,12 @@ from unittest import mock
 
 import pytest
 
+import charset_normalizer
+
 from manubot_ai_editor import env_vars
 from manubot_ai_editor.editor import ManuscriptEditor
 from manubot_ai_editor.models import (
+    ManuscriptRevisionModel,
     RandomManuscriptRevisionModel,
     DummyManuscriptRevisionModel,
     VerboseManuscriptRevisionModel,
@@ -1193,3 +1196,157 @@ def test_revise_entire_manuscript_non_standard_filenames_with_empty_custom_promp
 
     output_md_files = list(output_folder.glob("*.md"))
     assert len(output_md_files) == 0
+
+
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.SRC_ENCODING: "_auto_"},
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+    ],
+)
+def test_revise_gbk_encoded_manuscript(tmp_path: Path, model: ManuscriptRevisionModel):
+    """
+    Tests that the editor can revise a manuscript that contains GBK-encoded
+    characters, and can detect those characters encoded in UTF-8 in the output.
+    """
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "gbk_encoded",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    assert tmp_path.exists()
+
+    me.revise_manuscript(tmp_path, model)
+
+    output_md_files = list(tmp_path.glob("*.md"))
+    assert len(output_md_files) == 1
+
+    # try to find the GBK-encoded text in the resulting file
+    with open(output_md_files[0], "r", encoding="gbk") as f:
+        text = f.read()
+        print(text)
+
+        # finds "hello, world"
+        assert "你好，世界" in text
+        # finds some lorem ipsum text
+        assert "圓跳樹乞土點見央" in text
+
+
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.SRC_ENCODING: "gbk", env_vars.DEST_ENCODING: "UTF-16"},
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+    ],
+)
+def test_revise_gbk_specd_manuscript_into_utf16(
+    tmp_path: Path, model: ManuscriptRevisionModel
+):
+    """
+    Tests that the editor can revise a manuscript that is specified as being
+    GBK-encoded, and produces a UTF-16 encoded output file per the DEST_ENCODING
+    environment variable.
+    """
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "gbk_encoded",
+    )
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    assert tmp_path.exists()
+
+    me.revise_manuscript(tmp_path, model)
+
+    output_md_files = list(tmp_path.glob("*.md"))
+    assert len(output_md_files) == 1
+
+    import charset_normalizer
+
+    # detect the encoding of the output file, ensure it's what we
+    # set DEST_ENCODING to
+    encoding = charset_normalizer.detect(open(output_md_files[0], "rb").read())[
+        "encoding"
+    ]
+    assert encoding == "UTF-16"
+
+
+@mock.patch.dict(
+    "os.environ",
+    {env_vars.SRC_ENCODING: "_auto_", env_vars.DEST_ENCODING: "UTF-16"},
+)
+@pytest.mark.parametrize(
+    "model",
+    [
+        DummyManuscriptRevisionModel(),
+    ],
+)
+def test_revise_gbk_detected_manuscript_into_utf16(
+    tmp_path: Path, model: ManuscriptRevisionModel
+):
+    """
+    Tests that the editor can revise a GBK-encoded manuscript where the input
+    encoding wasn't specified and is thus auto-detected. Tests that the
+    resulting output file is written in UTF-16 as specified by the DEST_ENCODING
+    environment variable.
+    """
+    print(f"\n{str(tmp_path)}\n")
+
+    me = ManuscriptEditor(
+        content_dir=MANUSCRIPTS_DIR / "gbk_encoded",
+    )
+
+    input_md_files = list(me.content_dir.glob("*.md"))
+
+    # detect the encoding of the input file
+    with open(input_md_files[0], "rb") as f:
+        text = f.read()
+        input_encoding = charset_normalizer.from_bytes(text).best().encoding
+
+        print(text)
+
+        # note that we get back gb18030, which is a superset of GBK and is fine
+        # to use for reading/writing those files.
+        # see the following for details:
+        # https://www.ibm.com/docs/en/i/7.4?topic=applications-gb18030-chinese-standard
+
+        assert input_encoding == "gb18030"
+
+    model.title = me.title
+    model.keywords = me.keywords
+
+    assert tmp_path.exists()
+
+    # actually revise the manuscript, producing UTF-16 output files
+    me.revise_manuscript(tmp_path, model)
+
+    output_md_files = list(tmp_path.glob("*.md"))
+    assert len(output_md_files) == 1
+
+    # detect the encoding of the output file, ensure it's what we
+    # set DEST_ENCODING to
+    output_encoding = charset_normalizer.from_path(output_md_files[0]).best().encoding
+    assert output_encoding == "utf_16"
+
+    # try to find some known text in the resulting file
+    with open(output_md_files[0], "r", encoding=output_encoding) as f:
+        text = f.read()
+        print(text)
+
+        # finds "hello, world"
+        assert "你好，世界" in text
+        # finds some lorem ipsum text
+        assert "圓跳樹乞土點見央" in text
