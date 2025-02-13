@@ -2,6 +2,8 @@ import json
 import os
 from pathlib import Path
 
+import charset_normalizer
+
 from manubot_ai_editor import env_vars
 from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
@@ -283,7 +285,28 @@ ERROR: the paragraph below could not be revised with the AI model due to the fol
         if section_name is None:
             section_name = self.get_section_from_filename(input_filename)
 
-        with open(input_filepath, "r") as infile, open(output_filepath, "w") as outfile:
+        # apply encoding settings via the env vars AI_EDITOR_SRC_ENCODING and AI_EDITOR_DEST_ENCODING,
+        # if specified; otherwise, detect the encoding using charset_normalizer
+        src_encoding = os.environ.get(env_vars.SRC_ENCODING)
+        dest_encoding = os.environ.get(env_vars.DEST_ENCODING)
+
+        # detect the input file encoding using charset_normalizer
+        # maintain that encoding when reading and writing files
+        if src_encoding is None:
+            src_encoding = "utf_8"
+        elif src_encoding == "_auto_":
+            src_encoding = charset_normalizer.detect(input_filepath.read_bytes())[
+                "encoding"
+            ]
+
+        # ensure that we have a valid encoding for the output file
+        if dest_encoding is None:
+            dest_encoding = src_encoding
+
+        with open(input_filepath, "r", encoding=src_encoding) as infile, open(
+            output_filepath, "w", encoding=dest_encoding
+        ) as outfile:
+
             # Initialize a temporary list to store the lines of the current paragraph
             paragraph = []
 

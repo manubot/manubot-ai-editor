@@ -70,7 +70,8 @@ export OPENAI_API_KEY=ABCD1234
 
 You can also provide other environment variables that will change the behavior of the editor (such as revising certain files only).
 For example, to specify the temperature parameter of OpenAI models, you can set the variable `export AI_EDITOR_TEMPERATURE=0.50`.
-[See the complete list of supported variables](https://github.com/manubot/manubot-ai-editor/blob/main/libs/manubot_ai_editor/env_vars.py) documents.
+See [the complete list of supported variables](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md) for
+more information.
 
 Then, from the root directory of your Manubot manuscript, run the following:
 
@@ -96,6 +97,28 @@ manubot ai-revision \
 When it finishes, check out your manuscript files.
 This will allow you to detect whether the editor is identifying paragraphs correctly.
 If you find a problem, please [report the issue](https://github.com/manubot/manubot-ai-editor/issues).
+
+### Text Encodings
+
+By default, Manubot AI Editor will assume that your input and output files are
+encoded in the `utf-8` encoding.
+
+If you'd prefer for the tool to make a best effort to guess the input encoding
+and write the output in the same encoding, set the env var
+`AI_EDITOR_SRC_ENCODING` to `_auto_`; the detected encoding will also be used to
+write the output files.
+
+Alternatively, if you prefer to have your files interpreted or written using
+specific encodings, you can specify the input encoding with the
+`AI_EDITOR_SRC_ENCODING` and the output encoding with the
+`AI_EDITOR_DST_ENCODING` environment variables.
+
+See
+[these variables' help docs](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md#encodings)
+for more information.
+
+Also, see [Python 3 Docs: Standard Encodings](https://docs.python.org/3/library/codecs.html#standard-encodings) for
+a list of possible encodings.
 
 ## Using the Python API
 
