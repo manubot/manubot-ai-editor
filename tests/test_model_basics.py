@@ -14,66 +14,110 @@ from manubot_ai_editor.models import GPT3CompletionModel, RandomManuscriptRevisi
 MANUSCRIPTS_DIR = Path(__file__).parent / "manuscripts"
 
 
-def test_model_object_init_without_openai_api_key():
+# a list of provider, api key values, and client field arguments for all the supported
+# providers. the list is used to parametrize tests that check each provider.
+# the last field is the name of the API key in the client object for each model,
+# to check that it's been populated correctly.
+PROVIDERS_API_KEYS = [
+    ("openai", env_vars.OPENAI_API_KEY, "openai_api_key"),
+    ("anthropic", env_vars.ANTHROPIC_API_KEY, "anthropic_api_key"),
+]
+
+
+@pytest.mark.parametrize(
+    "provider, api_key_var, _",
+    PROVIDERS_API_KEYS,
+)
+def test_model_object_init_without_provider_api_key(provider, api_key_var, _):
     _environ = os.environ.copy()
     try:
-        if env_vars.OPENAI_API_KEY in os.environ:
-            os.environ.pop(env_vars.OPENAI_API_KEY)
+        if api_key_var in os.environ:
+            os.environ.pop(api_key_var)
 
         with pytest.raises(ValueError):
             GPT3CompletionModel(
                 title="Test title",
                 keywords=["test", "keywords"],
+                model_provider=provider,
             )
     finally:
         os.environ = _environ
 
 
-@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
-def test_model_object_init_with_openai_api_key_as_environment_variable():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert model.client.openai_api_key.get_secret_value() == "env_var_test_value"
-
-
-def test_model_object_init_with_openai_api_key_as_parameter():
-    _environ = os.environ.copy()
-    try:
-        if env_vars.OPENAI_API_KEY in os.environ:
-            os.environ.pop(env_vars.OPENAI_API_KEY)
-
+@pytest.mark.parametrize(
+    "provider, api_key_var, client_key_attr",
+    PROVIDERS_API_KEYS,
+)
+def test_model_object_init_with_provider_api_key_as_environment_variable(
+    provider, api_key_var, client_key_attr
+):
+    with mock.patch.dict("os.environ", {api_key_var: "env_var_test_value"}):
         model = GPT3CompletionModel(
-            title="Test title",
-            keywords=["test", "keywords"],
-            openai_api_key="test_value",
+            title="Test title", keywords=["test", "keywords"], model_provider=provider
         )
 
-        assert model.client.openai_api_key.get_secret_value() == "test_value"
+        assert (
+            getattr(model.client, client_key_attr).get_secret_value()
+            == "env_var_test_value"
+        )
+
+
+@pytest.mark.parametrize(
+    "provider, api_key_var, client_key_attr",
+    PROVIDERS_API_KEYS,
+)
+def test_model_object_init_with_provider_api_key_as_parameter(
+    provider, api_key_var, client_key_attr
+):
+    _environ = os.environ.copy()
+    try:
+        with mock.patch.dict("os.environ", {api_key_var: "env_var_test_value"}):
+            if api_key_var in os.environ:
+                os.environ.pop(api_key_var)
+
+            model = GPT3CompletionModel(
+                title="Test title",
+                keywords=["test", "keywords"],
+                api_key="test_value",
+                model_provider=provider,
+            )
+
+            assert (
+                getattr(model.client, client_key_attr).get_secret_value()
+                == "test_value"
+            )
     finally:
         os.environ = _environ
 
 
-@mock.patch.dict("os.environ", {env_vars.OPENAI_API_KEY: "env_var_test_value"})
-def test_model_object_init_with_openai_api_key_as_parameter_has_higher_priority():
+@pytest.mark.parametrize(
+    "provider, api_key_var, client_key_attr",
+    PROVIDERS_API_KEYS,
+)
+def test_model_object_init_with_provider_api_key_as_parameter_has_higher_priority(
+    provider, api_key_var, client_key_attr
+):
+    with mock.patch.dict("os.environ", {api_key_var: "env_var_test_value"}):
+        model = GPT3CompletionModel(
+            title="Test title",
+            keywords=["test", "keywords"],
+            api_key="test_value",
+            model_provider=provider,
+        )
+
+        assert getattr(model.client, client_key_attr).get_secret_value() == "test_value"
+
+
+@pytest.mark.parametrize(
+    "provider, expected_model",
+    [("openai", "gpt-3.5-turbo"), ("anthropic", "claude-3-haiku-20240307")],
+)
+def test_model_object_init_default_language_model(provider, expected_model):
     model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-        openai_api_key="test_value",
+        title="Test title", keywords=["test", "keywords"], model_provider=provider
     )
 
-    assert model.client.openai_api_key.get_secret_value() == "test_value"
-
-
-def test_model_object_init_default_language_model():
-    model = GPT3CompletionModel(
-        title="Test title",
-        keywords=["test", "keywords"],
-    )
-
-    assert model.model_parameters["model"] == "gpt-3.5-turbo"
+    assert model.model_parameters["model"] == expected_model
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})

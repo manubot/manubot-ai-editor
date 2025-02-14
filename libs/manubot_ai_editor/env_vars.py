@@ -15,6 +15,9 @@ if you want to provide a custom prompt, then you need to add a line like this to
 # OpenAI API key to use
 OPENAI_API_KEY = "OPENAI_API_KEY"
 
+# Anthropic API key to use
+ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"
+
 # Language model to use. For example, "text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0301", etc
 # The tool currently supports the "chat/completions" and "completions" endpoints, and you can check
 # compatible models here: https://platform.openai.com/docs/models/model-endpoint-compatibility

@@ -435,7 +435,11 @@ PROMPT_PROPOGATION_CONFIG_DIR = (
     "builtins.open",
     mock_unify_open(BRIEF_MANUSCRIPTS_CONFIG_DIR, PROMPT_PROPOGATION_CONFIG_DIR),
 )
-def test_prompts_apply_gpt3(tmp_path):
+@pytest.mark.parametrize(
+    "provider",
+    ["openai", "anthropic"],
+)
+def test_prompts_apply_gpt3(tmp_path, provider):
     """
     Tests that the custom prompts are applied when actually applying
     the prompts to an LLM.
@@ -452,7 +456,9 @@ def test_prompts_apply_gpt3(tmp_path):
         content_dir=BRIEF_MANUSCRIPTS_DIR, config_dir=BRIEF_MANUSCRIPTS_CONFIG_DIR
     )
 
-    model = GPT3CompletionModel(title=me.title, keywords=me.keywords)
+    model = GPT3CompletionModel(
+        title=me.title, keywords=me.keywords, model_provider=provider
+    )
 
     output_folder = tmp_path
     assert output_folder.exists()
@@ -464,7 +470,7 @@ def test_prompts_apply_gpt3(tmp_path):
     # fyi, not chosen for any particular reason)
     files_to_keywords = {
         "00.front-matter.md": "testify",
-        "01.abstract.md": "bottle",
+        "01.abstract.md": "orchestra",
         "02.introduction.md": "wound",
         # "04.00.results.md": "classroom",
         "04.05.00.results_framework.md": "secretary",
@@ -484,4 +490,6 @@ def test_prompts_apply_gpt3(tmp_path):
     for output_md_file in output_md_files:
         with open(output_md_file, "r") as f:
             content = f.read()
-            assert files_to_keywords[output_md_file.name].strip() in content
+            assert files_to_keywords[output_md_file.name].strip() in content.replace(
+                " ", ""
+            )
