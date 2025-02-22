@@ -39,3 +39,6 @@ identifiers:
   - description: Manuscript
     type: doi
     value: "10.1093/jamia/ocae139"
+  - description: Software
+    type: doi
+    value: "10.5281/zenodo.14911573"
