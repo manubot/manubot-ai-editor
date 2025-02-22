@@ -4,7 +4,7 @@
 [![Build Status](https://github.com/manubot/manubot-ai-editor/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/manubot/manubot-ai-editor/actions/workflows/run-tests.yml?query=branch%3Amain)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)
-[![Software DOI badge](https://img.shields.io/badge/Manuscript_DOI-10.1093/jamia/ocae139-blue)](https://doi.org/10.1093/jamia/ocae139)
+[![Manuscript DOI badge](https://img.shields.io/badge/Manuscript_DOI-10.1093/jamia/ocae139-blue)](https://doi.org/10.1093/jamia/ocae139)
 [![Software DOI badge](https://img.shields.io/badge/Software_DOI-10.5281/zenodo.14911573-blue)](https://doi.org/10.5281/zenodo.14911573)
 
 A tool for performing automatic, AI-assisted revisions of [Manubot](https://manubot.org/) manuscripts.
