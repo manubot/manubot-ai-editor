@@ -43,7 +43,6 @@ jobs:
           poetry install
       - name: Run pytest
         env:
-          # set a placeholder API keys (required by tests)
-          OPENAI_API_KEY: ABCD1234
-          ANTHROPIC_API_KEY: ABCD1234
+          # set placeholder API key, required by tests
+          PROVIDER_API_KEY: ABCD1234
         run: poetry run pytest
