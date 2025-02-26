@@ -31,8 +31,7 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 1. In your forks's "▶️ Actions" tab, enable GitHub Actions.
 1. In your fork's "⚙️ Settings" tab, give GitHub Actions workflows read/write permissions and allow them to create pull requests.
 1. If you haven't already, follow the directions above to create an account and get an API key for your chosen model provider.
-1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `<PROVIDER>_API_KEY` and paste in your API key as the secret. Replace `<PROVIDER>`
-with your provider's name in uppercase and without any special symbols, e.g. `OPENAI` for OpenAI and `ANTHROPIC` for Anthropic.
+1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `PROVIDER_API_KEY` and paste in your API key as the secret.
 
 ### Configuring prompts
 

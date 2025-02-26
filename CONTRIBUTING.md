@@ -41,27 +41,44 @@ These automated tests generally must pass in order to merge work into this repos
 
 ### Testing
 
-Work added to this project is automatically tested using [pytest](https://docs.pytest.org/) via [GitHub Actions](https://docs.github.com/en/actions).
+Contributions to this project are automatically tested using [pytest](https://docs.pytest.org/) via [GitHub Actions](https://docs.github.com/en/actions).
 Pytest is installed through the Poetry environment for this project.
-We recommend testing your work before opening pull requests with proposed changes.
+We recommend adding tests for your contributions, if they're not already covered by an existing test.
+Once you've written your tests, we encourage running the testing suite before opening a pull request for your contribution.
 
-Some tests require a special environment key to be set: `OPENAI_API_KEY`.
-This key is an openai.com API key tied to an account.
-See here to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
-While the `OPENAI_API_KEY` environment variable must be set to a value for the testing suite to complete, any non-whitespace value will do. It doesn't have to be a valid API key, since all tests that actually query the API with the key are skipped by default.
+Many tests require a special environment key to be set: `PROVIDER_API_KEY`.
+While the `PROVIDER_API_KEY` environment variable must be set to a value for the testing suite to complete, any non-whitespace value will do.
+It doesn't have to be a valid API key, since all tests that actually query the API with the key are skipped by default.
 
-If you want to run tests that query the actual OpenAI API, you must specify a valid API key for `OPENAI_API_KEY` . You can then execute pytest with the `--runcost` option, e.g. `poetry run pytest --runcost`, which will then use the specified key to run tests that query the API. Note that this will cost you money, typically around a cent or two per execution, depending on your choice of model. You can find detailed information about cost for each model per 1M tokens on the [OpenAI API Pricing Page](https://openai.com/api/pricing/) -- our test suite uses `gpt-3.5-turbo`. The tests also take significantly longer than the non-live test suite to complete, so it's recommended to leave them disabled them unless you know you need to test the live API.
-You can set this key as follows:
-
-```bash
-export OPENAI_API_KEY=ABCD1234
-```
-
-You can run pytest on your work using the following example:
-
+Once `PROVIDER_API_KEY` is set to something, you can run `pytest` on your work using the following example:
 ```sh
 % poetry run pytest
 ```
+
+If you want to run tests that query the actual provider APIs, you must specify a valid API key for each provider that's tested.
+If you're testing just one provider, it's sufficient to specify `PROVIDER_API_KEY`, since by default it will be used for any provider.
+
+We currently support the following providers:
+- **OpenAI:** Set `OPENAI_API_KEY` to a valid key.
+  - See here to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
+- **Anthropic:** Set `ANTHROPIC_API_KEY` to a valid key.
+  - See here to [make an Anthropic account](https://console.anthropic.com/) and [create an API key](https://console.anthropic.com/settings/keys).
+
+You can set these keys like so:
+
+```bash
+export OPENAI_API_KEY=ABCD1234
+export ANTHROPIC_API_KEY=ABCD1234
+```
+
+You can then execute `pytest` with the `--runcost` option, e.g. `poetry run pytest --runcost`, which will then use the specified key to run tests that query the API.
+Note that running with `--runcost` will cost you money, typically around a cent or two per execution, depending on your choice of model.
+For OpenAI, you can find detailed information about cost for each model per 1M tokens on the [OpenAI API Pricing Page](https://openai.com/api/pricing/) -- our test suite uses `gpt-3.5-turbo`.
+At the moment there is no way to only test a subset of providers.
+Instead, you can provide made-up keys for providers you don't want to actually test and ignore the resulting failures.
+
+The "cost" tests take significantly longer than the non-live test suite to complete, so it's recommended to leave them disabled them unless you know you need to test the live APIs.
+
 
 ## Making changes to this repository
 
