@@ -120,8 +120,14 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
         return paragraph_text
 
 
-# specifies metadata for each model provider, e.g. OpenAI or Anthropic,
-# that are used in the GPT3CompletionModel to invoke the provider's API
+# the MODEL_PROVIDERS dict specifies metadata for each model provider, e.g.
+# OpenAI or Anthropic, that are used in the GPT3CompletionModel class to invoke
+# the provider's API.
+# - the 'api_key_env_var' field specifies the environment variable that should be
+#   used to obtain the API key for the provider. if it's None, that means this
+#   provider doesn't require an API key (e.g., for local LLMs)
+# - the 'clients' field maps the endpoints to the client classes that should be
+#   used to interact with the provider's API.
 MODEL_PROVIDERS = {
     "openai": {
         "default_model_engine": "gpt-3.5-turbo",
@@ -141,6 +147,53 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     Revises paragraphs using completion or chat completion models. Most of the parameters
     (https://platform.openai.com/docs/guides/gpt) of the model can be specified either by
     arguments during instantiation or environment variables (see env_vars.py).
+
+    Note that a few arguments override the environment variables, such as
+    'model_provider', 'model engine', and 'api_key'; the environment is only
+    consulted when they're set to None. The rest of the parameters, e.g.
+    'temperature', are overridden *by* the corresponding environment variables,
+    if they exist.
+
+    Regarding temperature, best_of, top_p, etc., this post provides a good
+    explanation of how they're related:
+    https://community.openai.com/t/the-relationship-between-best-of-temperature-and-top-p-the-three-variable-problem/21150/11
+
+    Args:
+        title (str): Title of the manuscript.
+        keywords (list): Keywords of the manuscript, defaults to [] if unspecified.
+        model_provider (str):
+            Model provider to use, e.g. "openai" or "anthropic". If not
+            specified, it will be obtained from the environment variable
+            specified by env_vars.MODEL_PROVIDER, defaulting to "openai" if not set.
+        model_engine (str):
+            Language model to use. For example, "text-davinci-003",
+            "gpt-3.5-turbo", "gpt-3.5-turbo-0301", etc. If not specified, it
+            will be obtained from the environment variable specified by
+            env_vars.LANGUAGE_MODEL; failing that the default model for the
+            provider will be used.
+        api_key (str):
+            API key for the model provider. If not specified, it will be
+            obtained from the environment variable specified by the provider's
+            API key env var (e.g. env_vars.OPENAI_API_KEY for OpenAI); failing
+            that, it will be obtained from the generic PROVIDER_API_KEY env var.
+        temperature (float):
+            Temperature parameter for the model. If env_vars.TEMPERATURE is
+            set, it will override this value.
+        presence_penalty (float):
+            Presence penalty parameter for the model. If env_vars.PRESENCE_PENALTY
+            is set, it will override this value.
+        frequency_penalty (float):
+            Frequency penalty parameter for the model. If env_vars.FREQUENCY_PENALTY
+            is set, it will override this value.
+        best_of (int):
+            Number of completions to generate and rank. If env_vars.BEST_OF
+            is set, it will override this value.
+        top_p (float):
+            Top-P parameter for the model. If env_vars.TOP_P is set, it will
+            override this value.
+        retry_count (int):
+            Number of times to retry the revision if an error occurs. If
+            env_vars.RETRY_COUNT is set, it will override this value.
     """
 
     def __init__(
