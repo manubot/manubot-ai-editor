@@ -147,7 +147,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self,
         title: str,
         keywords: list[str],
-        model_provider: str = "openai",
+        model_provider: str = None,
         api_key: str = None,
         model_engine: str = None,
         temperature: float = 0.5,
@@ -159,7 +159,12 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     ):
         super().__init__()
 
-        # first, get metadata about the model provider
+        # if no model_provider was provided, get it from the environment,
+        # defaulting to openai if not set
+        if model_provider is None:
+            model_provider = os.environ.get(env_vars.MODEL_PROVIDER, "openai")
+
+        # now, get metadata about the model provider
         try:
             provider_meta = MODEL_PROVIDERS[model_provider]
         except KeyError:
@@ -167,23 +172,34 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 f"Model provider '{model_provider}' not found; it must be one of {', '.join(MODEL_PROVIDERS.keys())}"
             )
 
+        # identify model_engine first by the argument, then by the environment
+        # var env_vars.LANGUAGE_MODEL, then by whatever the provider's default
+        # model is
         if model_engine is None:
-            model_engine = provider_meta["default_model_engine"]
+            model_engine = os.environ.get(env_vars.LANGUAGE_MODEL)
 
-        # make sure the OpenAI API key is set
-        if api_key is None:
+            if model_engine is None or model_engine.strip() == "":
+                model_engine = provider_meta["default_model_engine"]
+
+        # if this provider requires an API key, make sure a key can be found
+        if provider_meta["api_key_env_var"] is not None and api_key is None:
             provider_key_env_var = provider_meta["api_key_env_var"]
 
             # attempt to get the API key from the environment, since one
             # wasn't specified as an argument
             api_key = os.environ.get(provider_key_env_var, None)
 
+            # if there isn't a provider-specific key, attempt to pull the
+            # generic PROVIDER_API_KEY env var and use that
+            if api_key is None:
+                api_key = os.environ.get(env_vars.PROVIDER_API_KEY, None)
+
             # if it's *still* not set, bail
             if api_key is None or api_key.strip() == "":
                 raise ValueError(
-                    f"API key for provider {model_provider} not found. Please provide it as parameter "
-                    f"or set it as an the environment variable "
-                    f"{provider_key_env_var}"
+                    f"API key for provider {model_provider} not found. Please provide it as the 'api_key' parameter, "
+                    f"set a provider-specific key via the environment variable {provider_key_env_var}, "
+                    f"or set a generic API key via the environment variable {env_vars.PROVIDER_API_KEY}",
                 )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
