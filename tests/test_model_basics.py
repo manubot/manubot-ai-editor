@@ -28,11 +28,22 @@ PROVIDERS_API_KEYS = [
     "provider, api_key_var, _",
     PROVIDERS_API_KEYS,
 )
-def test_model_object_init_without_provider_api_key(provider, api_key_var, _):
+def test_model_object_init_without_any_api_key(provider, api_key_var, _):
+    """
+    Test that the model object raises an exception if it's initialized
+    and can't find an api key through any mechanism.
+    """
+
     _environ = os.environ.copy()
     try:
+        # remove the provider-specific api key, if it exists
         if api_key_var in os.environ:
             os.environ.pop(api_key_var)
+
+        # also remove the generic provider api key, so that the model won't
+        # have any api key options left and will raise an exception
+        if env_vars.PROVIDER_API_KEY in os.environ:
+            os.environ.pop(env_vars.PROVIDER_API_KEY)
 
         with pytest.raises(ValueError):
             GPT3CompletionModel(
@@ -40,6 +51,40 @@ def test_model_object_init_without_provider_api_key(provider, api_key_var, _):
                 keywords=["test", "keywords"],
                 model_provider=provider,
             )
+    finally:
+        os.environ = _environ
+
+
+@pytest.mark.parametrize(
+    "provider, api_key_var, client_key_attr",
+    PROVIDERS_API_KEYS,
+)
+def test_model_object_init_with_only_generic_provider_api_key(
+    provider, api_key_var, client_key_attr
+):
+    """
+    Test that the model object can be constructed with the generic provider api
+    key from the environment when a provider-specific one isn't available and
+    none is passed as a parameter.
+    """
+
+    _environ = os.environ.copy()
+    try:
+        # patch in the generic provider api key
+        os.environ[env_vars.PROVIDER_API_KEY] = "test_value"
+
+        # remove the provider-specific api key, if it exists
+        if api_key_var in os.environ:
+            os.environ.pop(api_key_var)
+
+        model = GPT3CompletionModel(
+            title="Test title",
+            keywords=["test", "keywords"],
+            model_provider=provider,
+        )
+
+        # test that the model received the generic provider api key
+        assert getattr(model.client, client_key_attr).get_secret_value() == "test_value"
     finally:
         os.environ = _environ
 
