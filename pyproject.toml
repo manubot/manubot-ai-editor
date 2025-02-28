@@ -25,7 +25,7 @@ classifiers = [
 ]
 packages = [ { include = "manubot_ai_editor", from = "libs" } ]
 include = [
-    "manubot_ai_editor/ref/*.json"
+  "manubot_ai_editor/ref/*.json",
 ]
 
 [tool.poetry.dependencies]
