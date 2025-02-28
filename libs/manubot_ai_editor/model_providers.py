@@ -15,12 +15,48 @@ from langchain_openai import ChatOpenAI, OpenAI
 
 from manubot_ai_editor import env_vars
 
-# decorator to cache, e.g., model lists we pull from the APIs
-cache = lru_cache(maxsize=None)
+
+# =============================================================================
+# === Provider exceptions
+# =============================================================================
 
 
 class APIKeyNotFoundError(Exception):
+    """
+    Raised when an API key is required by a provider but not found in the
+    environment variables.
+    """
+
     pass
+
+
+class ImplicitDependencyImportError(ImportError):
+    """
+    Raised when we attempt to import an implicit dependency for a provider but
+    fail to do so.
+
+    Since LangChain doesn't abstract fetching model engine lists for providers,
+    we instead have to rely on the provider-specific package to do that. These
+    provider-specific packages are currently implicit dependencies of the
+    langchain community modules for each provider, but this may change, thus why
+    we go to such an effort to report it.
+    """
+
+    def __init__(self, langchain_module, implicit_dependency):
+        self.message = (
+            f"Failed to import '{implicit_dependency}' via implicit dependency in "
+            f"'{langchain_module}'. The implicit dependency is required to fetch "
+            f"a list of models."
+        )
+        super().__init__(self.message)
+
+
+# =============================================================================
+# === Base and specific provider classes
+# =============================================================================
+
+# decorator to cache, e.g., model lists we pull from the APIs
+cache = lru_cache(maxsize=None)
 
 
 class BaseModelProvider(ABC):
@@ -132,7 +168,7 @@ class BaseModelProvider(ABC):
 class OpenAIProvider(BaseModelProvider):
     @classmethod
     def default_model_engine(cls):
-        return "gpt-3.5-turbo"
+        return "gpt-4-turbo"
 
     @classmethod
     def api_key_env_var(cls):
@@ -177,7 +213,9 @@ class OpenAIProvider(BaseModelProvider):
                     raise ex
 
         except ImportError:
-            return None
+            raise ImplicitDependencyImportError(
+                langchain_module="langchain_openai", implicit_dependency="openai"
+            )
 
 
 class AnthropicProvider(BaseModelProvider):
@@ -223,8 +261,14 @@ class AnthropicProvider(BaseModelProvider):
                     raise ex
 
         except ImportError:
-            return None
+            raise ImplicitDependencyImportError(
+                langchain_module="langchain_anthropic", implicit_dependency="anthropic"
+            )
 
+
+# =============================================================================
+# === Provider dict, model engine fallback list persistence + retrieval
+# =============================================================================
 
 # the MODEL_PROVIDERS dict specifies metadata for each model provider, e.g.
 # OpenAI or Anthropic, that are used in the GPT3CompletionModel class to invoke

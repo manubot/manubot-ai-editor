@@ -155,7 +155,7 @@ def test_model_object_init_with_provider_api_key_as_parameter_has_higher_priorit
 
 @pytest.mark.parametrize(
     "provider, expected_model",
-    [("openai", "gpt-3.5-turbo"), ("anthropic", "claude-3-haiku-20240307")],
+    [("openai", "gpt-4-turbo"), ("anthropic", "claude-3-haiku-20240307")],
 )
 def test_model_object_init_default_language_model(provider, expected_model):
     model = GPT3CompletionModel(
@@ -182,7 +182,7 @@ def test_model_object_init_read_language_model_from_environment_is_empty():
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["model"] == "gpt-3.5-turbo"
+    assert model.model_parameters["model"] == "gpt-4-turbo"
 
 
 def test_get_max_tokens_fraction_is_one():
