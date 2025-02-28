@@ -5,11 +5,10 @@ import random
 import time
 import json
 
-from langchain_openai import OpenAI, ChatOpenAI
-from langchain_anthropic import ChatAnthropic, Anthropic
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.model_providers import MODEL_PROVIDERS, APIKeyNotFoundError
 
 
 class ManuscriptRevisionModel(ABC):
@@ -120,28 +119,6 @@ class RandomManuscriptRevisionModel(ManuscriptRevisionModel):
         return paragraph_text
 
 
-# the MODEL_PROVIDERS dict specifies metadata for each model provider, e.g.
-# OpenAI or Anthropic, that are used in the GPT3CompletionModel class to invoke
-# the provider's API.
-# - the 'api_key_env_var' field specifies the environment variable that should be
-#   used to obtain the API key for the provider. if it's None, that means this
-#   provider doesn't require an API key (e.g., for local LLMs)
-# - the 'clients' field maps the endpoints to the client classes that should be
-#   used to interact with the provider's API.
-MODEL_PROVIDERS = {
-    "openai": {
-        "default_model_engine": "gpt-3.5-turbo",
-        "api_key_env_var": env_vars.OPENAI_API_KEY,
-        "clients": {"chat": ChatOpenAI, "completions": OpenAI},
-    },
-    "anthropic": {
-        "default_model_engine": "claude-3-haiku-20240307",
-        "api_key_env_var": env_vars.ANTHROPIC_API_KEY,
-        "clients": {"chat": ChatAnthropic, "completions": Anthropic},
-    },
-}
-
-
 class GPT3CompletionModel(ManuscriptRevisionModel):
     """
     Revises paragraphs using completion or chat completion models. Most of the parameters
@@ -217,9 +194,9 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         if model_provider is None:
             model_provider = os.environ.get(env_vars.MODEL_PROVIDER, "openai")
 
-        # now, get metadata about the model provider
+        # now, get the metadata object for the model provider
         try:
-            provider_meta = MODEL_PROVIDERS[model_provider]
+            provider = MODEL_PROVIDERS[model_provider]
         except KeyError:
             raise ValueError(
                 f"Model provider '{model_provider}' not found; it must be one of {', '.join(MODEL_PROVIDERS.keys())}"
@@ -232,23 +209,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             model_engine = os.environ.get(env_vars.LANGUAGE_MODEL)
 
             if model_engine is None or model_engine.strip() == "":
-                model_engine = provider_meta["default_model_engine"]
+                model_engine = provider.default_model_engine()
 
-        # if this provider requires an API key, make sure a key can be found
-        if provider_meta["api_key_env_var"] is not None and api_key is None:
-            provider_key_env_var = provider_meta["api_key_env_var"]
-
-            # attempt to get the API key from the environment, since one
-            # wasn't specified as an argument
-            api_key = os.environ.get(provider_key_env_var, None)
-
-            # if there isn't a provider-specific key, attempt to pull the
-            # generic PROVIDER_API_KEY env var and use that
-            if api_key is None:
-                api_key = os.environ.get(env_vars.PROVIDER_API_KEY, None)
-
-            # if it's *still* not set, bail
-            if api_key is None or api_key.strip() == "":
+        # if no api_key was explicitly provided and the provider requires an API
+        # key, make sure a key can be found
+        if (
+            api_key is None
+            and (provider_key_env_var := provider.api_key_env_var()) is not None
+        ):
+            # consult the provider for a possible key
+            try:
+                api_key = provider.resolve_api_key()
+            except APIKeyNotFoundError:
                 raise ValueError(
                     f"API key for provider {model_provider} not found. Please provide it as the 'api_key' parameter, "
                     f"set a provider-specific key via the environment variable {provider_key_env_var}, "
@@ -323,19 +295,11 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords if keywords is not None else []
 
-        # adjust options if chat endpoint was selected
-        self.endpoint = "chat"
-
-        # switch to 'completions' endpoint for specific models, depending on the
-        # provider
-        if model_provider == "openai":
-            if model_engine.startswith(
-                ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
-            ):
-                self.endpoint = "completions"
-        elif model_provider == "anthropic":
-            if model_engine.startswith(("claude-2",)):
-                self.endpoint = "completions"
+        # set the endpoint ('chat' or 'completions') based on the provider's
+        # specific definition of which models support what endpoints
+        # (this is almost alway 'chat', but some legacy models only
+        # work with 'completions')
+        self.endpoint = provider.endpoint_for_model(model_engine)
 
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
@@ -358,10 +322,17 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-        client_cls = provider_meta["clients"][self.endpoint]
+        # ensure that the model engine we selected is available for the
+        # provider we selected
+        if model_engine not in (models := provider.get_models()):
+            raise ValueError(
+                f"Model engine '{model_engine}' is not available for provider '{model_provider}'; "
+                f"available models are: {', '.join(models)}"
+            )
 
-        # construct the OpenAI client after all the rest of
+        # construct the provider's client after all the rest of
         # the settings above have been processed
+        client_cls = provider.clients()[self.endpoint]
         self.client = client_cls(
             api_key=api_key,
             **self.model_parameters,
