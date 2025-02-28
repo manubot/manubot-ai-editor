@@ -165,14 +165,14 @@ def test_model_object_init_default_language_model(provider, expected_model):
     assert model.model_parameters["model"] == expected_model
 
 
-@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "text-curie-001"})
+@mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: "davinci-002"})
 def test_model_object_init_read_language_model_from_environment():
     model = GPT3CompletionModel(
         title="Test title",
         keywords=["test", "keywords"],
     )
 
-    assert model.model_parameters["model"] == "text-curie-001"
+    assert model.model_parameters["model"] == "davinci-002"
 
 
 @mock.patch.dict("os.environ", {env_vars.LANGUAGE_MODEL: ""})
