@@ -58,6 +58,12 @@ Once `PROVIDER_API_KEY` is set to something, you can run `pytest` on your work u
 If you want to run tests that query the actual provider APIs, you must specify a valid API key for each provider that's tested.
 If you're testing just one provider, it's sufficient to specify `PROVIDER_API_KEY`, since by default it will be used for any provider.
 
+For reference, API keys are resolved in the following order:
+1. The `api_key` argument to the `models.GPT3CompletionModel` constructor will always be used first.
+2. API-specific keys specified via environment variables, e.g. `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`, will then be
+   used. The specific key used depends on which model provider (e.g., `openai`, `anthropic`) is in use.
+3. If no API-specific key is found, the environment variable `PROVIDER_API_KEY` will be used.
+
 We currently support the following providers:
 - **OpenAI:** Set `OPENAI_API_KEY` to a valid key.
   - See here to [make an OpenAI account](https://openai.com/api/) and [create an API key](https://platform.openai.com/api-keys).
