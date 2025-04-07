@@ -17,7 +17,7 @@ repos:
       # This hook checks yaml files for parseable syntax.
     -   id: check-yaml
 -   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.9.9
+    rev: v0.11.4
     hooks:
     -   id: ruff
         args:
@@ -28,7 +28,7 @@ repos:
     -   id: black
         language_version: python3
 -   repo: https://github.com/python-poetry/poetry
-    rev: "2.1.1"
+    rev: "2.1.2"
     hooks:
     -   id: poetry-check
 -   repo: https://github.com/tox-dev/pyproject-fmt
