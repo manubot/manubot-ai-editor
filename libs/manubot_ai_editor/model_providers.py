@@ -6,7 +6,7 @@ LangChain.
 import json
 
 from datetime import datetime
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import lru_cache
 import os
 
@@ -28,6 +28,19 @@ class APIKeyNotFoundError(Exception):
     """
 
     pass
+
+
+class APIModelListNotObtainable(Exception):
+    """
+    Raised when a model list cannot be obtained from the provider.
+
+    This is raised in response to APIError, which will most often
+    occur from an invalid API key.
+    """
+
+    def __init__(self, provider):
+        self.provider = provider
+        super().__init__()
 
 
 class ImplicitDependencyImportError(ImportError):
@@ -54,9 +67,6 @@ class ImplicitDependencyImportError(ImportError):
 # =============================================================================
 # === Base and specific provider classes
 # =============================================================================
-
-# decorator to cache, e.g., model lists we pull from the APIs
-cache = lru_cache(maxsize=None)
 
 
 class BaseModelProvider(ABC):
@@ -165,6 +175,33 @@ class BaseModelProvider(ABC):
         Returns a list of models available from this provider. If for some
         reason the models couldn't be retrieved, this should return None.
         """
+        try:
+            # attempt to use a provider-specific library to retrieve the models,
+            # which also requires a valid API key.
+            # the provider method may throw ImplicitDependencyImportError if the
+            # library's internal structure has changed such that we can't find
+            # its model-fetching function.
+            # it may throw APIModelListNotObtainable if the API is unavailable,
+            # e.g. due to an invalid API key.
+            cls._get_provider_models()
+
+        except APIModelListNotObtainable as ex:
+            # the most likely cause of this exception is trying to use an
+            # invalid key. this occurs most frequently in the testing suite,
+            # where we know we don't have a valid key.
+            # in that case, we have to resort to the local model list so
+            # that the test can complete.
+            if use_local_cache:
+                print(
+                    f"Unable to retrieve models from {ex.provider}, resorting to local cache"
+                )
+                return retrieve_provider_model_engines()[ex.provider]
+            else:
+                raise ex
+
+    @classmethod
+    @abstractmethod
+    def _get_provider_models(cls):
         return NotImplementedError
 
 
@@ -191,29 +228,17 @@ class OpenAIProvider(BaseModelProvider):
             return "chat"
 
     @classmethod
-    @cache
-    def get_models(cls, use_local_cache=True):
+    @lru_cache(maxsize=None)
+    def _get_provider_models(cls):
         try:
             import openai
 
-            try:
-                print(
-                    f"Retrieving models from the OpenAI API using key {cls.resolve_api_key()}"
-                )
-                client = openai.OpenAI(api_key=cls.resolve_api_key())
-                models = client.models.list()
+            client = openai.OpenAI(api_key=cls.resolve_api_key())
 
-                return [model.id for model in models.data]
+            return [model.id for model in client.models.list().data]
 
-            except openai.APIError as ex:
-                # pull from local
-                if use_local_cache:
-                    print(
-                        f"Unable to retrieve models from the API: {ex}, resorting to local cache"
-                    )
-                    return retrieve_provider_model_engines()["OpenAIProvider"]
-                else:
-                    raise ex
+        except openai.APIError as ex:
+            raise APIModelListNotObtainable(provider=cls.__name__) from ex
 
         except ImportError:
             raise ImplicitDependencyImportError(
@@ -242,26 +267,17 @@ class AnthropicProvider(BaseModelProvider):
             return "chat"
 
     @classmethod
-    @cache
-    def get_models(cls, use_local_cache=True):
+    @lru_cache(maxsize=None)
+    def _get_provider_models(cls):
         try:
             import anthropic
 
-            try:
-                client = anthropic.Client(api_key=cls.resolve_api_key())
-                models = client.models.list()
+            client = anthropic.Client(api_key=cls.resolve_api_key())
 
-                return [model.id for model in models.data]
+            return [model.id for model in client.models.list().data]
 
-            except (anthropic.APIError, TypeError) as ex:
-                # pull from local
-                if use_local_cache:
-                    print(
-                        f"Unable to retrieve models from the API: {ex}, resorting to local cache"
-                    )
-                    return retrieve_provider_model_engines()["AnthropicProvider"]
-                else:
-                    raise ex
+        except (anthropic.APIError, TypeError) as ex:
+            raise APIModelListNotObtainable(provider=cls.__name__) from ex
 
         except ImportError:
             raise ImplicitDependencyImportError(
