@@ -123,6 +123,7 @@ class BaseModelProvider(ABC):
         return False
 
     @classmethod
+    @abstractmethod
     def default_model_engine(cls):
         """ "
         Returns a string that indicates the default
@@ -140,6 +141,7 @@ class BaseModelProvider(ABC):
         return None
 
     @classmethod
+    @abstractmethod
     def clients(cls):
         """ "
         Returns a dictionary of the form {'chat': ChatClient, 'completions':
@@ -149,6 +151,7 @@ class BaseModelProvider(ABC):
         return NotImplementedError
 
     @classmethod
+    @abstractmethod
     def endpoint_for_model(cls, model_engine):
         """
         Returns a client (e.g., 'chat' or 'completions') based on the endpoint
