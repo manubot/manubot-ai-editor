@@ -79,6 +79,15 @@ export OPENAI_API_KEY=ABCD1234
 # export ANTHROPIC_API_KEY=ABCD1234 # if you were using anthropic
 ```
 
+If you only ever use one model provider (e.g., just OpenAI or just Anthropic), you can alternatively provide just
+`PROVIDER_API_KEY` and it will be used with any model provider the tool invokes.
+
+To select a specific provider, set the environment variable `AI_EDITOR_MODEL_PROVIDER` to one of the following values:
+- `openai` for OpenAI
+- `anthropic` for Anthropic
+
+If `AI_EDITOR_MODEL_PROVIDER` is unset, it will default to "openai".
+
 You can also provide other environment variables that will change the behavior of the editor (such as revising certain files only).
 For example, to specify the temperature parameter of OpenAI models, you can set the variable `export AI_EDITOR_TEMPERATURE=0.50`.
 See [the complete list of supported variables](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md) for
