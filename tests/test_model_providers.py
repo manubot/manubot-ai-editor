@@ -81,7 +81,7 @@ def test_model_provider_generic_key_resolution(provider):
     with mock.patch.dict("os.environ"):
         # remove the provider-specific key to make sure we're checking generic
         # key resolution
-        if (key := provider.api_key_env_var()) is not None:
+        if (key := provider.api_key_env_var()) is not None and key in os.environ:
             del os.environ[key]
 
         # check that the generic key is used
@@ -106,7 +106,7 @@ def test_model_provider_get_models(provider):
     with mock.patch.dict("os.environ"):
         # remove the provider-specific key to ensure that a valid key doesn't
         # interfere with checking the cache
-        if (key := provider.api_key_env_var()) is not None:
+        if (key := provider.api_key_env_var()) is not None and key in os.environ:
             del os.environ[key]
 
         # check that we can find the default model in each provider's list of
