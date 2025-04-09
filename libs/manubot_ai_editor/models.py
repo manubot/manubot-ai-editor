@@ -205,9 +205,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # identify model_engine first by the argument, then by the environment
         # var env_vars.LANGUAGE_MODEL, then by whatever the provider's default
         # model is
-        if model_engine is None:
+        if model_engine is None or model_engine.strip() == "":
             model_engine = os.environ.get(env_vars.LANGUAGE_MODEL)
 
+            # if it's *still* None or empty, use the provider's default
             if model_engine is None or model_engine.strip() == "":
                 model_engine = provider.default_model_engine()
 
