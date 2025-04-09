@@ -24,9 +24,6 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 packages = [ { include = "manubot_ai_editor", from = "libs" } ]
-include = [
-  "manubot_ai_editor/ref/*.json",
-]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
