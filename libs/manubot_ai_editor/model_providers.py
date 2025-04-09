@@ -3,9 +3,6 @@ This module defines metadata for the model providers that we're accessing via
 LangChain.
 """
 
-import json
-
-from datetime import datetime
 from abc import ABC, abstractmethod
 from functools import lru_cache
 import os
@@ -174,35 +171,25 @@ class BaseModelProvider(ABC):
         return NotImplementedError
 
     @classmethod
-    def get_models(cls, use_local_cache=True):
+    def get_models(cls):
         """
-        Returns a list of models available from this provider. If for some
-        reason the models couldn't be retrieved, this should return None.
+        Returns a list of models available from this provider.
+
+        Override this method to return None if your provider doesn't have a
+        way of providing a list of models.
+
+        Raises:
+            APIModelListNotObtainable:
+                If the model list cannot be obtained from the provider. This is
+                most often due to an invalid API key, but could also be due to
+                the API being unavailable for some other reason.
+            ImplicitDependencyImportError:
+                If the provider-specific library cannot be imported. This is
+                most often due to the library not being installed, but could
+                also be due to the library's internal structure changing such
+                that we can't find its model-fetching function.
         """
-        try:
-            # attempt to use a provider-specific library to retrieve the models,
-            # which also requires a valid API key.
-            # the provider method may throw the following exceptions:
-            # - ImplicitDependencyImportError if the library's internal
-            #   structure has changed such that we can't find its model-fetching
-            #   function.
-            # - APIModelListNotObtainable if the API is unavailable, e.g. due to
-            #   an invalid API key.
-
-            return cls._get_provider_models()
-
-        except APIModelListNotObtainable as ex:
-            # the most likely cause of this exception is trying to use an
-            # invalid key. this occurs most frequently in the testing suite,
-            # where we know we don't have a valid key.
-
-            if use_local_cache:
-                logger.warning(
-                    f"Unable to retrieve models from {ex.provider}, resorting to local cache"
-                )
-                return retrieve_provider_model_engines()[ex.provider]
-            else:
-                raise ex
+        return cls._get_provider_models()
 
     @classmethod
     @abstractmethod
@@ -290,74 +277,10 @@ class AnthropicProvider(BaseModelProvider):
             )
 
 
-# =============================================================================
-# === Provider dict, model engine fallback list persistence + retrieval
-# =============================================================================
-
 # the MODEL_PROVIDERS dict specifies metadata for each model provider, e.g.
-# OpenAI or Anthropic, that are used in the GPT3CompletionModel class to invoke
-# the provider's API.
-# - the 'api_key_env_var' field specifies the environment variable that should be
-#   used to obtain the API key for the provider. if it's None, that means this
-#   provider doesn't require an API key (e.g., for local LLMs)
-# - the 'clients' field maps the endpoints to the client classes that should be
-#   used to interact with the provider's API.
+# OpenAI or Anthropic, that are used in the GPT3CompletionModel class to get
+# API keys, client instances, and other metadata for each provider
 MODEL_PROVIDERS = {
     "openai": OpenAIProvider(),
     "anthropic": AnthropicProvider(),
 }
-
-
-def _provider_model_engine_file():
-    """
-    Returns the path to the JSON file that contains the available model engines
-    for each provider.
-    """
-    from importlib import resources
-
-    # form path to the JSON file
-    model_path = resources.files("manubot_ai_editor").joinpath(
-        "ref", "provider_model_engines.json"
-    )
-
-    # ensure the directory exists
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-
-    return model_path
-
-
-def persist_provider_model_engines():
-    """
-    Persists the default model engines for each provider to a JSON file,
-    distributed with the package. This method requires valid API keys to be
-    available for each provider, since the list of models per provider is pulled
-    from the API.
-
-    The JSON file is used as as a fallback in case the API is for some reason
-    unavailable, e.g. in testing when we don't have valid keys.
-
-    It's unfortunate that the model providers require authenticated access to
-    get the list of models, but that's how it is. Ideally we'd run this with
-    each release, to at least capture which model engines are available at the
-    time of release.
-    """
-
-    with _provider_model_engine_file().open("w") as f:
-        model_list = {
-            provider.__class__.__name__: provider.get_models()
-            for provider in MODEL_PROVIDERS.values()
-            if not provider.is_local_provider()
-        }
-        model_list["__generated_on__"] = datetime.now().isoformat()
-
-        json.dump(model_list, f, indent=2)
-
-
-def retrieve_provider_model_engines():
-    """
-    Pulls the default model engines for each provider from the JSON file
-    distributed with the package.
-    """
-
-    with _provider_model_engine_file().open("r") as f:
-        return json.load(f)

@@ -5,10 +5,19 @@ import random
 import time
 import json
 
+from logging import getLogger
+
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
-from manubot_ai_editor.model_providers import MODEL_PROVIDERS, APIKeyNotFoundError
+from manubot_ai_editor.model_providers import (
+    MODEL_PROVIDERS,
+    APIKeyNotFoundError,
+    APIModelListNotObtainable,
+)
+
+
+logger = getLogger(__name__)
 
 
 class ManuscriptRevisionModel(ABC):
@@ -326,10 +335,23 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         # ensure that the model engine we selected is available for the
         # provider we selected
-        if model_engine not in (models := provider.get_models()):
-            raise ValueError(
-                f"Model engine '{model_engine}' is not available for provider '{model_provider}'; "
-                f"available models are: {', '.join(models)}"
+        try:
+            models = provider.get_models()
+
+            if models is not None and model_engine not in models:
+                raise ValueError(
+                    f"Model engine '{model_engine}' is not available for provider '{model_provider}'; "
+                    f"available models are: {', '.join(models)}"
+                )
+            elif models is None:
+                logger.warning(
+                    f"Provider '{model_provider}' declares it can't list models; "
+                    f"assuming model '{model_engine}' is valid and continuing"
+                )
+
+        except APIModelListNotObtainable as ex:
+            logger.warning(
+                f"Unable to obtain model list from provider '{model_provider}': {ex}, assuming it's valid and continuing"
             )
 
         # construct the provider's client after all the rest of
