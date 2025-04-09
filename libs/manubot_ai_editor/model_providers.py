@@ -15,6 +15,10 @@ from langchain_openai import ChatOpenAI, OpenAI
 
 from manubot_ai_editor import env_vars
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 
 # =============================================================================
 # === Provider exceptions
@@ -178,21 +182,22 @@ class BaseModelProvider(ABC):
         try:
             # attempt to use a provider-specific library to retrieve the models,
             # which also requires a valid API key.
-            # the provider method may throw ImplicitDependencyImportError if the
-            # library's internal structure has changed such that we can't find
-            # its model-fetching function.
-            # it may throw APIModelListNotObtainable if the API is unavailable,
-            # e.g. due to an invalid API key.
-            cls._get_provider_models()
+            # the provider method may throw the following exceptions:
+            # - ImplicitDependencyImportError if the library's internal
+            #   structure has changed such that we can't find its model-fetching
+            #   function.
+            # - APIModelListNotObtainable if the API is unavailable, e.g. due to
+            #   an invalid API key.
+
+            return cls._get_provider_models()
 
         except APIModelListNotObtainable as ex:
             # the most likely cause of this exception is trying to use an
             # invalid key. this occurs most frequently in the testing suite,
             # where we know we don't have a valid key.
-            # in that case, we have to resort to the local model list so
-            # that the test can complete.
+
             if use_local_cache:
-                print(
+                logger.warning(
                     f"Unable to retrieve models from {ex.provider}, resorting to local cache"
                 )
                 return retrieve_provider_model_engines()[ex.provider]
