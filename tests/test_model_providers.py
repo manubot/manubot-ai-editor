@@ -1,3 +1,4 @@
+import os
 from unittest import mock
 from manubot_ai_editor import env_vars
 import pytest
@@ -55,14 +56,14 @@ def test_model_provider_specific_key_resolution(provider):
     api_key_var = provider.api_key_env_var()
 
     if api_key_var is None:
+        # ensure that providers that don't require an API key
+        # resolve None for the key
         assert provider.resolve_api_key() is None
-
-    with mock.patch.dict("os.environ", {api_key_var: "1234"}):
-        # check that the provider-specific key is used
-        if provider.api_key_env_var() is not None:
+    else:
+        # if the provider does require a key, check that the provider-specific
+        # key is resolved
+        with mock.patch.dict("os.environ", {api_key_var: "1234"}):
             assert provider.resolve_api_key() == "1234"
-        else:
-            assert provider.resolve_api_key() is None
 
 
 @pytest.mark.parametrize(
@@ -77,8 +78,39 @@ def test_model_provider_generic_key_resolution(provider):
     not required by the provider, checks that the key is set to None.
     """
 
-    # check that the generic key is used
-    if provider.api_key_env_var() is not None:
-        assert provider.resolve_api_key() == "1234"
-    else:
-        assert provider.resolve_api_key() is None
+    with mock.patch.dict("os.environ"):
+        # remove the provider-specific key to make sure we're checking generic
+        # key resolution
+        if (key := provider.api_key_env_var()) is not None:
+            del os.environ[key]
+
+        # check that the generic key is used
+        if provider.api_key_env_var() is not None:
+            assert provider.resolve_api_key() == "1234"
+        else:
+            assert provider.resolve_api_key() is None
+
+
+@pytest.mark.parametrize(
+    "provider",
+    MODEL_PROVIDERS.values(),
+)
+@mock.patch.dict("os.environ", {env_vars.PROVIDER_API_KEY: "1234"})
+def test_model_provider_get_models(provider):
+    """
+    Tests that the model provider can correctly retrieve the list of models
+    from the cache, and that the default language model for each provider
+    is in that list.
+    """
+
+    with mock.patch.dict("os.environ"):
+        # remove the provider-specific key to ensure that a valid key doesn't
+        # interfere with checking the cache
+        if (key := provider.api_key_env_var()) is not None:
+            del os.environ[key]
+
+        # check that we can find the default model in each provider's list of
+        # models
+        default_model = provider.default_model_engine()
+        assert default_model is not None
+        assert default_model in provider.get_models()
