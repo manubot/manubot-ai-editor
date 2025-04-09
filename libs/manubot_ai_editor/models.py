@@ -302,6 +302,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # work with 'completions')
         self.endpoint = provider.endpoint_for_model(model_engine)
 
+        print(f"Model provider: {model_provider}")
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
 
