@@ -53,7 +53,7 @@ def patch_model_list_cache():
     # load the provider model list once, then use it in our mocked method
     with provider_model_engine_json.open("r") as f:
         provider_model_engines = json.load(f)
-    
+
     @classmethod
     def cached_model_list_retriever(cls):
         return provider_model_engines[cls.__name__]
