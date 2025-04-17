@@ -351,7 +351,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         except APIModelListNotObtainable as ex:
             logger.warning(
-                f"Unable to obtain model list from provider '{model_provider}': {ex}, assuming it's valid and continuing"
+                f"Unable to obtain model list from provider '{model_provider}', assuming it's valid and continuing"
             )
 
         # construct the provider's client after all the rest of
