@@ -25,7 +25,9 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "cost: mark test as possibly costing money to run"
     )
-
+    config.addinivalue_line(
+        "markers", "mocked_model_list: mark test as having used the provider's cached model list"
+    )
 
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--runcost"):
@@ -43,8 +45,15 @@ def pytest_collection_modifyitems(config, items):
 # model list from the provider API. instead, we mock the method that retrieves
 # the model list to return a cached version of the model list stored in the
 # provider_model_engines.json file
-@pytest.fixture(autouse=True, scope="session")
-def patch_model_list_cache():
+@pytest.fixture(autouse=True, scope="function")
+def patch_model_list_cache(request):
+    # skip patching if the test or anything above it is marked with 'cost',
+    # which implies we have a valid API key and thus should retrieve the model
+    # list from the provider API
+    if request.node.get_closest_marker("cost") is not None:
+        yield
+        return
+
     # path to the provider_model_engine.json file
     provider_model_engine_json = (
         Path(__file__).parent / "provider_fixtures" / "provider_model_engines.json"
@@ -56,6 +65,10 @@ def patch_model_list_cache():
 
     @classmethod
     def cached_model_list_retriever(cls):
+        # annotate the request object to indicate we're using a mocked method
+        # we want the live API tests to ensure they're not using this mock
+        request.node.add_marker("mocked_model_list")
+
         return provider_model_engines[cls.__name__]
 
     # finally, apply the mock
