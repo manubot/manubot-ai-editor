@@ -424,7 +424,7 @@ def test_model_provider_get_models_live_failure(caplog, request, provider_name: 
 
         # instantiate GPT3CompletionModel to trigger the model list retrieval
         # for the provider
-        model = GPT3CompletionModel(
+        GPT3CompletionModel(
             title="Test Manuscript",
             keywords=["test", "keywords"],
             model_provider=provider_name,
