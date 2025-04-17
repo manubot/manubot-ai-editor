@@ -4,8 +4,10 @@ Tests basic functions of the models module that do not require access to an exte
 
 import os
 from pathlib import Path
+import pprint
 from unittest import mock
 
+from manubot_ai_editor.model_providers import MODEL_PROVIDERS
 import pytest
 
 from manubot_ai_editor.editor import ManuscriptEditor, env_vars
@@ -338,3 +340,99 @@ We adjusted the $p$-values using the Benjamini-Hochberg procedure.
     assert paragraph_revised == paragraph_text
     assert len(paragraph_revised) > 10
     assert "<!--\nERROR:" not in paragraph_revised
+
+
+@pytest.mark.cost
+@pytest.mark.parametrize(
+    "provider_name",
+    MODEL_PROVIDERS.keys(),
+)
+def test_model_provider_get_models_live(caplog, request, provider_name: str):
+    """
+    Does a live test of instantiating GPT3CompletionModel for each provider,
+    which queries for the list of models from the provider API.
+
+    This test is marked with 'cost' because it hits live APIs for the providers
+    and can incur costs. It should be run with the --runcost option to
+    pytest.
+
+    Note that for each provider you're testing you must also have a valid API
+    key env var set. We unset PROVIDER_API_KEY here, because it can't be valid
+    for more than one provider.
+    """
+
+    caplog.set_level("INFO")
+
+    with mock.patch.dict("os.environ"):
+        # remove PROVIDER_API_KEY to ensure that it doesn't get used
+        # when checking the provider-specific key
+        if (key := env_vars.PROVIDER_API_KEY) in os.environ:
+            del os.environ[key]
+        
+        # instantiate GPT3CompletionModel to trigger the model list retrieval
+        # for the provider
+        GPT3CompletionModel(
+            title="Test Manuscript",
+            keywords=["test", "keywords"],
+            model_provider=provider_name
+        )
+
+        # check that we don't have the mocked_model_list marker, which indicates
+        # we're using the cache
+        assert request.node.get_closest_marker("mocked_model_list") is None, \
+            "mocked_model_list marker should not be present for a live API test"
+
+        # check that we didn't resort to not checking the model, since
+        # GPT3CompletionModel just regsisters a warning if the model list can't
+        # be retrieved
+        assert "Unable to obtain model list from provider " not in caplog.text
+
+@pytest.mark.cost
+@pytest.mark.parametrize(
+    "provider_name",
+    MODEL_PROVIDERS.keys(),
+)
+def test_model_provider_get_models_live_failure(caplog, request, provider_name: str):
+    """
+    Does a live test of instantiating GPT3CompletionModel for each provider,
+    which queries for the list of models from the provider API. Unlike the
+    above test, this one's expected to not be able to retrieve the model
+    because we manually patch in a bad key for each provider.
+
+    This test is marked with 'cost' because, while it won't *successfully* hit
+    the API and thus won't incur actual costs, we still want to skip it from
+    having the model list cache patched in.
+    """
+
+    caplog.set_level("INFO")
+
+    with mock.patch.dict("os.environ") as patched_env:
+        # set a bad key for this provider to cause the retrieval to fail
+        provider = MODEL_PROVIDERS[provider_name]
+        os.environ[provider.api_key_env_var()] = "bad_key"
+
+        # remove PROVIDER_API_KEY to ensure that it doesn't get used
+        # when checking the provider-specific key
+        if (key := env_vars.PROVIDER_API_KEY) in os.environ:
+            del os.environ[key]
+
+        # print the whole environment
+        print("Environment variables:")
+        pprint.pprint({k: v for k, v in patched_env.items() if "KEY" in k})
+
+        # instantiate GPT3CompletionModel to trigger the model list retrieval
+        # for the provider
+        model = GPT3CompletionModel(
+            title="Test Manuscript",
+            keywords=["test", "keywords"],
+            model_provider=provider_name
+        )
+
+        # check that we don't have the mocked_model_list marker, which would
+        # indicate that we're using the cache
+        assert request.node.get_closest_marker("mocked_model_list") is None, \
+            "mocked_model_list marker should not be present for a live API test"
+
+        # ensure that we failed to get the list from the provider, since
+        # we have a bad key
+        assert "Unable to obtain model list from provider " in caplog.text
