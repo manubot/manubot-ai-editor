@@ -368,24 +368,26 @@ def test_model_provider_get_models_live(caplog, request, provider_name: str):
         # when checking the provider-specific key
         if (key := env_vars.PROVIDER_API_KEY) in os.environ:
             del os.environ[key]
-        
+
         # instantiate GPT3CompletionModel to trigger the model list retrieval
         # for the provider
         GPT3CompletionModel(
             title="Test Manuscript",
             keywords=["test", "keywords"],
-            model_provider=provider_name
+            model_provider=provider_name,
         )
 
         # check that we don't have the mocked_model_list marker, which indicates
         # we're using the cache
-        assert request.node.get_closest_marker("mocked_model_list") is None, \
-            "mocked_model_list marker should not be present for a live API test"
+        assert (
+            request.node.get_closest_marker("mocked_model_list") is None
+        ), "mocked_model_list marker should not be present for a live API test"
 
         # check that we didn't resort to not checking the model, since
         # GPT3CompletionModel just regsisters a warning if the model list can't
         # be retrieved
         assert "Unable to obtain model list from provider " not in caplog.text
+
 
 @pytest.mark.cost
 @pytest.mark.parametrize(
@@ -425,13 +427,14 @@ def test_model_provider_get_models_live_failure(caplog, request, provider_name: 
         model = GPT3CompletionModel(
             title="Test Manuscript",
             keywords=["test", "keywords"],
-            model_provider=provider_name
+            model_provider=provider_name,
         )
 
         # check that we don't have the mocked_model_list marker, which would
         # indicate that we're using the cache
-        assert request.node.get_closest_marker("mocked_model_list") is None, \
-            "mocked_model_list marker should not be present for a live API test"
+        assert (
+            request.node.get_closest_marker("mocked_model_list") is None
+        ), "mocked_model_list marker should not be present for a live API test"
 
         # ensure that we failed to get the list from the provider, since
         # we have a bad key

@@ -26,8 +26,10 @@ def pytest_configure(config):
         "markers", "cost: mark test as possibly costing money to run"
     )
     config.addinivalue_line(
-        "markers", "mocked_model_list: mark test as having used the provider's cached model list"
+        "markers",
+        "mocked_model_list: mark test as having used the provider's cached model list",
     )
+
 
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--runcost"):

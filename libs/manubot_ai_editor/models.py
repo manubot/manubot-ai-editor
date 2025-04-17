@@ -349,7 +349,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     f"assuming model '{model_engine}' is valid and continuing"
                 )
 
-        except APIModelListNotObtainable as ex:
+        except APIModelListNotObtainable:
             logger.warning(
                 f"Unable to obtain model list from provider '{model_provider}', assuming it's valid and continuing"
             )
