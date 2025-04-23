@@ -6,6 +6,26 @@ prefixed with `AI_EDITOR_`.
 
 The following environment variables are supported, organized into categories:
 
+## Provider Configuration
+
+This tool refers to services that provide LLMs, such as OpenAI or Anthropic, as
+"providers".
+
+- `AI_EDITOR_MODEL_PROVIDER`: Specifies the provider; currently, the values we
+support are "openai" for OpenAI and "anthropic" for Anthropic.
+
+## Provider API Key Configuration
+
+For providers that require API keys, you can specify an API key specific
+to that provider via an environment variable named `<PROVIDER>_API_KEY`.
+For example, for OpenAI, the API key variable would be named `OPENAI_API_KEY`
+and for Anthropic, it would be `ANTHROPIC_API_KEY`.
+
+Alternatively, you can use the environment variable `PROVIDER_API_KEY` to
+set an API key that will be used for all providers.
+If both a provider-specific key and `PROVIDER_API_KEY` are set, the provider-
+specific key will take precedence.
+
 ## Model Configuration
 
 - `AI_EDITOR_LANGUAGE_MODEL`: Language model to use. For example,
@@ -13,6 +33,8 @@ The following environment variables are supported, organized into categories:
 currently supports the "chat/completions", "completions", and "edits" endpoints,
 and you can check compatible models here:
 https://platform.openai.com/docs/models/model-endpoint-compatibility
+Anthropic models are listed here:
+https://docs.anthropic.com/en/docs/about-claude/models/all-models
 - `AI_EDITOR_MAX_TOKENS_PER_REQUEST`: Model parameter: `max_tokens`
 - `AI_EDITOR_TEMPERATURE`: Model parameter: `temperature`
 - `AI_EDITOR_TOP_P`: Model parameter: `top_p`

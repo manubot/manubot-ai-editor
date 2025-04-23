@@ -5,10 +5,19 @@ import random
 import time
 import json
 
-from langchain_openai import OpenAI, ChatOpenAI
+from logging import getLogger
+
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.model_providers import (
+    MODEL_PROVIDERS,
+    APIKeyNotFoundError,
+    APIModelListNotObtainable,
+)
+
+
+logger = getLogger(__name__)
 
 
 class ManuscriptRevisionModel(ABC):
@@ -124,14 +133,62 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     Revises paragraphs using completion or chat completion models. Most of the parameters
     (https://platform.openai.com/docs/guides/gpt) of the model can be specified either by
     arguments during instantiation or environment variables (see env_vars.py).
+
+    Note that a few arguments override the environment variables, such as
+    'model_provider', 'model engine', and 'api_key'; the environment is only
+    consulted when they're set to None. The rest of the parameters, e.g.
+    'temperature', are overridden *by* the corresponding environment variables,
+    if they exist.
+
+    Regarding temperature, best_of, top_p, etc., this post provides a good
+    explanation of how they're related:
+    https://community.openai.com/t/the-relationship-between-best-of-temperature-and-top-p-the-three-variable-problem/21150/11
+
+    Args:
+        title (str): Title of the manuscript.
+        keywords (list): Keywords of the manuscript, defaults to [] if unspecified.
+        model_provider (str):
+            Model provider to use, e.g. "openai" or "anthropic". If not
+            specified, it will be obtained from the environment variable
+            specified by env_vars.MODEL_PROVIDER, defaulting to "openai" if not set.
+        model_engine (str):
+            Language model to use. For example, "text-davinci-003",
+            "gpt-3.5-turbo", "gpt-3.5-turbo-0301", etc. If not specified, it
+            will be obtained from the environment variable specified by
+            env_vars.LANGUAGE_MODEL; failing that the default model for the
+            provider will be used.
+        api_key (str):
+            API key for the model provider. If not specified, it will be
+            obtained from the environment variable specified by the provider's
+            API key env var (e.g. env_vars.OPENAI_API_KEY for OpenAI); failing
+            that, it will be obtained from the generic PROVIDER_API_KEY env var.
+        temperature (float):
+            Temperature parameter for the model. If env_vars.TEMPERATURE is
+            set, it will override this value.
+        presence_penalty (float):
+            Presence penalty parameter for the model. If env_vars.PRESENCE_PENALTY
+            is set, it will override this value.
+        frequency_penalty (float):
+            Frequency penalty parameter for the model. If env_vars.FREQUENCY_PENALTY
+            is set, it will override this value.
+        best_of (int):
+            Number of completions to generate and rank. If env_vars.BEST_OF
+            is set, it will override this value.
+        top_p (float):
+            Top-P parameter for the model. If env_vars.TOP_P is set, it will
+            override this value.
+        retry_count (int):
+            Number of times to retry the revision if an error occurs. If
+            env_vars.RETRY_COUNT is set, it will override this value.
     """
 
     def __init__(
         self,
         title: str,
         keywords: list[str],
-        openai_api_key: str = None,
-        model_engine: str = "gpt-3.5-turbo",
+        model_provider: str = None,
+        api_key: str = None,
+        model_engine: str = None,
         temperature: float = 0.5,
         presence_penalty: float = None,
         frequency_penalty: float = None,
@@ -141,18 +198,43 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
     ):
         super().__init__()
 
-        # make sure the OpenAI API key is set
-        if openai_api_key is None:
-            # attempt to get the OpenAI API key from the environment, since one
-            # wasn't specified as an argument
-            openai_api_key = os.environ.get(env_vars.OPENAI_API_KEY, None)
+        # if no model_provider was provided, get it from the environment,
+        # defaulting to openai if not set
+        if model_provider is None:
+            model_provider = os.environ.get(env_vars.MODEL_PROVIDER, "openai")
 
-            # if it's *still* not set, bail
-            if openai_api_key is None or openai_api_key.strip() == "":
+        # now, get the metadata object for the model provider
+        try:
+            provider = MODEL_PROVIDERS[model_provider]
+        except KeyError:
+            raise ValueError(
+                f"Model provider '{model_provider}' not found; it must be one of {', '.join(MODEL_PROVIDERS.keys())}"
+            )
+
+        # identify model_engine first by the argument, then by the environment
+        # var env_vars.LANGUAGE_MODEL, then by whatever the provider's default
+        # model is
+        if model_engine is None or model_engine.strip() == "":
+            model_engine = os.environ.get(env_vars.LANGUAGE_MODEL)
+
+            # if it's *still* None or empty, use the provider's default
+            if model_engine is None or model_engine.strip() == "":
+                model_engine = provider.default_model_engine()
+
+        # if no api_key was explicitly provided and the provider requires an API
+        # key, make sure a key can be found
+        if (
+            api_key is None
+            and (provider_key_env_var := provider.api_key_env_var()) is not None
+        ):
+            # consult the provider for a possible key
+            try:
+                api_key = provider.resolve_api_key()
+            except APIKeyNotFoundError:
                 raise ValueError(
-                    f"OpenAI API key not found. Please provide it as parameter "
-                    f"or set it as an the environment variable "
-                    f"{env_vars.OPENAI_API_KEY}"
+                    f"API key for provider {model_provider} not found. Please provide it as the 'api_key' parameter, "
+                    f"set a provider-specific key via the environment variable {provider_key_env_var}, "
+                    f"or set a generic API key via the environment variable {env_vars.PROVIDER_API_KEY}",
                 )
 
         if env_vars.LANGUAGE_MODEL in os.environ:
@@ -223,14 +305,13 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         self.title = title
         self.keywords = keywords if keywords is not None else []
 
-        # adjust options if chat endpoint was selected
-        self.endpoint = "chat"
+        # set the endpoint ('chat' or 'completions') based on the provider's
+        # specific definition of which models support what endpoints
+        # (this is almost alway 'chat', but some legacy models only
+        # work with 'completions')
+        self.endpoint = provider.endpoint_for_model(model_engine)
 
-        if model_engine.startswith(
-            ("text-davinci-", "text-curie-", "text-babbage-", "text-ada-")
-        ):
-            self.endpoint = "completions"
-
+        print(f"Model provider: {model_provider}")
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
 
@@ -252,15 +333,32 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
 
         self.several_spaces_pattern = re.compile(r"\s+")
 
-        if self.endpoint == "chat":
-            client_cls = ChatOpenAI
-        else:
-            client_cls = OpenAI
+        # ensure that the model engine we selected is available for the
+        # provider we selected
+        try:
+            models = provider.get_models()
 
-        # construct the OpenAI client after all the rest of
+            if models is not None and model_engine not in models:
+                raise ValueError(
+                    f"Model engine '{model_engine}' is not available for provider '{model_provider}'; "
+                    f"available models are: {', '.join(models)}"
+                )
+            elif models is None:
+                logger.warning(
+                    f"Provider '{model_provider}' declares it can't list models; "
+                    f"assuming model '{model_engine}' is valid and continuing"
+                )
+
+        except APIModelListNotObtainable:
+            logger.warning(
+                f"Unable to obtain model list from provider '{model_provider}', assuming it's valid and continuing"
+            )
+
+        # construct the provider's client after all the rest of
         # the settings above have been processed
+        client_cls = provider.clients()[self.endpoint]
         self.client = client_cls(
-            api_key=openai_api_key,
+            api_key=api_key,
             **self.model_parameters,
         )
 
