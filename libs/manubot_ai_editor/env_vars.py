@@ -12,12 +12,21 @@ if you want to provide a custom prompt, then you need to add a line like this to
     AI_EDITOR_CUSTOM_PROMPT="proofread the following paragraph"
 """
 
-# OpenAI API key to use
+# generic provider API key to use when a provider-specific API key is not
+# provided
+PROVIDER_API_KEY = "PROVIDER_API_KEY"
+
+# provider-specific API key overrides
 OPENAI_API_KEY = "OPENAI_API_KEY"
+ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"
+
+# model provider to use, e.g. "openai" or "anthropic"
+MODEL_PROVIDER = "AI_EDITOR_MODEL_PROVIDER"
 
 # Language model to use. For example, "text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0301", etc
 # The tool currently supports the "chat/completions" and "completions" endpoints, and you can check
-# compatible models here: https://platform.openai.com/docs/models/model-endpoint-compatibility
+# compatible openai models here: https://platform.openai.com/docs/models/model-endpoint-compatibility
+# anthropic models are here: https://docs.anthropic.com/en/docs/about-claude/models
 LANGUAGE_MODEL = "AI_EDITOR_LANGUAGE_MODEL"
 
 # Model parameter: max_tokens

@@ -1,17 +1,17 @@
 prompts:
-  front_matter: Revise the following paragraph to include the keyword "testify" somewhere in the text.
-  abstract: Revise the following paragraph to include the keyword "bottle" somewhere in the text.
-  introduction: Revise the following paragraph to include the keyword "wound" somewhere in the text.
-  results: Revise the following paragraph to include the keyword "classroom" somewhere in the text.
-  results_framework: Revise the following paragraph to include the keyword "secretary" somewhere in the text.
-  crispr: Revise the following paragraph to include the keyword "army" somewhere in the text.
-  drug_disease_prediction: Revise the following paragraph to include the keyword "breakdown" somewhere in the text.
-  traits_clustering: Revise the following paragraph to include the keyword "siege" somewhere in the text.
-  discussion: Revise the following paragraph to include the keyword "beer" somewhere in the text.
-  methods: Revise the following paragraph to include the keyword "confront" somewhere in the text.
-  references: Revise the following paragraph to include the keyword "disability" somewhere in the text.
-  acknowledgements: Revise the following paragraph to include the keyword "stitch" somewhere in the text.
-  supplementary_material: Revise the following paragraph to include the keyword "waiter" somewhere in the text.
+  front_matter: Revise the following paragraph to include the keyword "testify" somewhere in the text; the keyword must be present verbatim.
+  abstract: Revise the following paragraph to include the keyword "orchestra" somewhere in the text; the keyword must be present verbatim.
+  introduction: Revise the following paragraph to include the keyword "wound" somewhere in the text; the keyword must be present verbatim.
+  results: Revise the following paragraph to include the keyword "classroom" somewhere in the text; the keyword must be present verbatim.
+  results_framework: Revise the following paragraph to include the keyword "secretary" somewhere in the text; the keyword must be present verbatim.
+  crispr: Revise the following paragraph to include the keyword "army" somewhere in the text; the keyword must be present verbatim.
+  drug_disease_prediction: Revise the following paragraph to include the keyword "breakdown" somewhere in the text; the keyword must be present verbatim.
+  traits_clustering: Revise the following paragraph to include the keyword "siege" somewhere in the text; the keyword must be present verbatim.
+  discussion: Revise the following paragraph to include the keyword "beer" somewhere in the text; the keyword must be present verbatim.
+  methods: Revise the following paragraph to include the keyword "confront" somewhere in the text; the keyword must be present verbatim.
+  references: Revise the following paragraph to include the keyword "disability" somewhere in the text; the keyword must be present verbatim.
+  acknowledgements: Revise the following paragraph to include the keyword "stitch" somewhere in the text; the keyword must be present verbatim.
+  supplementary_material: Revise the following paragraph to include the keyword "waiter" somewhere in the text; the keyword must be present verbatim.
 
   default: |
     This is the default prompt
