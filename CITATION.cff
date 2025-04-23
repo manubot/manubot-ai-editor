@@ -4,8 +4,9 @@
 cff-version: 1.2.0
 title: Manubot AI Editor
 message: >-
-  If you use this work in some way, please consider
-  citing it using the metadata from this file.
+  If you use this work in some way, please cite both the article from
+  preferred-citation and the software itself. These details can be
+  found within the CITATION.cff file.
 type: software
 authors:
   - given-names: Milton
@@ -42,3 +43,19 @@ identifiers:
   - description: Software
     type: doi
     value: "10.5281/zenodo.14911573"
+preferred-citation:
+  title: >-
+    A publishing infrastructure for Artificial Intelligence (AI)-assisted academic authoring
+  type: article
+  url: https://academic.oup.com/jamia/article/31/9/2103/7693927
+  authors: 
+    - given-names: Milton
+      family-names: Pividori
+      orcid: "https://orcid.org/0000-0002-3035-4403"
+    - given-names: Casey S.
+      family-names: Greene
+      orcid: "https://orcid.org/0000-0001-8713-9213"
+  date-published: 2024-09-01
+  identifiers:
+    - type: doi
+      value: 10.1093/jamia/ocae139
