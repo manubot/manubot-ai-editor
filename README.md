@@ -40,6 +40,26 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 1. If you haven't already, follow the directions above to create an account and get an API key for your chosen model provider.
 1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `PROVIDER_API_KEY` and paste in your API key as the secret.
 
+If you prefer to select less options when running the workflow, you can optionally set up default values for the
+model provider and model at either the repo or organization level.
+
+In your fork's "⚙️ Settings" tab, you can optionally create the folllowing Actions repository variables:
+- `AI_EDITOR_MODEL_PROVIDER`: Either "openai" or "anthropic"; sets this as the default if "(repo default)" was selected
+  in the workflow parameters. If this is unspecified and "(repo default)" is selected, the workflow will throw an error.
+- `AI_EDITOR_LANGUAGE_MODEL`: For the given provider, what model to use if the "model" field in the workflow parameters
+  was left empty. If this is unspecified, Manubot AI Editor will select the default model for your chosen provider.
+
+### Multiple Providers
+
+In case you want to use several providers in the same repo, you'll have to register an API key for each provider you
+intend to use.
+Like `PROVIDER_API_KEY`, these keys are also registered as secrets, and can be specified at either the repository or
+organizational level.
+
+We currently support the following secrets, with more to follow as we integrate more providers:
+- `OPENAI_API_KEY`: the API key for the "openai" provider
+- `ANTHROPIC_API_KEY`: the API key for the "anthropic" provider
+
 ### Configuring prompts
 
 In order to revise your manuscript, prompts must be provided to the AI model.
