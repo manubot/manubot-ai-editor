@@ -40,7 +40,7 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 1. If you haven't already, follow the directions above to create an account and get an API key for your chosen model provider.
 1. In your fork's "⚙️ Settings" tab, make a new Actions repository secret with the name `PROVIDER_API_KEY` and paste in your API key as the secret.
 
-If you prefer to select less options when running the workflow, you can optionally set up default values for the
+If you prefer to select fewer options when running the workflow, you can optionally set up default values for the
 model provider and model at either the repo or organization level.
 
 In your fork's "⚙️ Settings" tab, you can optionally create the folllowing Actions repository variables:
