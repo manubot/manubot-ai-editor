@@ -42,11 +42,11 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 
 If you prefer to select less options when running the workflow, you can optionally set up default values for the model provider and model at either the repo or organization level.
 
-In your fork's "⚙️ Settings" tab you can optionally create the following Actions repository variables:
-- `AI_EDITOR_MODEL_PROVIDER`: Either "openai" or "anthropic"; sets  the default if "(repo default)" was selected
-  in the workflow parameters. If this is unspecified and "(repo default)" is selected, the workflow will throw an error.
-- `AI_EDITOR_LANGUAGE_MODEL`: specifies what model to use if the "model" field is in the workflow parameters
-  . If this repository variable is unspecified, Manubot AI Editor will select the default model for your chosen provider.
+In your fork's "⚙️ Settings" tab, you can optionally create the folllowing Actions repository variables:
+- `AI_EDITOR_MODEL_PROVIDER`: Either "openai" or "anthropic"; sets this as the default if "(repo default)" was selected in the workflow parameters.
+  If this is unspecified and "(repo default)" is selected, the workflow will throw an error.
+- `AI_EDITOR_LANGUAGE_MODEL`: For the given provider, what model to use if the "model" field in the workflow parameters was left empty.
+  If this is unspecified, Manubot AI Editor will select the default model for your chosen provider.
 
 ### Multiple Providers
 
@@ -56,6 +56,8 @@ Like `PROVIDER_API_KEY`, these keys are also registered as GitHub secrets, and c
 We currently support the following secrets, with more to follow as we integrate more providers:
 - `OPENAI_API_KEY`: the API key for the "openai" provider
 - `ANTHROPIC_API_KEY`: the API key for the "anthropic" provider
+
+See [the API key variables docs](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md#provider-api-key-configuration) for more information.
 
 ### Configuring prompts
 
@@ -157,8 +159,7 @@ specific encodings, you can specify the input encoding with the
 `AI_EDITOR_SRC_ENCODING` and the output encoding with the
 `AI_EDITOR_DST_ENCODING` environment variables.
 
-See
-[these variables' help docs](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md#encodings)
+See[these variables' help docs](https://github.com/manubot/manubot-ai-editor/blob/main/docs/env-vars.md#encodings)
 for more information.
 
 Also, see [Python 3 Docs: Standard Encodings](https://docs.python.org/3/library/codecs.html#standard-encodings) for
