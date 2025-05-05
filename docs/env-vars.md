@@ -16,15 +16,11 @@ support are "openai" for OpenAI and "anthropic" for Anthropic.
 
 ## Provider API Key Configuration
 
-For providers that require API keys, you can specify an API key specific
-to that provider via an environment variable named `<PROVIDER>_API_KEY`.
-For example, for OpenAI, the API key variable would be named `OPENAI_API_KEY`
-and for Anthropic, it would be `ANTHROPIC_API_KEY`.
+For providers that require API keys, you can specify an API key specific to that provider via an environment variable named `<PROVIDER>_API_KEY`.
+For example, for OpenAI, the API key variable would be named `OPENAI_API_KEY` and for Anthropic, it would be `ANTHROPIC_API_KEY`.
 
-Alternatively, you can use the environment variable `PROVIDER_API_KEY` to
-set an API key that will be used for all providers.
-If both a provider-specific key and `PROVIDER_API_KEY` are set, the provider-
-specific key will take precedence.
+Alternatively, you can use the environment variable `PROVIDER_API_KEY` to set an API key that will be used for all providers.
+If both a provider-specific key and `PROVIDER_API_KEY` are set, the provider-specific key will take precedence.
 
 ## Model Configuration
 
