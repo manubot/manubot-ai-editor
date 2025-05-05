@@ -43,17 +43,17 @@ Start with a manuscript repo [forked from Manubot rootstock](https://github.com/
 If you prefer to select fewer options when running the workflow, you can optionally set up default values for the
 model provider and model at either the repo or organization level.
 
-In your fork's "⚙️ Settings" tab, you can optionally create the folllowing Actions repository variables:
-- `AI_EDITOR_MODEL_PROVIDER`: Either "openai" or "anthropic"; sets this as the default if "(repo default)" was selected
+In your fork's "⚙️ Settings" tab you can optionally create the following Actions repository variables:
+- `AI_EDITOR_MODEL_PROVIDER`: Either "openai" or "anthropic"; sets  the default if "(repo default)" was selected
   in the workflow parameters. If this is unspecified and "(repo default)" is selected, the workflow will throw an error.
-- `AI_EDITOR_LANGUAGE_MODEL`: For the given provider, what model to use if the "model" field in the workflow parameters
-  was left empty. If this is unspecified, Manubot AI Editor will select the default model for your chosen provider.
+- `AI_EDITOR_LANGUAGE_MODEL`: specifies what model to use if the "model" field is in the workflow parameters
+  . If this repository variable is unspecified, Manubot AI Editor will select the default model for your chosen provider.
 
 ### Multiple Providers
 
 In case you want to use several providers in the same repo, you'll have to register an API key for each provider you
 intend to use.
-Like `PROVIDER_API_KEY`, these keys are also registered as secrets, and can be specified at either the repository or
+Like `PROVIDER_API_KEY`, these keys are also registered as GitHub secrets, and can be specified at either the repository or
 organizational level.
 
 We currently support the following secrets, with more to follow as we integrate more providers:
