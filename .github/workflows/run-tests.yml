@@ -9,7 +9,7 @@ on:
 
 jobs:
   pre_commit_checks:
-      runs-on: ubuntu-22.04
+      runs-on: ubuntu-24.04
       steps:
         - uses: actions/checkout@v4
         - uses: actions/setup-python@v5
@@ -25,7 +25,7 @@ jobs:
       matrix:
         # matrixed execution for parallel gh-action performance increases
         python_version: ["3.10", "3.11", "3.12"]
-        os: [ubuntu-22.04, macos-14]
+        os: [ubuntu-24.04, macos-14]
     runs-on: ${{ matrix.os }}
     env:
       OS: ${{ matrix.os }}
