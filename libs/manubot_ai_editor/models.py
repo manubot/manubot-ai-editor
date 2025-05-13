@@ -221,6 +221,16 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
             if model_engine is None or model_engine.strip() == "":
                 model_engine = provider.default_model_engine()
 
+                # report that we resorted to the provider's default model engine
+                print(
+                    f"Using default language model '{model_engine}' for provider '{model_provider}'"
+                )
+            else:
+                # report that we were able to retrieve a model engine from the environment
+                print(
+                    f"Using language model '{model_engine}' from environment variable '{env_vars.LANGUAGE_MODEL}'"
+                )
+
         # if no api_key was explicitly provided and the provider requires an API
         # key, make sure a key can be found
         if (
@@ -235,14 +245,6 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     f"API key for provider {model_provider} not found. Please provide it as the 'api_key' parameter, "
                     f"set a provider-specific key via the environment variable {provider_key_env_var}, "
                     f"or set a generic API key via the environment variable {env_vars.PROVIDER_API_KEY}",
-                )
-
-        if env_vars.LANGUAGE_MODEL in os.environ:
-            val = os.environ[env_vars.LANGUAGE_MODEL]
-            if val.strip() != "":
-                model_engine = val
-                print(
-                    f"Using language model from environment variable '{env_vars.LANGUAGE_MODEL}'"
                 )
 
         if env_vars.TEMPERATURE in os.environ:
@@ -311,6 +313,10 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # work with 'completions')
         self.endpoint = provider.endpoint_for_model(model_engine)
 
+        # emit information about the model provider, engine, and endpoint
+        # (this is scraped from the output by the rootstock ai-revision
+        # workflow, so keep the prefix text exactly as-is or update it in that
+        # workflow.)
         print(f"Model provider: {model_provider}")
         print(f"Language model: {model_engine}")
         print(f"Model endpoint used: {self.endpoint}")
