@@ -10,6 +10,7 @@ from logging import getLogger
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.exceptions import APIKeyInvalidError
 from manubot_ai_editor.model_providers import (
     MODEL_PROVIDERS,
     APIKeyNotFoundError,
@@ -363,6 +364,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # construct the provider's client after all the rest of
         # the settings above have been processed
         client_cls = provider.clients()[self.endpoint]
+        self.model_provider = model_provider
         self.client = client_cls(
             api_key=api_key,
             **self.model_parameters,
@@ -678,6 +680,18 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                 # if the error message suggests to sample again, let's do that
                 if "Please sample again" in error_message:
                     pass
+                elif (
+                    "invalid x-api-key" in error_message
+                    or "invalid_api_key" in error_message
+                ):
+                    # raise an error if the API key is invalid.
+                    # this is treated as a fatal error in ManuscriptEditor's
+                    # revise_and_write_paragraph() method, rather than being
+                    # reported as a warning in the emitted content as all other
+                    # exceptions are.
+                    raise APIKeyInvalidError(
+                        f"Invalid API key used for provider '{self.model_provider}'"
+                    ) from e
                 elif "overloaded" in error_message:
                     time.sleep(5)
                 elif (

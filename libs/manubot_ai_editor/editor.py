@@ -5,6 +5,7 @@ from pathlib import Path
 import charset_normalizer
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.exceptions import APIKeyInvalidError
 from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
 from manubot_ai_editor.utils import (
@@ -131,6 +132,9 @@ class ManuscriptEditor:
 
             if paragraph_revised.strip() == "":
                 raise Exception("The AI model returned an empty string ('')")
+        except APIKeyInvalidError as e:
+            # ensure that we terminate the process if the API key is invalid
+            raise e
         except Exception as e:
             error_message = f"""
 <!--
