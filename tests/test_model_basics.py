@@ -384,8 +384,11 @@ def test_model_provider_get_models_live(caplog, request, provider_name: str):
         ), "mocked_model_list marker should not be present for a live API test"
 
         # check that we didn't resort to not checking the model, since
-        # GPT3CompletionModel just regsisters a warning if the model list can't
+        # GPT3CompletionModel just registers a warning if the model list can't
         # be retrieved
+
+        # this assertion failing indicates that something went wrong with
+        # querying the provider API for the model list (typically an invalid API key)
         assert "Unable to obtain model list from provider " not in caplog.text
 
 

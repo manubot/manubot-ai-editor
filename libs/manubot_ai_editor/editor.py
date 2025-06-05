@@ -1,16 +1,20 @@
 import json
+from logging import getLogger
 import os
 from pathlib import Path
 
 import charset_normalizer
 
 from manubot_ai_editor import env_vars
+from manubot_ai_editor.exceptions import APIKeyInvalidError
 from manubot_ai_editor.prompt_config import ManuscriptPromptConfig, IGNORE_FILE
 from manubot_ai_editor.models import ManuscriptRevisionModel
 from manubot_ai_editor.utils import (
     get_yaml_field,
     SENTENCE_END_PATTERN,
 )
+
+logger = getLogger(__name__)
 
 
 class ManuscriptEditor:
@@ -131,7 +135,14 @@ class ManuscriptEditor:
 
             if paragraph_revised.strip() == "":
                 raise Exception("The AI model returned an empty string ('')")
+        except APIKeyInvalidError as e:
+            # ensure that we terminate the process if the API key is invalid
+            raise e
         except Exception as e:
+            # add some output the log file so the exceptions aren't invisible until you inspect the output
+            logger.debug(f"Error revising paragraph: {e}")
+
+            # if the AI model could not revise the paragraph, we write an error
             error_message = f"""
 <!--
 ERROR: the paragraph below could not be revised with the AI model due to the following error:
