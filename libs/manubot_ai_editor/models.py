@@ -364,7 +364,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
         # construct the provider's client after all the rest of
         # the settings above have been processed
         client_cls = provider.clients()[self.endpoint]
-        self.model_provider = model_provider
+        self._model_provider = model_provider
         self.client = client_cls(
             api_key=api_key,
             **self.model_parameters,
@@ -690,7 +690,7 @@ class GPT3CompletionModel(ManuscriptRevisionModel):
                     # reported as a warning in the emitted content as all other
                     # exceptions are.
                     raise APIKeyInvalidError(
-                        f"Invalid API key used for provider '{self.model_provider}'"
+                        f"Invalid API key used for provider '{self._model_provider}'"
                     ) from e
                 elif "overloaded" in error_message:
                     time.sleep(5)
