@@ -1,4 +1,5 @@
 import json
+from logging import getLogger
 import os
 from pathlib import Path
 
@@ -12,6 +13,8 @@ from manubot_ai_editor.utils import (
     get_yaml_field,
     SENTENCE_END_PATTERN,
 )
+
+logger = getLogger(__name__)
 
 
 class ManuscriptEditor:
@@ -136,6 +139,10 @@ class ManuscriptEditor:
             # ensure that we terminate the process if the API key is invalid
             raise e
         except Exception as e:
+            # add some output the log file so the exceptions aren't invisible until you inspect the output
+            logger.debug(f"Error revising paragraph: {e}")
+
+            # if the AI model could not revise the paragraph, we write an error
             error_message = f"""
 <!--
 ERROR: the paragraph below could not be revised with the AI model due to the following error:
